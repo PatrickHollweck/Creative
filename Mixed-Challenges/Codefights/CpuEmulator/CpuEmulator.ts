@@ -49,6 +49,10 @@ export class InstructionSet {
 		return this.instructions[id];
 	}
 
+	getInstructionLength() {
+		return this.instructions.length;
+	}
+
 	jumpTo(instructionId: number) {
 		this.instructionCounter = instructionId - 1;
 	}

@@ -17,13 +17,13 @@ describe("The CpuEmulator", () => {
 		});
 
 		it("should be able to get the correct register", () => {
-			vm.setRegisterById(1, 42);
-			expect(vm.getRegisterByName("R01")).toEqual(42);
+			vm.write(1, 42);
+			expect(vm.read("R01")).toEqual(42);
 		});
 
 		it("should set a register", () => {
-			vm.setRegisterById(0, 5);
-			expect(vm.getRegisterById(0)).toEqual(5);
+			vm.write(0, 5);
+			expect(vm.read(0)).toEqual(5);
 		});
 
 		it("should correctly identify if a string is a valid register", () => {
