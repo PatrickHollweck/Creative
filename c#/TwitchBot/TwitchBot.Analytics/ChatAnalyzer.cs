@@ -38,7 +38,7 @@ namespace TwitchBot.Analytics
 
 				foreach(var character in word)
 				{
-					this.letterStatistics.Increment(character.ToString());
+					this.letterStatistics.Increment(character.ToString().ToLower());
 				}
 			}
 		}
