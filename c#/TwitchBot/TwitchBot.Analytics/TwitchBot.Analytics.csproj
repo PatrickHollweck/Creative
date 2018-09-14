@@ -47,6 +47,8 @@
     <Compile Include="AnalyzerBot.cs" />
     <Compile Include="ChatAnalyzer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SaveFilePayload.cs" />
+    <Compile Include="StatisticsCollection.cs" />
     <Compile Include="StatisticsSaver.cs" />
   </ItemGroup>
   <ItemGroup>

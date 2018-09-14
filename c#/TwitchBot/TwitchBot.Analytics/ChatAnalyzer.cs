@@ -1,33 +1,20 @@
 using System;
-using System.Text;
 using System.Threading.Tasks;
 using TwitchBot.Core;
-
-using StatsCollection = System.Collections.Generic.Dictionary<string, decimal>;
 
 namespace TwitchBot.Analytics
 {
 	public class ChatAnalyzer
 	{
-		private readonly StatsCollection wordStatistics;
-		private readonly StatsCollection letterStatistics;
-		private readonly StatsCollection userStatistics;
-
-		private readonly Encoding encoder;
+		private readonly StatisticsCollection wordStatistics;
+		private readonly StatisticsCollection letterStatistics;
+		private readonly StatisticsCollection userStatistics;
 
 		public ChatAnalyzer()
 		{
-			this.wordStatistics = new StatsCollection();
-			this.letterStatistics = new StatsCollection();
-			this.userStatistics = new StatsCollection();
-
-			this.encoder = Encoding.GetEncoding(
-				"UTF-8",
-				new EncoderReplacementFallback(string.Empty),
-				new DecoderExceptionFallback()
-			);
-
-
+			this.wordStatistics = new StatisticsCollection();
+			this.letterStatistics = new StatisticsCollection();
+			this.userStatistics = new StatisticsCollection();
 		}
 
 		public Func<OnMessageReceivedEventArgs, Task> AsHook()
@@ -42,16 +29,16 @@ namespace TwitchBot.Analytics
 				return;
 			}
 
-			this.Increment(this.userStatistics, e.Author);
+			this.userStatistics.Increment(e.Author);
 
 			var words = e.Content.Split(' ');
 			foreach(var word in words)
 			{
-				this.Increment(this.wordStatistics, word);
+				this.wordStatistics.Increment(word);
 
 				foreach(var character in word)
 				{
-					this.Increment(this.letterStatistics, character.ToString());
+					this.letterStatistics.Increment(character.ToString());
 				}
 			}
 		}
@@ -61,40 +48,19 @@ namespace TwitchBot.Analytics
 			await Task.Run(() => this.Analyze(e));
 		}
 
-		public StatsCollection GetWords()
+		public StatisticsCollection GetWords()
 		{
 			return this.wordStatistics;
 		}
 
-		public StatsCollection GetLetters()
+		public StatisticsCollection GetLetters()
 		{
 			return this.letterStatistics;
 		}
 
-		public StatsCollection GetUsers()
+		public StatisticsCollection GetUsers()
 		{
 			return this.userStatistics;
-		}
-
-		private void Increment(StatsCollection collection, string key)
-		{
-			key = this.SanitizeKey(key);
-
-			if(!collection.ContainsKey(key))
-			{
-				collection.Add(key, 1);
-			}
-			else
-			{
-				collection.TryGetValue(key, out var count);
-				collection.Remove(key);
-				collection.Add(key, count + 1);
-			}
-		}
-
-		private string SanitizeKey(string key)
-		{
-			return encoder.GetString(encoder.GetBytes(key));
 		}
 	}
 }

@@ -1,8 +1,13 @@
 using System;
 using System.IO;
+using System.Diagnostics;
 using System.Threading.Tasks;
-using TwitchBot.Analytics;
+
 using TwitchBot.Core;
+using TwitchBot.Analytics;
+
+using TwitchBot.Reports;
+using TwitchBot.Reports.Formatters;
 
 namespace TwitchBot.Terminal
 {
@@ -15,6 +20,7 @@ namespace TwitchBot.Terminal
 
 		private static async Task MainAsync()
 		{
+			UpdateTitle();
 			Console.WindowWidth = 200;
 
 			Console.Write("Input the channel name you want stats for: ");
@@ -41,9 +47,22 @@ namespace TwitchBot.Terminal
 
 			var bot = new AnalyzerBot(credentials, channelName);
 			bot.EnableStatsAutosaving();
-			bot.OnSave += () => Console.Title = "StatoBot - Last Save: " + DateTime.Now;
+
+			bot.OnSave += UpdateTitle;
+			bot.OnSave += () => PrintReport(bot);
 			bot.OnMessageReceived += LoggingHook;
+
 			await bot.SetupAndListenAsync();
+		}
+
+		private static void UpdateTitle()
+		{
+			Console.Title = "StatoBot - Last Save: " + DateTime.Now;
+		}
+
+		private static void PrintReport(AnalyzerBot bot)
+		{
+			File.WriteAllText($"./statistics/chat_report_{bot.Channel}.md", ReportGenerator.ForAnalyzingBot(bot).FormatWith<MarkdownFormatter>());
 		}
 
 		private static Task LoggingHook(OnMessageReceivedEventArgs e)
@@ -54,7 +73,7 @@ namespace TwitchBot.Terminal
 			}
 			else
 			{
-				Console.WriteLine(e.RawMessage);
+				Console.WriteLine("SYSTEM ::: " + e.RawMessage);
 			}
 
 			return Task.CompletedTask;

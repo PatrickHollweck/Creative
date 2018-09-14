@@ -1,7 +1,8 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Timers;
+using System.Diagnostics;
+
 using Newtonsoft.Json;
 
 namespace TwitchBot.Analytics
@@ -23,11 +24,15 @@ namespace TwitchBot.Analytics
 		{
 			try
 			{
-				File.WriteAllText(this.filePath, JsonConvert.SerializeObject(new {
-					words = this.analyzer.GetWords(),
-					letters = this.analyzer.GetLetters(),
-					users = this.analyzer.GetUsers()
-				}, Formatting.Indented));
+				if (!Directory.Exists("./statistics"))
+				{
+					Directory.CreateDirectory("./statistics");
+				}
+
+				File.WriteAllText(
+					this.filePath,
+					JsonConvert.SerializeObject(SaveFilePayload.FromAnalyzer(this.analyzer), Formatting.Indented)
+				);
 
 				this.OnSave?.Invoke();
 			}

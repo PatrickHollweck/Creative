@@ -13,6 +13,12 @@ namespace TwitchBot.Core
 
 		private readonly Credentials credentials;
 
+		public readonly DateTime StartTime;
+		public DateTime EndTime
+		{
+			get => DateTime.Now;
+		}
+
 		public readonly string Channel;
 
 		public TcpClient Socket;
@@ -25,7 +31,9 @@ namespace TwitchBot.Core
 		public TwitchBot(Credentials credentials, string channel)
 		{
 			this.credentials = credentials;
+
 			this.Channel = channel;
+			this.StartTime = DateTime.Now;
 		}
 
 		public async Task SetupAndListenAsync()
