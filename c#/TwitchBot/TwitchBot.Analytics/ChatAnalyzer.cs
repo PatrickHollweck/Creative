@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Threading.Tasks;
 using TwitchBot.Core;
 
 using StatsCollection = System.Collections.Generic.Dictionary<string, decimal>;
@@ -29,9 +30,9 @@ namespace TwitchBot.Analytics
 
 		}
 
-		public Action<OnMessageReceivedEventArgs> AsHook()
+		public Func<OnMessageReceivedEventArgs, Task> AsHook()
 		{
-			return this.Analyze;
+			return this.AnalyzeAsync;
 		}
 
 		public void Analyze(OnMessageReceivedEventArgs e)
@@ -53,6 +54,11 @@ namespace TwitchBot.Analytics
 					this.Increment(this.letterStatistics, character.ToString());
 				}
 			}
+		}
+
+		public async Task AnalyzeAsync(OnMessageReceivedEventArgs e)
+		{
+			await Task.Run(() => this.Analyze(e));
 		}
 
 		public StatsCollection GetWords()

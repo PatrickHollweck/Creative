@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using TwitchBot.Analytics;
 using TwitchBot.Core;
 
@@ -7,8 +8,14 @@ namespace TwitchBot.Terminal
 {
 	internal class Program
 	{
-		public static void Main(string[] args)
+		public static void Main()
 		{
+			Task.Run(MainAsync).Wait();
+		}
+
+		private static async Task MainAsync()
+		{
+			Console.Title = "StatoBot";
 			Console.WindowWidth = 200;
 
 			Console.Write("Input the channel name you want stats for: ");
@@ -21,11 +28,10 @@ namespace TwitchBot.Terminal
 				credentialsPath = Console.ReadLine();
 			}
 
-
 			Credentials credentials;
 			try
 			{
-				credentials = CredentialsLoader.LoadFromFile(credentialsPath);
+				credentials = CredentialsLoader.FromFile(credentialsPath);
 			}
 			catch (Exception e)
 			{
@@ -37,10 +43,10 @@ namespace TwitchBot.Terminal
 			var bot = new AnalyzerBot(credentials, channelName);
 			bot.OnMessageReceived += LoggingHook;
 			bot.EnableStatsAutosaving();
-			bot.SetupAndListen();
+			await bot.SetupAndListenAsync();
 		}
 
-		private static void LoggingHook(OnMessageReceivedEventArgs e)
+		private static Task LoggingHook(OnMessageReceivedEventArgs e)
 		{
 			if (e.IsChatMessage)
 			{
@@ -50,6 +56,8 @@ namespace TwitchBot.Terminal
 			{
 				Console.WriteLine(e.RawMessage);
 			}
+
+			return Task.CompletedTask;
 		}
 	}
 }

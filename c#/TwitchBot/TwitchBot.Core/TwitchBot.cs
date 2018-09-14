@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace TwitchBot.Core
 {
@@ -19,7 +20,7 @@ namespace TwitchBot.Core
 		public StreamReader InputStream;
 		public StreamWriter OutputStream;
 
-		public event Action<OnMessageReceivedEventArgs> OnMessageReceived;
+		public event Func<OnMessageReceivedEventArgs, Task> OnMessageReceived;
 
 		public TwitchBot(Credentials credentials, string channel)
 		{
@@ -27,49 +28,51 @@ namespace TwitchBot.Core
 			this.Channel = channel;
 		}
 
-		public void SetupAndListen()
+		public async Task SetupAndListenAsync()
 		{
-			this.ConnectSocket();
-			this.Login();
-			this.StartRead();
+			await this.ConnectSocketAsync();
+			await this.LoginAsync();
+			await this.StartReadAsync();
 		}
 		
-		public void ConnectSocket()
+		public async Task ConnectSocketAsync()
 		{
 			this.Socket = new TcpClient();
-			this.Socket.Connect(TWITCH_HOST, TWITCH_PORT);
+			await this.Socket.ConnectAsync(TWITCH_HOST, TWITCH_PORT);
 
 			this.InputStream = new StreamReader(this.Socket.GetStream());
 			this.OutputStream = new StreamWriter(this.Socket.GetStream());
 		}
 
-		public void Login()
+		public async Task LoginAsync()
 		{
-			this.WriteToSystem($"PASS {this.credentials.OAuthToken}");
-			this.WriteToSystem($"NICK {this.credentials.Username}");
-			this.WriteToSystem($"USER {this.credentials.Username} 0 * {this.credentials.Username}");
-			this.WriteToSystem($"JOIN #{this.Channel}");
+			await this.WriteToSystemAsync($"PASS {this.credentials.OAuthToken}");
+			await this.WriteToSystemAsync($"NICK {this.credentials.Username}");
+			await this.WriteToSystemAsync($"USER {this.credentials.Username} 0 * {this.credentials.Username}");
+			await this.WriteToSystemAsync($"JOIN #{this.Channel}");
 		}
 
-		public void WriteToSystem(string message)
+		public async Task WriteToSystemAsync(string message)
 		{
-			this.OutputStream.WriteLine(message);
-			this.OutputStream.Flush();
+			await this.OutputStream.WriteLineAsync(message);
+			await this.OutputStream.FlushAsync();
 		}
 
-		public void WriteToChat(string message)
+		public async Task WriteToChatAsync(string message)
 		{
-			this.WriteToSystem($"PRIVMSG #{this.Channel} :{message}");
+			await this.WriteToSystemAsync($"PRIVMSG #{this.Channel} :{message}");
 		}
 
-		public void StartRead()
+		public async Task StartReadAsync()
 		{
 			this.OnMessageReceived += RespondToPing;
 
 			while (!this.InputStream.EndOfStream)
 			{
-				this.OnMessageReceived.Invoke(
-					new OnMessageReceivedEventArgs(this.InputStream.ReadLine(), this.Channel)
+				if (this.OnMessageReceived == null) return;
+
+				await this.OnMessageReceived?.Invoke(
+					new OnMessageReceivedEventArgs(await this.InputStream.ReadLineAsync(), this)
 				);
 			}
 
@@ -84,12 +87,12 @@ namespace TwitchBot.Core
 			this.Socket.Dispose();
 		}
 
-		private void RespondToPing(OnMessageReceivedEventArgs args)
+		private async Task RespondToPing(OnMessageReceivedEventArgs args)
 		{
 			var match = new Regex(@"^PING :(.*)$").Match(args.RawMessage);
 			if (match.Success)
 			{
-				this.WriteToSystem($"PONG " + match.NextMatch());
+				await this.WriteToSystemAsync($"PONG " + match.NextMatch());
 			}
 		}
 	}
