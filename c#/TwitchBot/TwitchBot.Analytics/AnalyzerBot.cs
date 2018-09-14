@@ -4,7 +4,7 @@ using TwitchBot.Core;
 
 namespace TwitchBot.Analytics
 {
-	public class AnalyzerBot : TwitchBot
+	public class AnalyzerBot : Core.TwitchBot
 	{
 		public ChatAnalyzer Analyzer;
 

@@ -5,14 +5,14 @@ using TwitchBot.Core;
 
 namespace TwitchBot.Terminal
 {
-	class Program
+	internal class Program
 	{
-		static void Main(string[] args)
+		public static void Main(string[] args)
 		{
 			Console.WindowWidth = 200;
 
 			Console.Write("Input the channel name you want stats for: ");
-			string channelName = Console.ReadLine();
+			var channelName = Console.ReadLine();
 
 			var credentialsPath = "./twitch_credentials.json";
 			if (!File.Exists(credentialsPath))
@@ -34,7 +34,7 @@ namespace TwitchBot.Terminal
 				return;
 			}
 
-			AnalyzerBot bot = new AnalyzerBot(credentials, channelName);
+			var bot = new AnalyzerBot(credentials, channelName);
 			bot.OnMessageReceived += LoggingHook;
 			bot.EnableStatsAutosaving();
 			bot.SetupAndListen();

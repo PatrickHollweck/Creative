@@ -1,23 +1,24 @@
 using System;
-using System.Collections.Generic;
 using System.Text;
+using TwitchBot.Core;
+
 using StatsCollection = System.Collections.Generic.Dictionary<string, decimal>;
 
 namespace TwitchBot.Analytics
 {
 	public class ChatAnalyzer
 	{
-		private StatsCollection words;
-		private StatsCollection letters;
-		private StatsCollection users;
+		private readonly StatsCollection wordStatistics;
+		private readonly StatsCollection letterStatistics;
+		private readonly StatsCollection userStatistics;
 
-		private Encoding encoder;
+		private readonly Encoding encoder;
 
 		public ChatAnalyzer()
 		{
-			this.words = new StatsCollection();
-			this.letters = new StatsCollection();
-			this.users = new StatsCollection();
+			this.wordStatistics = new StatsCollection();
+			this.letterStatistics = new StatsCollection();
+			this.userStatistics = new StatsCollection();
 
 			this.encoder = Encoding.GetEncoding(
 				"UTF-8",
@@ -30,10 +31,7 @@ namespace TwitchBot.Analytics
 
 		public Action<OnMessageReceivedEventArgs> AsHook()
 		{
-			return new Action<OnMessageReceivedEventArgs>(e => 
-			{
-				this.Analyze(e);
-			});
+			return this.Analyze;
 		}
 
 		public void Analyze(OnMessageReceivedEventArgs e)
@@ -43,33 +41,33 @@ namespace TwitchBot.Analytics
 				return;
 			}
 
-			this.Increment(this.users, e.Username);
+			this.Increment(this.userStatistics, e.Username);
 
 			var words = e.Content.Split(' ');
 			foreach(var word in words)
 			{
-				this.Increment(this.words, word);
+				this.Increment(this.wordStatistics, word);
 
 				foreach(var character in word)
 				{
-					this.Increment(this.letters, character.ToString());
+					this.Increment(this.letterStatistics, character.ToString());
 				}
 			}
 		}
 
 		public StatsCollection GetWords()
 		{
-			return this.words;
+			return this.wordStatistics;
 		}
 
 		public StatsCollection GetLetters()
 		{
-			return this.letters;
+			return this.letterStatistics;
 		}
 
 		public StatsCollection GetUsers()
 		{
-			return this.users;
+			return this.userStatistics;
 		}
 
 		private void Increment(StatsCollection collection, string key)
@@ -82,7 +80,7 @@ namespace TwitchBot.Analytics
 			}
 			else
 			{
-				collection.TryGetValue(key, out decimal count);
+				collection.TryGetValue(key, out var count);
 				collection.Remove(key);
 				collection.Add(key, count + 1);
 			}

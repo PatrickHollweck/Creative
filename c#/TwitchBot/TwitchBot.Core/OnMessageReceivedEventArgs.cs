@@ -1,7 +1,7 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace TwitchBot
+namespace TwitchBot.Core
 {
 	public class OnMessageReceivedEventArgs : EventArgs
 	{
@@ -20,8 +20,8 @@ namespace TwitchBot
 			this.Username = new Regex(@"@(.*).tmi.twitch.tv").Match(this.RawMessage).Groups[1].Value;
 			this.Content = new Regex($"PRIVMSG #{channelName} :(.*)$").Match(this.RawMessage).Groups[1].Value;
 
-			this.Username = String.IsNullOrWhiteSpace(this.Username) ? null : this.Username;
-			this.Content = String.IsNullOrWhiteSpace(this.Content) ? null : this.Content;
+			this.Username = string.IsNullOrWhiteSpace(this.Username) ? null : this.Username;
+			this.Content = string.IsNullOrWhiteSpace(this.Content) ? null : this.Content;
 
 			this.IsChatMessage = this.Content != null;
 			this.IsSystemMessage = !this.IsChatMessage;

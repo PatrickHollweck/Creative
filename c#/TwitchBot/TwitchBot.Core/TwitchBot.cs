@@ -2,16 +2,15 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
-using TwitchBot.Core;
 
-namespace TwitchBot
+namespace TwitchBot.Core
 {
 	public class TwitchBot : IDisposable
 	{
 		public const string TWITCH_HOST = "irc.twitch.tv";
 		public const int TWITCH_PORT = 6667;
 
-		private Credentials credentials;
+		private readonly Credentials credentials;
 
 		public readonly string Channel;
 
@@ -75,11 +74,6 @@ namespace TwitchBot
 			}
 
 			this.OnMessageReceived -= RespondToPing;
-		}
-
-		public bool IsConnected()
-		{
-			return this.Socket.Connected;
 		}
 
 		public void Dispose()

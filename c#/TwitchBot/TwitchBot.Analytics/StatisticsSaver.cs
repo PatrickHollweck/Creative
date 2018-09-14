@@ -21,7 +21,7 @@ namespace TwitchBot.Analytics
 		{
 			try
 			{
-				File.WriteAllText(this.filePath,JsonConvert.SerializeObject(new {
+				File.WriteAllText(this.filePath, JsonConvert.SerializeObject(new {
 					words = this.analyzer.GetWords(),
 					letters = this.analyzer.GetLetters(),
 					users = this.analyzer.GetUsers()
@@ -39,20 +39,6 @@ namespace TwitchBot.Analytics
 			timer.Elapsed += (sender, e) => this.Save();
 
 			return timer;
-		}
-
-		public void MergeExistingFile()
-		{
-			if (File.Exists(this.filePath))
-			{
-				var lastWrite = File.GetLastWriteTime(this.filePath);
-				if(lastWrite > DateTime.Now)
-				{
-					return;
-				}
-
-				// this.analyzer.Merge();
-			}
 		}
 	}
 }
