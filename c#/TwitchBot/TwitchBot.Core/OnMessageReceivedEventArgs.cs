@@ -5,7 +5,7 @@ namespace TwitchBot.Core
 {
 	public class OnMessageReceivedEventArgs : EventArgs
 	{
-		public readonly string Username;
+		public readonly string Author;
 		public readonly string Content;
 
 		public readonly string RawMessage;
@@ -20,10 +20,10 @@ namespace TwitchBot.Core
 			this.Bot = bot;
 			this.RawMessage = rawMessage;
 
-			this.Username = new Regex(@"@(.*).tmi.twitch.tv").Match(this.RawMessage).Groups[1].Value;
+			this.Author = new Regex(@"@(.*).tmi.twitch.tv").Match(this.RawMessage).Groups[1].Value;
 			this.Content = new Regex($"PRIVMSG #{this.Bot.Channel} :(.*)$").Match(this.RawMessage).Groups[1].Value;
 
-			this.Username = string.IsNullOrWhiteSpace(this.Username) ? null : this.Username;
+			this.Author = string.IsNullOrWhiteSpace(this.Author) ? null : this.Author;
 			this.Content = string.IsNullOrWhiteSpace(this.Content) ? null : this.Content;
 
 			this.IsChatMessage = this.Content != null;

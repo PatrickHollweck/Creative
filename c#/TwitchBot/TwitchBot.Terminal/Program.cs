@@ -50,7 +50,7 @@ namespace TwitchBot.Terminal
 		{
 			if (e.IsChatMessage)
 			{
-				Console.WriteLine(e.Username.PadRight(40) + " ::: " + e.Content);
+				Console.WriteLine(e.Author.PadRight(40) + " ::: " + e.Content);
 			}
 			else
 			{

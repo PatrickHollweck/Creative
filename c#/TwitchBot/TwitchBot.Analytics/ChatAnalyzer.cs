@@ -42,7 +42,7 @@ namespace TwitchBot.Analytics
 				return;
 			}
 
-			this.Increment(this.userStatistics, e.Username);
+			this.Increment(this.userStatistics, e.Author);
 
 			var words = e.Content.Split(' ');
 			foreach(var word in words)
