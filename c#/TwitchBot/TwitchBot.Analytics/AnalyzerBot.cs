@@ -1,5 +1,6 @@
 using System;
 using System.Timers;
+using TwitchBot.Core;
 
 namespace TwitchBot.Analytics
 {
@@ -10,7 +11,7 @@ namespace TwitchBot.Analytics
 		private StatisticsSaver saver;
 		private Timer timer;
 
-		public AnalyzerBot(string nickname, string password, string channel) : base(nickname, password, channel)
+		public AnalyzerBot(Credentials credentials, string channel) : base(credentials, channel)
 		{
 			this.Analyzer = new ChatAnalyzer();
 			this.OnMessageReceived += this.Analyzer.AsHook();
@@ -25,10 +26,7 @@ namespace TwitchBot.Analytics
 		{
 			this.saver = new StatisticsSaver(path, this.Analyzer);
 
-			if(this.timer != null)
-			{
-				this.timer.Stop();
-			}
+			timer?.Stop();
 
 			this.timer = this.saver.AsTimer(60 * 1000);
 			this.timer.Start();

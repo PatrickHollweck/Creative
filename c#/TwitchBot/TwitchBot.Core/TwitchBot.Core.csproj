@@ -44,6 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Credentials.cs" />
+    <Compile Include="CredentialsLoader.cs" />
     <Compile Include="OnMessageReceivedEventArgs.cs" />
     <Compile Include="TwitchBot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

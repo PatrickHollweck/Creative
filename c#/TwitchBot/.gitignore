@@ -8,7 +8,7 @@
 *.sln.docstates
 
 # Environment files.
-*.env
+twitch_credentials.json
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

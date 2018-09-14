@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
+using TwitchBot.Core;
 
 namespace TwitchBot
 {
@@ -10,8 +11,8 @@ namespace TwitchBot
 		public const string TWITCH_HOST = "irc.twitch.tv";
 		public const int TWITCH_PORT = 6667;
 
-		private readonly string Nickname;
-		private readonly string Password;
+		private Credentials credentials;
+
 		public readonly string Channel;
 
 		public TcpClient Socket;
@@ -21,10 +22,9 @@ namespace TwitchBot
 
 		public event Action<OnMessageReceivedEventArgs> OnMessageReceived;
 
-		public TwitchBot(string nickname, string password, string channel)
+		public TwitchBot(Credentials credentials, string channel)
 		{
-			this.Nickname = nickname;
-			this.Password = password;
+			this.credentials = credentials;
 			this.Channel = channel;
 		}
 
@@ -46,9 +46,9 @@ namespace TwitchBot
 
 		public void Login()
 		{
-			this.WriteToSystem($"PASS {this.Password}");
-			this.WriteToSystem($"NICK {this.Nickname}");
-			this.WriteToSystem($"USER {this.Nickname} 0 * {this.Nickname}");
+			this.WriteToSystem($"PASS {this.credentials.OAuthToken}");
+			this.WriteToSystem($"NICK {this.credentials.Username}");
+			this.WriteToSystem($"USER {this.credentials.Username} 0 * {this.credentials.Username}");
 			this.WriteToSystem($"JOIN #{this.Channel}");
 		}
 

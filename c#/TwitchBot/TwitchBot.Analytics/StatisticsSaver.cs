@@ -8,10 +8,8 @@ namespace TwitchBot.Analytics
 {
 	public class StatisticsSaver
 	{
-		private ChatAnalyzer analyzer;
-		private string filePath;
-
-		private bool isFirstSave;
+		private readonly ChatAnalyzer analyzer;
+		private readonly string filePath;
 
 		public StatisticsSaver(string filePath, ChatAnalyzer analyzer)
 		{
