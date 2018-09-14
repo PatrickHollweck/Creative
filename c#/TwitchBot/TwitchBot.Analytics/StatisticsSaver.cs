@@ -11,6 +11,8 @@ namespace TwitchBot.Analytics
 		private readonly ChatAnalyzer analyzer;
 		private readonly string filePath;
 
+		public event Action OnSave;
+
 		public StatisticsSaver(string filePath, ChatAnalyzer analyzer)
 		{
 			this.filePath = filePath;
@@ -26,6 +28,8 @@ namespace TwitchBot.Analytics
 					letters = this.analyzer.GetLetters(),
 					users = this.analyzer.GetUsers()
 				}, Formatting.Indented));
+
+				this.OnSave?.Invoke();
 			}
 			catch(Exception e)
 			{

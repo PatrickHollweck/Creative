@@ -15,7 +15,6 @@ namespace TwitchBot.Terminal
 
 		private static async Task MainAsync()
 		{
-			Console.Title = "StatoBot";
 			Console.WindowWidth = 200;
 
 			Console.Write("Input the channel name you want stats for: ");
@@ -41,8 +40,9 @@ namespace TwitchBot.Terminal
 			}
 
 			var bot = new AnalyzerBot(credentials, channelName);
-			bot.OnMessageReceived += LoggingHook;
 			bot.EnableStatsAutosaving();
+			bot.OnSave += () => Console.Title = "StatoBot - Last Save: " + DateTime.Now;
+			bot.OnMessageReceived += LoggingHook;
 			await bot.SetupAndListenAsync();
 		}
 

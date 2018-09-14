@@ -11,6 +11,8 @@ namespace TwitchBot.Analytics
 		private StatisticsSaver saver;
 		private Timer timer;
 
+		public event Action OnSave;
+
 		public AnalyzerBot(Credentials credentials, string channel) : base(credentials, channel)
 		{
 			this.Analyzer = new ChatAnalyzer();
@@ -25,6 +27,7 @@ namespace TwitchBot.Analytics
 		public void EnableStatsAutosaving(string path)
 		{
 			this.saver = new StatisticsSaver(path, this.Analyzer);
+			this.saver.OnSave += () => this.OnSave?.Invoke();
 
 			timer?.Stop();
 
