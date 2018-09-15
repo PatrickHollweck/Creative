@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TwitchBot.Reports.Formatters
+namespace StatoBot.Reports.Formatters
 {
 	public class MarkdownFormatter : ReportFormatter
 	{
@@ -11,7 +10,7 @@ namespace TwitchBot.Reports.Formatters
 		{
 			return
 $@"
-# Chat statistics report for: '{report.Input.BotInfo.ChannelName}'
+# Chat statistics report for: '{report.Input.BotInfo.Channel}'
 #### Statistics from {report.Input.BotInfo.StartTime} until {report.Input.BotInfo.EndTime}
 
 ---
@@ -28,17 +27,17 @@ $@"
 ---
 
 ## Top 20 Users with most messages
-{this.AsMarkdownList(report.Statistics.UsersSortedByMessagesSent.Take(20))}
+{AsMarkdownList(report.Statistics.UsersSortedByMessagesSent.Take(20))}
 
 ## Top 50 Words used
-{this.AsMarkdownList(report.Statistics.WordsSortedByUsage.Take(50))}
+{AsMarkdownList(report.Statistics.WordsSortedByUsage.Take(50))}
 
 ## Top 50 Letters used
-{this.AsMarkdownList(report.Statistics.LettersSortedByUsage.Take(50))}
+{AsMarkdownList(report.Statistics.LettersSortedByUsage.Take(50))}
 ";
 		}
 
-		private string AsMarkdownList(IEnumerable<KeyValuePair<string, decimal>> input)
+		private static string AsMarkdownList(IEnumerable<KeyValuePair<string, decimal>> input)
 		{
 			return input.Aggregate("", (current, entry) => current + $"- {entry.Key} : {entry.Value} \n");
 		}

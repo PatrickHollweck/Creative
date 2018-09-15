@@ -1,4 +1,4 @@
-namespace TwitchBot.Reports.Formatters
+namespace StatoBot.Reports.Formatters
 {
 	public interface ReportFormatter
 	{

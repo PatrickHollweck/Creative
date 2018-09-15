@@ -1,10 +1,10 @@
 using System.IO;
 using Newtonsoft.Json;
-using TwitchBot.Analytics;
+using StatoBot.Analytics;
 
-namespace TwitchBot.Reports
+namespace StatoBot.Reports
 {
-	public class ReportGenerator
+	public static class ReportGenerator
 	{
 		public static Report ForFile(string path, BotInfo botInfo)
 		{
@@ -19,9 +19,9 @@ namespace TwitchBot.Reports
 		{
 			return new Report(
 				new ReportInput(
-					bot.Analyzer.GetWords(),
-					bot.Analyzer.GetUsers(),
-					bot.Analyzer.GetLetters(),
+					bot.Analyzer.WordStatistics,
+					bot.Analyzer.UserStatistics,
+					bot.Analyzer.LetterStatistics,
 					BotInfo.FromBot(bot)
 				)
 			);
@@ -30,7 +30,7 @@ namespace TwitchBot.Reports
 		public static Report ForAnalyzer(ChatAnalyzer analyzer, BotInfo botInfo)
 		{
 			return ReportGenerator.ForData(
-				new ReportInput(analyzer.GetWords(), analyzer.GetUsers(), analyzer.GetLetters(), botInfo)
+				new ReportInput(analyzer.WordStatistics, analyzer.UserStatistics, analyzer.LetterStatistics, botInfo)
 			);
 		}
 

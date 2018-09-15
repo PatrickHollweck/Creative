@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using TwitchBot.Reports.Formatters;
+using StatoBot.Reports.Formatters;
 
 using Entry = System.Collections.Generic.KeyValuePair<string, decimal>;
 using OrderedEntry = System.Linq.IOrderedEnumerable<System.Collections.Generic.KeyValuePair<string, decimal>>;
 
-namespace TwitchBot.Reports
+namespace StatoBot.Reports
 {
 	public class ReportStatistics
 	{
@@ -22,15 +22,15 @@ namespace TwitchBot.Reports
 
 	public class Report
 	{
-		public readonly ReportInput Input;
-		public readonly ReportStatistics Statistics;
+		public ReportInput Input { get; }
+		public ReportStatistics Statistics { get; }
 
 		public Report(ReportInput input)
 		{
-			this.Input = input;
-			this.Statistics = new ReportStatistics();
+			Input = input;
+			Statistics = new ReportStatistics();
 
-			this.Generate();
+			Generate();
 		}
 
 		public string FormatWith<T>()
@@ -41,19 +41,19 @@ namespace TwitchBot.Reports
 
 		private void Generate()
 		{
-			var users = this.Input.UserStatistics.ToList();
-			var letters = this.Input.LetterStatistics.ToList();
-			var words = this.Input.WordStatistics.ToList();
+			var users = Input.UserStatistics.ToList();
+			var letters = Input.LetterStatistics.ToList();
+			var words = Input.WordStatistics.ToList();
 
-			this.Statistics.UsersSortedByMessagesSent = SortDescending(users);
-			this.Statistics.LettersSortedByUsage = SortDescending(letters);
-			this.Statistics.WordsSortedByUsage = SortDescending(words);
+			Statistics.UsersSortedByMessagesSent = SortDescending(users);
+			Statistics.LettersSortedByUsage = SortDescending(letters);
+			Statistics.WordsSortedByUsage = SortDescending(words);
 
-			this.Statistics.TotalUsers = Total(users);
-			this.Statistics.TotalLetters = Total(letters);
-			this.Statistics.TotalWords = Total(words);
+			Statistics.TotalUsers = Total(users);
+			Statistics.TotalLetters = Total(letters);
+			Statistics.TotalWords = Total(words);
 
-			this.Statistics.AverageWordLength = (float)(this.Statistics.TotalWords / this.Statistics.TotalLetters);
+			Statistics.AverageWordLength = (float)(Statistics.TotalWords / Statistics.TotalLetters);
 		}
 
 		private static decimal Total(IEnumerable<Entry> collection)

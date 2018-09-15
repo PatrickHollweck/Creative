@@ -1,26 +1,26 @@
-using TwitchBot.Analytics;
+using StatoBot.Analytics;
 
-namespace TwitchBot.Reports
+namespace StatoBot.Reports
 {
 	public class ReportInput
 	{
-		public StatisticsCollection WordStatistics;
-		public StatisticsCollection UserStatistics;
-		public StatisticsCollection LetterStatistics;
+		public Statistics WordStatistics { get; }
+		public Statistics UserStatistics { get; }
+		public Statistics LetterStatistics { get; }
 
-		public BotInfo BotInfo;
+		public BotInfo BotInfo { get; set; }
 
 		public ReportInput(
-			StatisticsCollection wordStatistics,
-			StatisticsCollection userStatistics,
-			StatisticsCollection letterStatistics,
+			Statistics wordStatistics,
+			Statistics userStatistics,
+			Statistics letterStatistics,
 			BotInfo botInfo
 		)
 		{
-			this.WordStatistics = wordStatistics;
-			this.UserStatistics = userStatistics;
-			this.LetterStatistics = letterStatistics;
-			this.BotInfo = botInfo;
+			WordStatistics = wordStatistics;
+			UserStatistics = userStatistics;
+			LetterStatistics = letterStatistics;
+			BotInfo = botInfo;
 		}
 	}
 }

@@ -1,19 +1,19 @@
 using System;
 
-namespace TwitchBot.Reports
+namespace StatoBot.Reports
 {
 	public class BotInfo
 	{
-		public DateTime StartTime;
-		public DateTime EndTime;
+		public DateTime StartTime { get; set; }
+		public DateTime EndTime { get; set; }
 
-		public string ChannelName;
+		public string Channel { get; set; }
 
-		public BotInfo(DateTime startTime, DateTime endTime, string channelName)
+		public BotInfo(DateTime startTime, DateTime endTime, string channel)
 		{
 			StartTime = startTime;
 			EndTime = endTime;
-			ChannelName = channelName;
+			Channel = channel;
 		}
 
 		public static BotInfo FromBot(Core.TwitchBot bot)

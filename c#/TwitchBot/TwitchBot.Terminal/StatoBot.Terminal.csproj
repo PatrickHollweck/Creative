@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{29FFE3E3-6924-42F4-8FA8-522BB6CF29B7}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>TwitchBot.Terminal</RootNamespace>
-    <AssemblyName>TwitchBot.Terminal</AssemblyName>
+    <RootNamespace>StatoBot.Terminal</RootNamespace>
+    <AssemblyName>StatoBot.Terminal</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -39,6 +39,7 @@
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>..\Rules.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -48,6 +49,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -67,17 +69,17 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TwitchBot.Analytics\TwitchBot.Analytics.csproj">
+    <ProjectReference Include="..\TwitchBot.Analytics\StatoBot.Analytics.csproj">
       <Project>{8320e779-20d8-4595-813d-e0dc545f78d4}</Project>
-      <Name>TwitchBot.Analytics</Name>
+      <Name>StatoBot.Analytics</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TwitchBot.Core\TwitchBot.Core.csproj">
+    <ProjectReference Include="..\TwitchBot.Core\StatoBot.Core.csproj">
       <Project>{63db6921-7fea-4bf9-b2c8-ce3e37c74481}</Project>
-      <Name>TwitchBot.Core</Name>
+      <Name>StatoBot.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TwitchBot.Reports\TwitchBot.Reports.csproj">
+    <ProjectReference Include="..\TwitchBot.Reports\StatoBot.Reports.csproj">
       <Project>{35079881-2f7c-4aea-ae97-b3047706f8d8}</Project>
-      <Name>TwitchBot.Reports</Name>
+      <Name>StatoBot.Reports</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

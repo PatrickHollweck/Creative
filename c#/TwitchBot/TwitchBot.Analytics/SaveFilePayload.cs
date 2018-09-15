@@ -1,21 +1,21 @@
-namespace TwitchBot.Analytics
+namespace StatoBot.Analytics
 {
 	public class SaveFilePayload
 	{
-		public StatisticsCollection Words;
-		public StatisticsCollection Letters;
-		public StatisticsCollection Users;
+		public Statistics Words;
+		public Statistics Letters;
+		public Statistics Users;
 
-		public SaveFilePayload(StatisticsCollection words, StatisticsCollection letters, StatisticsCollection users)
+		public SaveFilePayload(Statistics words, Statistics letters, Statistics users)
 		{
-			this.Words = words;
-			this.Letters = letters;
-			this.Users = users;
+			Words = words;
+			Letters = letters;
+			Users = users;
 		}
 
 		public static SaveFilePayload FromAnalyzer(ChatAnalyzer analyzer)
 		{
-			return new SaveFilePayload(analyzer.GetWords(), analyzer.GetLetters(), analyzer.GetUsers());
+			return new SaveFilePayload(analyzer.WordStatistics, analyzer.LetterStatistics, analyzer.UserStatistics);
 		}
 	}
 }

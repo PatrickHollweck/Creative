@@ -1,14 +1,23 @@
-namespace TwitchBot.Core
+using System.IO;
+using Newtonsoft.Json;
+
+namespace StatoBot.Core
 {
 	public class Credentials
 	{
-		public string Username;
-		public string OAuthToken;
+		public string UserName { get; internal set; }
+		public string OAuthToken { get; internal set; }
 
-		public Credentials(string username, string oauthToken)
+		public Credentials(string userName, string oauthToken)
 		{
-			this.Username = username;
-			this.OAuthToken = oauthToken;
+			UserName = userName;
+			OAuthToken = oauthToken;
+		}
+
+		public static Credentials FromFile(string path)
+		{
+			var content = File.ReadAllText(path);
+			return JsonConvert.DeserializeObject<Credentials>(content);
 		}
 	}
 }

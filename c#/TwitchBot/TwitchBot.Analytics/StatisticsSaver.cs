@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 using Newtonsoft.Json;
 
-namespace TwitchBot.Analytics
+namespace StatoBot.Analytics
 {
 	public class StatisticsSaver
 	{
@@ -30,11 +30,11 @@ namespace TwitchBot.Analytics
 				}
 
 				File.WriteAllText(
-					this.filePath,
-					JsonConvert.SerializeObject(SaveFilePayload.FromAnalyzer(this.analyzer), Formatting.Indented)
+					filePath,
+					JsonConvert.SerializeObject(SaveFilePayload.FromAnalyzer(analyzer), Formatting.Indented)
 				);
 
-				this.OnSave?.Invoke();
+				OnSave?.Invoke();
 			}
 			catch(Exception e)
 			{
@@ -45,7 +45,7 @@ namespace TwitchBot.Analytics
 		public Timer AsTimer(int interval)
 		{
 			var timer = new Timer(interval);
-			timer.Elapsed += (sender, e) => this.Save();
+			timer.Elapsed += (sender, e) => Save();
 
 			return timer;
 		}

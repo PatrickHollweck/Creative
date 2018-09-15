@@ -1,8 +1,8 @@
 using System;
 using System.Timers;
-using TwitchBot.Core;
+using StatoBot.Core;
 
-namespace TwitchBot.Analytics
+namespace StatoBot.Analytics
 {
     public class AnalyzerBot : Core.TwitchBot
     {
@@ -15,29 +15,29 @@ namespace TwitchBot.Analytics
 
         public AnalyzerBot(Credentials credentials, string channel) : base(credentials, channel)
         {
-            this.Analyzer = new ChatAnalyzer();
-            this.OnMessageReceived += this.Analyzer.AsHook();
+            Analyzer = new ChatAnalyzer();
+            OnMessageReceived += Analyzer.AsHook();
         }
 
         public void EnableStatsAutosaving()
         {
-            this.EnableStatsAutosaving($"./statistics/{this.Channel}_stats.json");
+            EnableStatsAutosaving($"./statistics/{Channel}_stats.json");
         }
 
         public void EnableStatsAutosaving(string path)
         {
-            this.saver = new StatisticsSaver(path, this.Analyzer);
-            this.saver.OnSave += () => this.OnSave?.Invoke();
+            saver = new StatisticsSaver(path, Analyzer);
+            saver.OnSave += () => OnSave?.Invoke();
 
             timer?.Stop();
 
-            this.timer = this.saver.AsTimer(60 * 1000);
-            this.timer.Start();
+            timer = saver.AsTimer(60 * 1000);
+            timer.Start();
         }
 
         public void DisableStatsAutosaving()
         {
-            this.timer.Stop();
+            timer.Stop();
         }
     }
 }

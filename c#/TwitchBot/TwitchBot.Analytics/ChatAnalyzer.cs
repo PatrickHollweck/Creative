@@ -1,25 +1,26 @@
 using System;
 using System.Threading.Tasks;
-using TwitchBot.Core;
 
-namespace TwitchBot.Analytics
+using StatoBot.Core;
+
+namespace StatoBot.Analytics
 {
 	public class ChatAnalyzer
 	{
-		private readonly StatisticsCollection wordStatistics;
-		private readonly StatisticsCollection letterStatistics;
-		private readonly StatisticsCollection userStatistics;
+		public Statistics WordStatistics { get; }
+		public Statistics LetterStatistics { get;}
+		public Statistics UserStatistics { get; }
 
 		public ChatAnalyzer()
 		{
-			this.wordStatistics = new StatisticsCollection();
-			this.letterStatistics = new StatisticsCollection();
-			this.userStatistics = new StatisticsCollection();
+			WordStatistics = new Statistics();
+			LetterStatistics = new Statistics();
+			UserStatistics = new Statistics();
 		}
 
-		public Func<OnMessageReceivedEventArgs, Task> AsHook()
+		public Action<OnMessageReceivedEventArgs> AsHook()
 		{
-			return this.AnalyzeAsync;
+			return async (e) => await AnalyzeAsync(e);
 		}
 
 		public void Analyze(OnMessageReceivedEventArgs e)
@@ -29,38 +30,23 @@ namespace TwitchBot.Analytics
 				return;
 			}
 
-			this.userStatistics.Increment(e.Author);
+			UserStatistics.Increment(e.Author);
 
 			var words = e.Content.Split(' ');
 			foreach(var word in words)
 			{
-				this.wordStatistics.Increment(word);
+				WordStatistics.Increment(word);
 
 				foreach(var character in word)
 				{
-					this.letterStatistics.Increment(character.ToString().ToLower());
+					LetterStatistics.Increment(character.ToString().ToLower());
 				}
 			}
 		}
 
 		public async Task AnalyzeAsync(OnMessageReceivedEventArgs e)
 		{
-			await Task.Run(() => this.Analyze(e));
-		}
-
-		public StatisticsCollection GetWords()
-		{
-			return this.wordStatistics;
-		}
-
-		public StatisticsCollection GetLetters()
-		{
-			return this.letterStatistics;
-		}
-
-		public StatisticsCollection GetUsers()
-		{
-			return this.userStatistics;
+			await Task.Run(() => Analyze(e));
 		}
 	}
 }

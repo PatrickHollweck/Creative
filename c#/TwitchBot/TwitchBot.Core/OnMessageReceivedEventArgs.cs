@@ -1,33 +1,33 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace TwitchBot.Core
+namespace StatoBot.Core
 {
 	public class OnMessageReceivedEventArgs : EventArgs
 	{
-		public readonly string Author;
-		public readonly string Content;
+		public string Author { get; }
+		public string Content { get;  }
 
-		public readonly string RawMessage;
+		public string RawMessage { get; }
 
-		public readonly bool IsChatMessage;
-		public readonly bool IsSystemMessage;
+		public bool IsChatMessage { get; }
+		public bool IsSystemMessage { get; }
 
-		public readonly TwitchBot Bot;
+		public TwitchBot Bot { get; }
 
 		public OnMessageReceivedEventArgs(string rawMessage, TwitchBot bot)
 		{
-			this.Bot = bot;
-			this.RawMessage = rawMessage;
+			Bot = bot;
+			RawMessage = rawMessage;
 
-			this.Author = new Regex(@"@(.*).tmi.twitch.tv").Match(this.RawMessage).Groups[1].Value;
-			this.Content = new Regex($"PRIVMSG #{this.Bot.Channel} :(.*)$").Match(this.RawMessage).Groups[1].Value;
+			Author = new Regex(@"@(.*).tmi.twitch.tv").Match(RawMessage).Groups[1].Value;
+			Content = new Regex($"PRIVMSG #{Bot.Channel} :(.*)$").Match(RawMessage).Groups[1].Value;
 
-			this.Author = string.IsNullOrWhiteSpace(this.Author) ? null : this.Author;
-			this.Content = string.IsNullOrWhiteSpace(this.Content) ? null : this.Content;
+			Author = string.IsNullOrWhiteSpace(Author) ? null : Author;
+			Content = string.IsNullOrWhiteSpace(Content) ? null : Content;
 
-			this.IsChatMessage = this.Content != null;
-			this.IsSystemMessage = !this.IsChatMessage;
+			IsChatMessage = Content != null;
+			IsSystemMessage = !IsChatMessage;
 		}
 	}
 }

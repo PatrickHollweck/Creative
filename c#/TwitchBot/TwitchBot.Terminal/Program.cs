@@ -1,15 +1,13 @@
 using System;
 using System.IO;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
-using TwitchBot.Core;
-using TwitchBot.Analytics;
+using StatoBot.Core;
+using StatoBot.Reports;
+using StatoBot.Analytics;
+using StatoBot.Reports.Formatters;
 
-using TwitchBot.Reports;
-using TwitchBot.Reports.Formatters;
-
-namespace TwitchBot.Terminal
+namespace StatoBot.Terminal
 {
 	internal class Program
 	{
@@ -36,7 +34,7 @@ namespace TwitchBot.Terminal
 			Credentials credentials;
 			try
 			{
-				credentials = CredentialsLoader.FromFile(credentialsPath);
+				credentials = Credentials.FromFile(credentialsPath);
 			}
 			catch (Exception e)
 			{
@@ -65,7 +63,7 @@ namespace TwitchBot.Terminal
 			File.WriteAllText($"./statistics/chat_report_{bot.Channel}.md", ReportGenerator.ForAnalyzingBot(bot).FormatWith<MarkdownFormatter>());
 		}
 
-		private static Task LoggingHook(OnMessageReceivedEventArgs e)
+		private static void LoggingHook(OnMessageReceivedEventArgs e)
 		{
 			if (e.IsChatMessage)
 			{
@@ -75,8 +73,6 @@ namespace TwitchBot.Terminal
 			{
 				Console.WriteLine("SYSTEM ::: " + e.RawMessage);
 			}
-
-			return Task.CompletedTask;
 		}
 	}
 }

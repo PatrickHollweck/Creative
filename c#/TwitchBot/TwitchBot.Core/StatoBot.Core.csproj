@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8320E779-20D8-4595-813D-E0DC545F78D4}</ProjectGuid>
+    <ProjectGuid>{63DB6921-7FEA-4BF9-B2C8-CE3E37C74481}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TwitchBot.Analytics</RootNamespace>
-    <AssemblyName>TwitchBot.Analytics</AssemblyName>
+    <RootNamespace>StatoBot.Core</RootNamespace>
+    <AssemblyName>StatoBot.Core</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -22,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>..\Rules.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -45,18 +47,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnalyzerBot.cs" />
-    <Compile Include="ChatAnalyzer.cs" />
+    <Compile Include="Credentials.cs" />
+    <Compile Include="OnMessageReceivedEventArgs.cs" />
+    <Compile Include="TwitchBot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SaveFilePayload.cs" />
-    <Compile Include="StatisticsCollection.cs" />
-    <Compile Include="StatisticsSaver.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\TwitchBot.Core\TwitchBot.Core.csproj">
-      <Project>{63db6921-7fea-4bf9-b2c8-ce3e37c74481}</Project>
-      <Name>TwitchBot.Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

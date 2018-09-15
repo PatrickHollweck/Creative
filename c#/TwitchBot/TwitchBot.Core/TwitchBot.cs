@@ -4,103 +4,112 @@ using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace TwitchBot.Core
+namespace StatoBot.Core
 {
 	public class TwitchBot : IDisposable
 	{
-		public const string TWITCH_HOST = "irc.twitch.tv";
-		public const int TWITCH_PORT = 6667;
+		public const string TwitchHost = "irc.twitch.tv";
+		public const int TwitchPort = 6667;
 
 		private readonly Credentials credentials;
-
-		public readonly DateTime StartTime;
-		public DateTime EndTime
-		{
-			get => DateTime.Now;
-		}
-
 		public readonly string Channel;
 
-		public TcpClient Socket;
+		private DateTime endTime;
+		public DateTime StartTime { get; }
+		public DateTime EndTime => endTime == null ? endTime : DateTime.Now;
 
-		public StreamReader InputStream;
-		public StreamWriter OutputStream;
+		protected TcpClient Socket;
+		protected StreamReader InputStream;
+		protected StreamWriter OutputStream;
 
-		public event Func<OnMessageReceivedEventArgs, Task> OnMessageReceived;
+		public event Action<OnMessageReceivedEventArgs> OnMessageReceived;
 
 		public TwitchBot(Credentials credentials, string channel)
 		{
 			this.credentials = credentials;
 
-			this.Channel = channel;
-			this.StartTime = DateTime.Now;
+			Channel = channel;
+			StartTime = DateTime.Now;
 		}
 
 		public async Task SetupAndListenAsync()
 		{
-			await this.ConnectSocketAsync();
-			await this.LoginAsync();
-			await this.StartReadAsync();
+			await ConnectSocketAsync();
+			await LogOnAsync();
+			await StartReadAsync();
 		}
 		
 		public async Task ConnectSocketAsync()
 		{
-			this.Socket = new TcpClient();
-			await this.Socket.ConnectAsync(TWITCH_HOST, TWITCH_PORT);
+			Socket = new TcpClient();
+			await Socket.ConnectAsync(TwitchHost, TwitchPort);
 
-			this.InputStream = new StreamReader(this.Socket.GetStream());
-			this.OutputStream = new StreamWriter(this.Socket.GetStream());
+			InputStream = new StreamReader(Socket.GetStream());
+			OutputStream = new StreamWriter(Socket.GetStream());
 		}
 
-		public async Task LoginAsync()
+		public async Task LogOnAsync()
 		{
-			await this.WriteToSystemAsync($"PASS {this.credentials.OAuthToken}");
-			await this.WriteToSystemAsync($"NICK {this.credentials.Username}");
-			await this.WriteToSystemAsync($"USER {this.credentials.Username} 0 * {this.credentials.Username}");
-			await this.WriteToSystemAsync($"JOIN #{this.Channel}");
+			await WriteToSystemAsync($"PASS {credentials.OAuthToken}");
+			await WriteToSystemAsync($"NICK {credentials.UserName}");
+			await WriteToSystemAsync($"USER {credentials.UserName} 0 * {credentials.UserName}");
+			await WriteToSystemAsync($"JOIN #{Channel}");
 		}
 
 		public async Task WriteToSystemAsync(string message)
 		{
-			await this.OutputStream.WriteLineAsync(message);
-			await this.OutputStream.FlushAsync();
+			await OutputStream.WriteLineAsync(message);
+			await OutputStream.FlushAsync();
 		}
 
 		public async Task WriteToChatAsync(string message)
 		{
-			await this.WriteToSystemAsync($"PRIVMSG #{this.Channel} :{message}");
+			await WriteToSystemAsync($"PRIVMSG #{Channel} :{message}");
 		}
 
 		public async Task StartReadAsync()
 		{
-			this.OnMessageReceived += RespondToPing;
+			OnMessageReceived += RespondToPing;
 
-			while (!this.InputStream.EndOfStream)
+			while (!InputStream.EndOfStream)
 			{
-				if (this.OnMessageReceived == null) return;
+				if (OnMessageReceived == null) return;
 
-				await this.OnMessageReceived?.Invoke(
-					new OnMessageReceivedEventArgs(await this.InputStream.ReadLineAsync(), this)
+				OnMessageReceived?.Invoke(
+					new OnMessageReceivedEventArgs(await InputStream.ReadLineAsync(), this)
 				);
 			}
 
-			this.OnMessageReceived -= RespondToPing;
+			OnMessageReceived -= RespondToPing;
+		}
+
+		public void Stop()
+		{
+			this.endTime = DateTime.Now;
+			this.Socket.GetStream().Close();
+			this.Socket.Close();
 		}
 
 		public void Dispose()
 		{
-			this.InputStream.Dispose();
-			this.OutputStream.Dispose();
-
-			this.Socket.Dispose();
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 
-		private async Task RespondToPing(OnMessageReceivedEventArgs args)
+		protected virtual void Dispose(bool disposing)
+		{
+			InputStream.Dispose();
+			OutputStream.Dispose();
+
+			Socket.Dispose();
+		}
+
+		private async void RespondToPing(OnMessageReceivedEventArgs args)
 		{
 			var match = new Regex(@"^PING :(.*)$").Match(args.RawMessage);
 			if (match.Success)
 			{
-				await this.WriteToSystemAsync($"PONG " + match.NextMatch());
+				await WriteToSystemAsync($"PONG " + match.NextMatch());
 			}
 		}
 	}
