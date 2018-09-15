@@ -27,9 +27,12 @@ namespace TwitchBot.Analytics
 			}
 			else
 			{
-				this.TryGetValue(key, out var count);
-				this.Remove(key);
-				this.Add(key, count + 1);
+				lock (this)
+				{
+					this.TryGetValue(key, out var count);
+					this.Remove(key);
+					this.Add(key, count + 1);
+				}
 			}
 		}
 

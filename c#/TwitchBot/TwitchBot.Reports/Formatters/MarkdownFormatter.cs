@@ -22,7 +22,7 @@ $@"
 ## Total Letters used
 {report.Statistics.TotalLetters}
 
-## Total Users with messages
+## Total unique Chatters
 {report.Statistics.TotalUsers}
 
 ---
