@@ -15,13 +15,25 @@ $@"
 
 ---
 
-## Total Words used
+## General
+
+#### Stream Length
+{report.Statistics.StreamLength}
+
+#### Average word length
+{report.Statistics.AverageWordLength}
+
+---
+
+## Totals
+
+#### Total Words used
 {report.Statistics.TotalWords}
 
-## Total Letters used
+#### Total Letters used
 {report.Statistics.TotalLetters}
 
-## Total unique Chatters
+#### Total unique Chatters
 {report.Statistics.TotalUsers}
 
 ---
