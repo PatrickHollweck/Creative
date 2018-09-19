@@ -31,7 +31,7 @@ namespace StatoBot.Analytics
 
 				File.WriteAllText(
 					filePath,
-					JsonConvert.SerializeObject(SaveFilePayload.FromAnalyzer(analyzer), Formatting.Indented)
+					JsonConvert.SerializeObject(analyzer.Statistics, Formatting.Indented)
 				);
 
 				OnSave?.Invoke();

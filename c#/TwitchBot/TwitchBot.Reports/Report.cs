@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using StatoBot.Reports.Formatters;
@@ -18,6 +19,8 @@ namespace StatoBot.Reports
 		public decimal TotalLetters;
 
 		public float AverageWordLength;
+
+		public TimeSpan StreamLength;
 	}
 
 	public class Report
@@ -41,9 +44,9 @@ namespace StatoBot.Reports
 
 		private void Generate()
 		{
-			var users = Input.UserStatistics.ToList();
-			var letters = Input.LetterStatistics.ToList();
-			var words = Input.WordStatistics.ToList();
+			var users = Input.Statistics.Users.ToList();
+			var letters = Input.Statistics.Letters.ToList();
+			var words = Input.Statistics.Words.ToList();
 
 			Statistics.UsersSortedByMessagesSent = SortDescending(users);
 			Statistics.LettersSortedByUsage = SortDescending(letters);
@@ -54,6 +57,8 @@ namespace StatoBot.Reports
 			Statistics.TotalWords = Total(words);
 
 			Statistics.AverageWordLength = (float)(Statistics.TotalWords / Statistics.TotalLetters);
+
+			Statistics.StreamLength = Input.BotInfo.EndTime - Input.BotInfo.StartTime;
 		}
 
 		private static decimal Total(IEnumerable<Entry> collection)

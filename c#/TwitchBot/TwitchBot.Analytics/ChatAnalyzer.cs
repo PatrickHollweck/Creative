@@ -7,15 +7,11 @@ namespace StatoBot.Analytics
 {
 	public class ChatAnalyzer
 	{
-		public Statistics WordStatistics { get; }
-		public Statistics LetterStatistics { get;}
-		public Statistics UserStatistics { get; }
+		public readonly ChatStatistics Statistics;
 
 		public ChatAnalyzer()
 		{
-			WordStatistics = new Statistics();
-			LetterStatistics = new Statistics();
-			UserStatistics = new Statistics();
+			Statistics = new ChatStatistics();
 		}
 
 		public Action<OnMessageReceivedEventArgs> AsHook()
@@ -30,16 +26,16 @@ namespace StatoBot.Analytics
 				return;
 			}
 
-			UserStatistics.Increment(e.Author);
+			Statistics.Users.Increment(e.Author);
 
 			var words = e.Content.Split(' ');
 			foreach(var word in words)
 			{
-				WordStatistics.Increment(word);
+				Statistics.Words.Increment(word);
 
 				foreach(var character in word)
 				{
-					LetterStatistics.Increment(character.ToString().ToLower());
+					Statistics.Letters.Increment(character.ToString().ToLower());
 				}
 			}
 		}

@@ -7,7 +7,7 @@ namespace StatoBot.Analytics
 	public class Statistics : Dictionary<string, decimal>
 	{
 		private readonly Encoding encoder;
-		private readonly object locker;
+		private readonly object mutationLock;
 
 		public Statistics()
 		{
@@ -17,7 +17,7 @@ namespace StatoBot.Analytics
 				new DecoderExceptionFallback()
 			);
 
-			locker = new object();
+			mutationLock = new object();
 
 		}
 
@@ -25,7 +25,7 @@ namespace StatoBot.Analytics
 		{
 			key = SanitizeKey(key);
 
-			lock (locker)
+			lock (mutationLock)
 			{
 				if(!ContainsKey(key))
 				{

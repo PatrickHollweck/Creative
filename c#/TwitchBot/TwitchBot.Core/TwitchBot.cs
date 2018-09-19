@@ -85,9 +85,9 @@ namespace StatoBot.Core
 
 		public void Stop()
 		{
-			this.endTime = DateTime.Now;
-			this.Socket.GetStream().Close();
-			this.Socket.Close();
+			endTime = DateTime.Now;
+			Socket.GetStream().Close();
+			Socket.Close();
 		}
 
 		public void Dispose()

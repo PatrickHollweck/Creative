@@ -4,22 +4,15 @@ namespace StatoBot.Reports
 {
 	public class ReportInput
 	{
-		public Statistics WordStatistics { get; }
-		public Statistics UserStatistics { get; }
-		public Statistics LetterStatistics { get; }
-
+		public ChatStatistics Statistics;
 		public BotInfo BotInfo { get; set; }
 
 		public ReportInput(
-			Statistics wordStatistics,
-			Statistics userStatistics,
-			Statistics letterStatistics,
+			ChatStatistics statistics,
 			BotInfo botInfo
 		)
 		{
-			WordStatistics = wordStatistics;
-			UserStatistics = userStatistics;
-			LetterStatistics = letterStatistics;
+			Statistics = statistics;
 			BotInfo = botInfo;
 		}
 	}
