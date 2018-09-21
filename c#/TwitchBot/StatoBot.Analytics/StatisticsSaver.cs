@@ -24,11 +24,6 @@ namespace StatoBot.Analytics
 		{
 			try
 			{
-				if (!Directory.Exists("./statistics"))
-				{
-					Directory.CreateDirectory("./statistics");
-				}
-
 				File.WriteAllText(
 					filePath,
 					JsonConvert.SerializeObject(analyzer.Statistics, Formatting.Indented)

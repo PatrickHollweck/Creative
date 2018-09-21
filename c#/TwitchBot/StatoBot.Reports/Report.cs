@@ -48,16 +48,18 @@ namespace StatoBot.Reports
 			var letters = Input.Statistics.Letters.ToList();
 			var words = Input.Statistics.Words.ToList();
 
+			// Tops
 			Statistics.UsersSortedByMessagesSent = SortDescending(users);
 			Statistics.LettersSortedByUsage = SortDescending(letters);
 			Statistics.WordsSortedByUsage = SortDescending(words);
 
+			// Totals
 			Statistics.TotalUsers = Total(users);
 			Statistics.TotalLetters = Total(letters);
 			Statistics.TotalWords = Total(words);
 
+			// Misc
 			Statistics.AverageWordLength = (float)(Statistics.TotalWords / Statistics.TotalLetters);
-
 			Statistics.StreamLength = Input.BotInfo.EndTime - Input.BotInfo.StartTime;
 		}
 

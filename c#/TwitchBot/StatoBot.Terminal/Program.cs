@@ -11,7 +11,7 @@ namespace StatoBot.Terminal
 {
 	internal class Program
 	{
-		public static void Main()
+		private static void Main()
 		{
 			Task.Run(MainAsync).Wait();
 		}
@@ -47,7 +47,7 @@ namespace StatoBot.Terminal
 			bot.EnableStatsAutosaving();
 
 			bot.OnSave += UpdateTitle;
-			bot.OnSave += () => PrintReport(bot);
+			bot.OnSave += () => WriteReport(bot);
 			bot.OnMessageReceived += LoggingHook;
 
 			await bot.SetupAndListenAsync();
@@ -58,9 +58,9 @@ namespace StatoBot.Terminal
 			Console.Title = "StatoBot - Last Save: " + DateTime.Now;
 		}
 
-		private static void PrintReport(AnalyzerBot bot)
+		private static void WriteReport(AnalyzerBot bot)
 		{
-			File.WriteAllText($"./statistics/chat_report_{bot.Channel}.md", ReportGenerator.ForAnalyzingBot(bot).FormatWith<MarkdownFormatter>());
+			File.WriteAllText($"./statistics/{bot.Channel}_chat_report.md", ReportGenerator.ForAnalyzingBot(bot).FormatWith<MarkdownFormatter>());
 		}
 
 		private static void LoggingHook(OnMessageReceivedEventArgs e)
@@ -71,7 +71,7 @@ namespace StatoBot.Terminal
 			}
 			else
 			{
-				Console.WriteLine("SYSTEM ::: " + e.RawMessage);
+				Console.WriteLine("TWITCH_SYSTEM ::: " + e.RawMessage);
 			}
 		}
 	}

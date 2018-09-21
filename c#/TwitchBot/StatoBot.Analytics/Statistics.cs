@@ -18,7 +18,6 @@ namespace StatoBot.Analytics
 			);
 
 			mutationLock = new object();
-
 		}
 
 		public void Increment(string key)
