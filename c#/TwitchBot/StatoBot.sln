@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatoBot.Terminal", "StatoB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatoBot.Reports", "StatoBot.Reports\StatoBot.Reports.csproj", "{35079881-2F7C-4AEA-AE97-B3047706F8D8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatoBot.UI", "StatoBot.UI\StatoBot.UI.csproj", "{2C9A00B5-5C66-4EF6-B0FF-7A913D8EEA53}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{35079881-2F7C-4AEA-AE97-B3047706F8D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35079881-2F7C-4AEA-AE97-B3047706F8D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35079881-2F7C-4AEA-AE97-B3047706F8D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C9A00B5-5C66-4EF6-B0FF-7A913D8EEA53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C9A00B5-5C66-4EF6-B0FF-7A913D8EEA53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C9A00B5-5C66-4EF6-B0FF-7A913D8EEA53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C9A00B5-5C66-4EF6-B0FF-7A913D8EEA53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -14,9 +14,9 @@ namespace StatoBot.Core
 		private readonly Credentials credentials;
 		public readonly string Channel;
 
-		private DateTime endTime;
+		private DateTime? endTime;
 		public DateTime StartTime { get; }
-		public DateTime EndTime => endTime == null ? endTime : DateTime.Now;
+		public DateTime EndTime => endTime ?? DateTime.Now;
 
 		protected TcpClient Socket;
 		protected StreamReader InputStream;
@@ -73,8 +73,6 @@ namespace StatoBot.Core
 
 			while (!InputStream.EndOfStream)
 			{
-				if (OnMessageReceived == null) return;
-
 				OnMessageReceived?.Invoke(
 					new OnMessageReceivedEventArgs(await InputStream.ReadLineAsync(), this)
 				);

@@ -8,6 +8,7 @@ namespace StatoBot.Analytics
 	public class ChatAnalyzer
 	{
 		public readonly ChatStatistics Statistics;
+		public event Action<OnStatisticsChangedEventArgs> OnStatisticsChanged;
 
 		public ChatAnalyzer()
 		{
@@ -38,6 +39,8 @@ namespace StatoBot.Analytics
 					Statistics.Letters.Increment(character.ToString().ToLower());
 				}
 			}
+
+			OnStatisticsChanged?.Invoke(new OnStatisticsChangedEventArgs(Statistics));
 		}
 
 		public async Task AnalyzeAsync(OnMessageReceivedEventArgs e)
