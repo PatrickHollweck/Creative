@@ -34,11 +34,8 @@ namespace StatoBot.UI.Views.Pages
 		{
 			if (!timeout.IsOver())
 			{
-				Debug.WriteLine("NOT OVER");
 				return;
 			}
-
-			Debug.WriteLine("OVER");
 
 			Dispatcher.InvokeAsync(() =>
 			{
