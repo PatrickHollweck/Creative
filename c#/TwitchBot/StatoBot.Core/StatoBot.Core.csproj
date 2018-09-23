@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Credentials.cs" />
     <Compile Include="OnMessageReceivedEventArgs.cs" />
+    <Compile Include="Timeout.cs" />
     <Compile Include="TwitchBot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

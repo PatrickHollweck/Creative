@@ -19,7 +19,6 @@ namespace StatoBot.Terminal
 		private static async Task MainAsync()
 		{
 			UpdateTitle();
-			Console.WindowWidth = 200;
 
 			Console.Write("Input the channel name you want stats for: ");
 			var channelName = Console.ReadLine();
@@ -44,10 +43,28 @@ namespace StatoBot.Terminal
 			}
 
 			var bot = new AnalyzerBot(credentials, channelName);
-			bot.EnableStatsAutosaving();
+			var timeout = new Timeout(TimeSpan.FromSeconds(-60));
 
-			bot.OnSave += UpdateTitle;
-			bot.OnSave += () => WriteReport(bot);
+			const string basePath = "./statistics";
+			if (!Directory.Exists(basePath))
+			{
+				Directory.CreateDirectory(basePath);
+			}
+
+			var saver = new StatisticsSaver($"{basePath}/{bot.Channel}_stats.json", bot.Analyzer);
+
+			bot.Analyzer.OnStatisticsChanged += (e) =>
+			{
+				if (!timeout.IsOver())
+				{
+					return;
+				}
+
+				WriteReport(bot);
+				UpdateTitle();
+				saver.Save();
+			};
+
 			bot.OnMessageReceived += LoggingHook;
 
 			await bot.SetupAndListenAsync();

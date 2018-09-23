@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 
@@ -10,8 +11,8 @@ namespace StatoBot.UI.Views.Pages
 {
 	public partial class Statistics : UserControl
 	{
-		private AnalyzerBot bot;
-		private DateTime lastUpdate;
+		private readonly AnalyzerBot bot;
+		private readonly Timeout timeout;
 
 		public Statistics(string channelName)
 		{
@@ -24,17 +25,20 @@ namespace StatoBot.UI.Views.Pages
 			bot = new AnalyzerBot(credentials, channelName);
 			bot.Analyzer.OnStatisticsChanged += (e) => UpdateDisplay(e.Statistics);
 
+			timeout = new Timeout(TimeSpan.FromSeconds(-2));
+
 			Task.Run(bot.SetupAndListenAsync);
 		}
 
 		public void UpdateDisplay(ChatStatistics statistics)
 		{
-			if (lastUpdate.Subtract(TimeSpan.FromSeconds(-2)) > DateTime.Now)
+			if (!timeout.IsOver())
 			{
+				Debug.WriteLine("NOT OVER");
 				return;
 			}
 
-			lastUpdate = DateTime.Now;
+			Debug.WriteLine("OVER");
 
 			Dispatcher.InvokeAsync(() =>
 			{

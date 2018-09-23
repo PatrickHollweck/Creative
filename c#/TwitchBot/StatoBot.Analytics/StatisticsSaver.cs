@@ -24,10 +24,13 @@ namespace StatoBot.Analytics
 		{
 			try
 			{
-				File.WriteAllText(
-					filePath,
-					JsonConvert.SerializeObject(analyzer.Statistics, Formatting.Indented)
-				);
+				lock (analyzer)
+				{
+					File.WriteAllText(
+						filePath,
+						JsonConvert.SerializeObject(analyzer.Statistics, Formatting.Indented)
+					);
+				}
 
 				OnSave?.Invoke();
 			}
