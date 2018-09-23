@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 
 using StatoBot.Analytics;
+using StatoBot.Core;
 using StatoBot.Reports;
 
 namespace StatoBot.UI.Views.Pages
@@ -18,7 +19,9 @@ namespace StatoBot.UI.Views.Pages
 
 			NameDisplay.Content = channelName;
 
-			bot = new AnalyzerBot(new Core.Credentials("fetzenrndy", "oauth:mffnpsgm58j1il3ibj016dva1guh13"), channelName);
+			var credentials = Credentials.FromFile("./twitch_credentials.json");
+
+			bot = new AnalyzerBot(credentials, channelName);
 			bot.Analyzer.OnStatisticsChanged += (e) => UpdateDisplay(e.Statistics);
 
 			Task.Run(bot.SetupAndListenAsync);
