@@ -9,7 +9,7 @@ using StatoBot.Reports;
 
 namespace StatoBot.UI.Views.Pages
 {
-	public partial class Statistics : UserControl
+	public partial class Statistics : Page
 	{
 		private readonly AnalyzerBot bot;
 		private readonly Timeout timeout;

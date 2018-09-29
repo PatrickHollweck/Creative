@@ -3,7 +3,7 @@ using StatoBot.UI.Helpers;
 
 namespace StatoBot.UI.Views.Pages
 {
-	public partial class Home : UserControl
+	public partial class Home : Page
 	{
 		public Home()
 		{

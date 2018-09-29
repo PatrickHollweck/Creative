@@ -8,9 +8,9 @@ namespace StatoBot.UI.Helpers
 {
 	internal class WindowManager
 	{
-		public static void SwitchTo(UserControl page)
+		public static void SwitchTo(Page page)
 		{
-			Kernel.Instance.Get<MainWindow>().MainView.Content = page;
+			Kernel.Instance.Get<MainWindow>().Navigate(page);
 		}
 	}
 }

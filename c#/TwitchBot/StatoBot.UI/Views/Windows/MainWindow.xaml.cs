@@ -1,11 +1,11 @@
-using System.Windows;
+using System.Windows.Navigation;
 using StatoBot.UI.DependencyInjection;
 using StatoBot.UI.Helpers;
 using StatoBot.UI.Views.Pages;
 
 namespace StatoBot.UI.Views.Windows
 {
-	public partial class MainWindow : Window
+	public partial class MainWindow : NavigationWindow
 	{
 		public MainWindow()
 		{

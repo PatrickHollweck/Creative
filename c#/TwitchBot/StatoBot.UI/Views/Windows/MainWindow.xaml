@@ -1,4 +1,4 @@
-<Window
+<NavigationWindow
 	x:Class="StatoBot.UI.Views.Windows.MainWindow"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -8,8 +8,5 @@
 	Title="StatoBot"
 	Width="800"
 	Height="450"
-	mc:Ignorable="d">
-	<Grid>
-		<ContentPresenter x:Name="MainView" />
-	</Grid>
-</Window>
+	ShowsNavigationUI="False"
+	mc:Ignorable="d" />
