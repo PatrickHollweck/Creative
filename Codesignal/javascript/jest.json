@@ -1,0 +1,22 @@
+{
+	"testEnvironment": "node",
+	"bail": true,
+	"transform": {
+		"^.+\\.tsx?$": "ts-jest"
+	},
+	"testMatch": ["*/**/*.test.ts"],
+	"modulePathIgnorePatterns": [
+		"node_modules",
+		"samples",
+		"docs",
+		"dist"
+	],
+	"moduleFileExtensions": [
+		"ts",
+		"tsx",
+		"js",
+		"jsx",
+		"json",
+		"node"
+	]
+}
