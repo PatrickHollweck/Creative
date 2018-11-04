@@ -6,6 +6,8 @@ namespace CpuEmulator.Emulator
 {
 	public class Emulator
 	{
+		// TODO: Problems most likely in Register Value data-type, convert to BigInteger and do proper range checks!
+
 		public const int REGISTER_COUNT = 43;
 
 		protected VM Vm;
