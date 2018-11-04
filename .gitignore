@@ -1,0 +1,6 @@
+# Exercism Config files
+.exercism
+
+# Binary files
+bin
+obj
