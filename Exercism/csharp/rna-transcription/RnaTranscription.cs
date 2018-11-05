@@ -22,8 +22,8 @@ public static class RnaTranscription
 	public static string ToRna(string dna)
 	{
 		return dna
-			.Select(nucleotide => DnaToRnaMappings[(DNA)nucleotide])
-			.Aggregate(string.Empty, (result, nucleotide) => result += (char)nucleotide);
+			.Select(nucleotide => DnaToRnaMappings[(DNA) nucleotide])
+			.Aggregate(string.Empty, (result, nucleotide) => result += (char) nucleotide);
 	}
 
 
