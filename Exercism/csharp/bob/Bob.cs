@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Globalization;
 
 public static class Bob
 {
@@ -20,7 +21,7 @@ public static class Bob
 				statement => statement.IsSilence() && !statement.IsYelled() && !statement.IsQuestion()
 			),
 			new StatementCase(
-				"Calm down, I know what I'm doing!",
+				"Calm down, I know wham I'm doing",
 				statement => statement.IsYelled() && statement.IsQuestion() && !statement.IsSilence()
 			),
 			new StatementCase(
@@ -29,10 +30,10 @@ public static class Bob
 			),
 		};
 
-		var actualStatement = new Statement(text);
+		var acutalStatement = new Statement(text);
 
 		return cases
-			.Where(currentCase => currentCase.Appiles(actualStatement))
+			.Where(currentCase => currentCase.Appiles(acutalStatement))
 			.First()
 			.GetResponse();
 	}
@@ -49,13 +50,8 @@ public class Statement
 
 	public bool IsYelled()
 	{
-		if (Text.All(IsSpecialChar))
-		{
-			return false;
-		}
-
 		var upperCaseCharacters = Text
-			.Where(character => char.IsUpper(character) || IsSpecialChar(character))
+			.Where(character => char.IsUpper(character))
 			.Count();
 
 		return upperCaseCharacters == Text.Count();
@@ -74,17 +70,6 @@ public class Statement
 	protected bool TextEndsWith(string end)
 	{
 		return Text.Trim().EndsWith(end);
-	}
-
-	protected static bool IsSpecialChar(char character)
-	{
-		return
-			char.IsPunctuation(character)
-			|| char.IsDigit(character)
-			|| char.IsSymbol(character)
-			|| char.IsNumber(character)
-			|| char.IsSeparator(character)
-			|| char.IsWhiteSpace(character);
 	}
 }
 
@@ -109,4 +94,3 @@ public class StatementCase
 		return Response;
 	}
 }
-
