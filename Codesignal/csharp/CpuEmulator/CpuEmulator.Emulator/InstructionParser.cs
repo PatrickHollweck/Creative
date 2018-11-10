@@ -36,7 +36,7 @@ namespace CpuEmulator.Emulator
 				case "DEC":
 					return new DecrementInstruction(RegisterAddress.FromString(tokens[1]));
 				case "INC":
-					return new IncrementInstruction(RegisterAddress.FromString(tokens[2]));
+					return new IncrementInstruction(RegisterAddress.FromString(tokens[1]));
 				case "INV":
 					return new InverseInstruction(RegisterAddress.FromString(tokens[1]));
 				case "JMP":
