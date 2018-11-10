@@ -31,6 +31,9 @@ namespace CpuEmulator.Emulator
 			{
 				machine = instructions[(int)machine.InstructionCounter].Apply(machine);
 			}
+
+			// Reset the instruction counter so another set of instructions can be executed.
+			machine.JumpToInstruction(0);
 		}
 
 		public BigInteger GetReturnValue()

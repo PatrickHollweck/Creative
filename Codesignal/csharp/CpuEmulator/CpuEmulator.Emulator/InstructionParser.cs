@@ -27,10 +27,10 @@ namespace CpuEmulator.Emulator
 			switch (instructionName)
 			{
 				case "MOV":
-					if (uint.TryParse(tokens[1], out uint result))
-						return new StoreMoveInstruction(result, RegisterAddress.FromString(tokens[2]));
-					else
+					if(Register.IsRegister(tokens[1]))
 						return new CopyMoveInstruction(RegisterAddress.FromString(tokens[1]), RegisterAddress.FromString(tokens[2]));
+					else
+						return new StoreMoveInstruction(uint.Parse(tokens[1]), RegisterAddress.FromString(tokens[2]));
 				case "ADD":
 					return new AddInstruction(RegisterAddress.FromString(tokens[1]), RegisterAddress.FromString(tokens[2]));
 				case "DEC":

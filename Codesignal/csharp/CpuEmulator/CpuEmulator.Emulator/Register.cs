@@ -12,5 +12,10 @@ namespace CpuEmulator.Emulator
 			Address = address;
 			Value = value;
 		}
+
+		public static bool IsRegister(string value)
+		{
+			return value.StartsWith("R") && uint.TryParse(value.Remove(0, 1), out uint _);
+		}
 	}
 }

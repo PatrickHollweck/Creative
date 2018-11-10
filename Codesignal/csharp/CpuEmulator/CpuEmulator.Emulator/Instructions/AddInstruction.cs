@@ -15,7 +15,7 @@ namespace CpuEmulator.Emulator.Instructions
 
 		public Machine Apply(Machine machine)
 		{
-			machine.Vm.Write(A, (machine.Vm.Read(A) + machine.Vm.Read(B)) % (uint)Math.Pow(2, 32));
+			machine.Vm.Write(A, (uint)((machine.Vm.Read(A) + machine.Vm.Read(B)) % Math.Pow(2, 32)));
 			machine.NextInstruction();
 
 			return machine;
