@@ -1,5 +1,6 @@
-using System.Collections.Generic;
 using System.Numerics;
+using System.Collections.Generic;
+
 using CpuEmulator.Emulator.Instructions;
 
 namespace CpuEmulator.Emulator

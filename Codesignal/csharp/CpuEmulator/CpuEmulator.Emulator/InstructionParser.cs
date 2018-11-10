@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using CpuEmulator.Emulator.Exceptions;
 using CpuEmulator.Emulator.Instructions;
 
 namespace CpuEmulator.Emulator
