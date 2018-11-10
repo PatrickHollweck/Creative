@@ -46,12 +46,12 @@ namespace CpuEmulator.Emulator.Test
 			{
 				"MOV 32,R00",
 				"MOV 1,R41",
-				"JZ 8",
-				"MOV R41,R42",
-				"ADD R41,R42",
+				"JZ 7",
+				"ADD R41,R41",
 				"DEC R00",
 				"JMP 3",
-				"NOP"
+				"NOP",
+				"MOV R41,R42"
 			});
 
 			Assert.Equal("0", result.ToString());
