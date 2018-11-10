@@ -57,7 +57,6 @@ namespace CpuEmulator.Emulator.Test
 			Assert.Equal("0", result.ToString());
 		}
 
-
 		[Fact]
 		public void ShouldRun_Instructions_4()
 		{
@@ -102,6 +101,7 @@ namespace CpuEmulator.Emulator.Test
 
 			Assert.Equal("4294954797", result.ToString());
 		}
+
 		[Fact]
 		public void ShouldRun_Instructions_7()
 		{
@@ -117,6 +117,7 @@ namespace CpuEmulator.Emulator.Test
 
 			Assert.Equal("4294967292", result.ToString());
 		}
+
 		[Fact]
 		public void ShouldRun_Instructions_8()
 		{
@@ -139,6 +140,7 @@ namespace CpuEmulator.Emulator.Test
 
 			Assert.Equal("10100", result.ToString());
 		}
+
 		[Fact]
 		public void ShouldRun_Instructions_9()
 		{

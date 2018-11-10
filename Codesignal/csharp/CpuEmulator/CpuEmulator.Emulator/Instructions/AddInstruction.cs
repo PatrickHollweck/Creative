@@ -1,5 +1,4 @@
 using System;
-using System.Numerics;
 
 namespace CpuEmulator.Emulator.Instructions
 {
@@ -14,10 +13,12 @@ namespace CpuEmulator.Emulator.Instructions
 			B = b;
 		}
 
-		public (VM, BigInteger) Apply(VM vm, BigInteger instructionCounter)
+		public Machine Apply(Machine machine)
 		{
-			vm.Write(A, (vm.Read(A) + vm.Read(B)) % (uint)Math.Pow(2, 32));
-			return (vm, instructionCounter + 1);
+			machine.Vm.Write(A, (machine.Vm.Read(A) + machine.Vm.Read(B)) % (uint)Math.Pow(2, 32));
+			machine.NextInstruction();
+
+			return machine;
 		}
 	}
 }

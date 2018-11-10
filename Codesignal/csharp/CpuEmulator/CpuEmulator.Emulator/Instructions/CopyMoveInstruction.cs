@@ -13,10 +13,12 @@ namespace CpuEmulator.Emulator.Instructions
 			To = to;
 		}
 
-		public (VM, BigInteger) Apply(VM vm, BigInteger instructionCounter)
+		public Machine Apply(Machine machine)
 		{
-			vm.Write(To, vm.Read(From));
-			return (vm, instructionCounter + 1);
+			machine.Vm.Write(To, machine.Vm.Read(From));
+			machine.NextInstruction();
+
+			return machine;
 		}
 	}
 }

@@ -6,15 +6,13 @@ namespace CpuEmulator.Emulator
 {
 	public class Emulator
 	{
-		// TODO: Problems most likely in Register Value data-type, convert to BigInteger and do proper range checks!
-
 		public const int REGISTER_COUNT = 43;
 
-		protected VM Vm;
+		protected Machine machine;
 
-		protected Emulator()
+		public Emulator()
 		{
-			Vm = new VM();
+			machine = Machine.Default();
 		}
 
 		public static BigInteger Run(string[] instructions)
@@ -29,16 +27,15 @@ namespace CpuEmulator.Emulator
 
 		public void Execute(List<Instruction> instructions)
 		{
-			BigInteger instructionCounter = 0;
-			while (instructionCounter < instructions.Count)
+			while (machine.InstructionCounter < instructions.Count)
 			{
-				(Vm, instructionCounter) = instructions[(int)instructionCounter].Apply(Vm, instructionCounter);
+				machine = instructions[(int)machine.InstructionCounter].Apply(machine);
 			}
 		}
 
 		public BigInteger GetReturnValue()
 		{
-			return Vm.Read(RegisterAddress.FromInt(42));
+			return machine.Vm.Read(RegisterAddress.FromInt(42));
 		}
 	}
 }

@@ -4,6 +4,6 @@ namespace CpuEmulator.Emulator.Instructions
 {
 	public interface Instruction
 	{
-		(VM vm, BigInteger instructionCounter) Apply(VM vm, BigInteger instructionCounter);
+		Machine Apply(Machine machine);
 	}
 }

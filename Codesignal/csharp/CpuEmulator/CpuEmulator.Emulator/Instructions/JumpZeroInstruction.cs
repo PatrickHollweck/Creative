@@ -11,15 +11,18 @@ namespace CpuEmulator.Emulator.Instructions
 			Target = target;
 		}
 
-		public (VM, BigInteger) Apply(VM vm, BigInteger instructionCounter)
+		public Machine Apply(Machine machine)
 		{
-			if (vm.Read(RegisterAddress.FromInt(0)) == 0)
+			if (machine.Vm.Read(RegisterAddress.FromInt(0)) == 0)
 			{
-				instructionCounter = Target.GetIndex() - 1;
-				return (vm, instructionCounter);
+				machine.JumpToInstruction(Target.GetIndex() - 1);
+			}
+			else
+			{
+				machine.NextInstruction();
 			}
 
-			return (vm, instructionCounter + 1);
+			return machine;
 		}
 	}
 }

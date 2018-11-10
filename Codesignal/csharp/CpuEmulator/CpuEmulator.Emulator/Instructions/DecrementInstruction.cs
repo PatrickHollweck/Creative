@@ -12,20 +12,22 @@ namespace CpuEmulator.Emulator.Instructions
 			Target = target;
 		}
 
-		public (VM, BigInteger) Apply(VM vm, BigInteger instructionCounter)
+		public Machine Apply(Machine machine)
 		{
-			var storedValue = vm.Read(Target);
+			var storedValue = machine.Vm.Read(Target);
 
 			if (storedValue == 0)
 			{
-				vm.Write(Target, (uint)Math.Pow(2, 32) - 1);
+				machine.Vm.Write(Target, (uint)Math.Pow(2, 32) - 1);
 			}
 			else
 			{
-				vm.Write(Target, storedValue - 1);
+				machine.Vm.Write(Target, storedValue - 1);
 			}
 
-			return (vm, instructionCounter + 1);
+			machine.NextInstruction();
+
+			return machine;
 		}
 	}
 }

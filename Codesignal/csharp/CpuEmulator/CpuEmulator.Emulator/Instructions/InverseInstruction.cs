@@ -11,10 +11,12 @@ namespace CpuEmulator.Emulator.Instructions
 			Target = target;
 		}
 
-		public (VM, BigInteger) Apply(VM vm, BigInteger instructionCounter)
+		public Machine Apply(Machine machine)
 		{
-			vm.Write(Target, ~vm.Read(Target));
-			return (vm, instructionCounter + 1);
+			machine.Vm.Write(Target, ~machine.Vm.Read(Target));
+			machine.NextInstruction();
+
+			return machine;
 		}
 	}
 }

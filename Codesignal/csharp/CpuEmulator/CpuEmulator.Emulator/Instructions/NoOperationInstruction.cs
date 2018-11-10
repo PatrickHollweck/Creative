@@ -4,9 +4,11 @@ namespace CpuEmulator.Emulator.Instructions
 {
 	public class NoOperationInstruction : Instruction
 	{
-		public (VM, BigInteger) Apply(VM vm, BigInteger instructionCounter)
+		public Machine Apply(Machine machine)
 		{
-			return (vm, instructionCounter + 1);
+			machine.NextInstruction();
+
+			return machine;
 		}
 	}
 }
