@@ -3,16 +3,15 @@
 This repo holds some of my smaller project that I think should be open-source / under source control.
 It is split in the following two categories.
 
-- Creative
+#### Creative
 
 A Collection of smaller or creative Project's inpired by Rainbow-Code by Daniel Shiffman
 
-- Challanges
+#### Challanges
 
 Coding Challenges from website listed below.
 
-#### Challange Sources
+##### Challange Sources
 
-- [exercism](https://exercism.io/)
-- [CodeSignal](https://codesignal.com/)
-
+-   [exercism](https://exercism.io/)
+-   [CodeSignal](https://codesignal.com/)
