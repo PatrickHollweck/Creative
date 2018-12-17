@@ -1,10 +1,15 @@
 # Creative
 
+This repo holds some of my smaller project that I think should be open-source / under source control.
+It is split in the following two categories.
+
+- Creative
+
 A Collection of smaller or creative Project's inpired by Rainbow-Code by Daniel Shiffman
 
-## CodingChallanges
+- Challanges
 
-This repo contains anwsers and solutions to various coding challanges.
+Coding Challenges from website listed below.
 
 #### Challange Sources
 
