@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFlakeBot.Core", "NoFlakeBot.Core\NoFlakeBot.Core.csproj", "{07DB9F0E-0870-4495-8AED-DCD1B06BE1B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFlakeBot.Terminal", "NoFlakeBot.Terminal\NoFlakeBot.Terminal.csproj", "{6742107A-65AC-44C7-BAFF-14CA580CC429}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{07DB9F0E-0870-4495-8AED-DCD1B06BE1B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07DB9F0E-0870-4495-8AED-DCD1B06BE1B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07DB9F0E-0870-4495-8AED-DCD1B06BE1B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07DB9F0E-0870-4495-8AED-DCD1B06BE1B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6742107A-65AC-44C7-BAFF-14CA580CC429}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6742107A-65AC-44C7-BAFF-14CA580CC429}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6742107A-65AC-44C7-BAFF-14CA580CC429}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6742107A-65AC-44C7-BAFF-14CA580CC429}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D00A2788-1361-4046-93CD-59AC2C676A60}
+	EndGlobalSection
+EndGlobal
