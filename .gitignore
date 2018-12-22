@@ -12,6 +12,9 @@
 build
 out
 
+# Java settings
+.settings
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -23,6 +26,7 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+target/
 
 # Visual Studio 2015 cache/options directory
 .vs/
