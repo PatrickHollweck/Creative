@@ -1,13 +1,14 @@
 package com.patrickhollweck.UPS;
 
-import com.patrickhollweck.UPS.game.Drawable;
 import com.patrickhollweck.UPS.game.Game;
+
+import com.patrickhollweck.UPS.game.Entity;
 import com.patrickhollweck.UPS.game.RenderContext;
 
 import processing.core.PApplet;
 
 public class GameApplet extends PApplet {
-	protected Drawable topLevelDrawable;
+	protected Entity topLevelDrawable;
 	protected RenderContext renderContext;
 
 	@Override
@@ -17,8 +18,10 @@ public class GameApplet extends PApplet {
 
 	@Override
 	public void setup() {
-		this.topLevelDrawable = new Game();
 		this.renderContext = new RenderContext(this);
+
+		this.topLevelDrawable = new Game();
+		this.topLevelDrawable.setup(renderContext);
 	}
 
 	@Override
