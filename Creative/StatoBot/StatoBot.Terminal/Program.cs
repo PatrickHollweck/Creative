@@ -73,6 +73,13 @@ namespace StatoBot.Terminal
 		private static void UpdateTitle()
 		{
 			Console.Title = "StatoBot - Last Save: " + DateTime.Now;
+			Console.BackgroundColor = ConsoleColor.Yellow;
+			Console.ForegroundColor = ConsoleColor.Black;
+
+			Console.WriteLine("------ S A V E D ------");
+
+			Console.BackgroundColor = ConsoleColor.Black;
+			Console.ForegroundColor = ConsoleColor.White;
 		}
 
 		private static void WriteReport(AnalyzerBot bot)
