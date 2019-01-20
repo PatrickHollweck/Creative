@@ -2,10 +2,10 @@ using System.Numerics;
 
 namespace CpuEmulator.Emulator
 {
-	public class Machine
+	public sealed class Machine
 	{
-		public VM Vm { get; protected set; }
-		public BigInteger InstructionCounter { get; protected set; }
+		public VM Vm { get; set; }
+		public BigInteger InstructionCounter { get; set; }
 
 		private Machine(VM vm, BigInteger instructionCounter)
 		{
