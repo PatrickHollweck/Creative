@@ -6,13 +6,18 @@ namespace CpuEmulator.Emulator
 {
 	public class InstructionParser
 	{
-		public static List<Instruction> Parse(string[] instructions)
+		public static List<Instruction> Parse(string source)
 		{
 			var result = new List<Instruction>();
 
-			foreach (var instruction in instructions)
+			foreach (var line in source.Split('\n'))
 			{
-				result.Add(ParseSingle(instruction));
+				if(string.IsNullOrWhiteSpace(line))
+				{
+					continue;
+				}
+
+				result.Add(ParseSingle(line.Trim()));
 			}
 
 			return result;

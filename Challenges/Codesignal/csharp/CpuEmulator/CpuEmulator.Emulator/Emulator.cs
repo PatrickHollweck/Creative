@@ -19,7 +19,7 @@ namespace CpuEmulator.Emulator
 			this.machine = machine;
 		}
 
-		public static BigInteger Run(string[] instructions, int memorySize = 43)
+		public static BigInteger Run(string instructions, int memorySize = 43)
 		{
 			var parsedInstructions = InstructionParser.Parse(instructions);
 
