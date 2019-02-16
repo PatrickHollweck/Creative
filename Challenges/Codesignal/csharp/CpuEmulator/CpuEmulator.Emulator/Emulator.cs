@@ -1,7 +1,9 @@
 using System.Numerics;
 using System.Collections.Generic;
 
-using CpuEmulator.Emulator.Instructions;
+using CpuEmulator.Emulator.Parser;
+using CpuEmulator.Emulator.Tokens.Instructions;
+using CpuEmulator.Emulator.Tokens;
 
 namespace CpuEmulator.Emulator
 {
@@ -29,7 +31,7 @@ namespace CpuEmulator.Emulator
 			return emulator.GetReturnValue();
 		}
 
-		public void Execute(List<Instruction> instructions)
+		public void Execute(List<Token> instructions)
 		{
 			while (machine.InstructionCounter < instructions.Count)
 			{
@@ -40,9 +42,12 @@ namespace CpuEmulator.Emulator
 			machine.JumpToInstruction(0);
 		}
 
-		public void Step(Instruction instruction)
+		public void Step(Token token)
 		{
-			machine = instruction.Apply(machine);
+			if(token is Instruction instruction)
+			{
+				machine = instruction.Apply(machine);
+			}
 		}
 
 		public BigInteger GetReturnValue()

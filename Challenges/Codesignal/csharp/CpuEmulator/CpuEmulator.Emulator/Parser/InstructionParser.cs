@@ -1,31 +1,52 @@
 using System;
+using System.Numerics;
 using System.Collections.Generic;
-using CpuEmulator.Emulator.Instructions;
 
-namespace CpuEmulator.Emulator
+using CpuEmulator.Emulator.Tokens;
+using CpuEmulator.Emulator.Tokens.Instructions;
+
+namespace CpuEmulator.Emulator.Parser
 {
 	public class InstructionParser
 	{
-		public static List<Instruction> Parse(string source)
+		public static List<Token> Parse(string source)
 		{
-			var result = new List<Instruction>();
+			var result = new List<Token>();
+			var lines = source.Split('\n');
 
-			foreach (var line in source.Split('\n'))
+			for (int i = 0; i < lines.Length; i++)
 			{
+				var line = lines[i];
+
 				if(string.IsNullOrWhiteSpace(line))
 				{
 					continue;
 				}
 
-				result.Add(ParseSingle(line.Trim()));
+				var trimmedLine = line.Trim();
+				var context = new ParseContext(i, trimmedLine);
+
+				if(trimmedLine.EndsWith(":")) {
+					result.Add(ParseLabel(context));
+				} else {
+					result.Add(ParseInstruction(context));
+				}
 			}
 
 			return result;
 		}
 
-		protected static Instruction ParseSingle(string instruction)
+		protected static Label ParseLabel(ParseContext context)
 		{
-			var tokens = instruction.Split(' ', ',');
+			return new Label(
+				context.Source.Substring(0, context.Source.Length - 1),
+				context.CurrentLineNumber
+			);
+		}
+
+		protected static Instruction ParseInstruction(ParseContext context)
+		{
+			var tokens = context.Source.Split(' ', ',');
 			var instructionName = tokens[0];
 
 			switch (instructionName)
