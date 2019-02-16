@@ -5,16 +5,19 @@ namespace CpuEmulator.Emulator.Exceptions
 {
 	public class RegisterOutOfRangeException : Exception
 	{
-		public BigInteger Index;
+		public readonly BigInteger Index;
 
-		public RegisterOutOfRangeException(BigInteger index)
+		public readonly Machine Machine;
+
+		public RegisterOutOfRangeException(BigInteger index, Machine machine)
 		{
 			Index = index;
+			Machine = machine;
 		}
 
 		public override string ToString()
 		{
-			return $"Specified Register: '{Index}' is not in range! Valid range is between 0 and {Emulator.REGISTER_COUNT}";
+			return $"Specified Register: '{Index}' is not in range! Valid range is between 0 and {Machine.Memory.Size}";
 		}
 	}
 }

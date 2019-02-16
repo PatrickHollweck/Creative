@@ -6,13 +6,15 @@ namespace CpuEmulator.Emulator
 	{
 		public readonly uint DEFAULT_REGISTER_VALUE = 0;
 
+		public int Size => this.Registers.Length;
+
 		protected Register[] Registers;
 
-		public Memory()
+		public Memory(int size)
 		{
-			Registers = new Register[Emulator.REGISTER_COUNT];
+			Registers = new Register[size];
 
-			foreach (var i in Enumerable.Range(0, Emulator.REGISTER_COUNT))
+			foreach (var i in Enumerable.Range(0, size))
 			{
 				Registers[i] = new Register(RegisterAddress.FromInt(i), DEFAULT_REGISTER_VALUE);
 			}

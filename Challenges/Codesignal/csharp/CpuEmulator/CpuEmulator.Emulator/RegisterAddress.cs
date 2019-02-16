@@ -21,11 +21,6 @@ namespace CpuEmulator.Emulator
 			address = address.Remove(0, 1);
 			if (int.TryParse(address, out int parsedAddress))
 			{
-				if (parsedAddress < 0 || parsedAddress > Emulator.REGISTER_COUNT)
-				{
-					throw new Exception($"Invalid Register name! '{parsedAddress}' is not in the valid address range");
-				}
-
 				return new RegisterAddress(parsedAddress);
 			}
 			else

@@ -7,20 +7,23 @@ namespace CpuEmulator.Emulator
 {
 	public class Emulator
 	{
-		public const int REGISTER_COUNT = 43;
+		public Machine machine { get; protected set; }
 
-		protected Machine machine;
-
-		public Emulator()
+		public Emulator(int memorySize)
 		{
 			machine = Machine.Default();
 		}
 
-		public static BigInteger Run(string[] instructions)
+		public Emulator(Machine machine)
+		{
+			this.machine = machine;
+		}
+
+		public static BigInteger Run(string[] instructions, int memorySize = 43)
 		{
 			var parsedInstructions = InstructionParser.Parse(instructions);
 
-			var emulator = new Emulator();
+			var emulator = new Emulator(memorySize);
 			emulator.Execute(parsedInstructions);
 
 			return emulator.GetReturnValue();
@@ -30,16 +33,21 @@ namespace CpuEmulator.Emulator
 		{
 			while (machine.InstructionCounter < instructions.Count)
 			{
-				machine = instructions[(int)machine.InstructionCounter].Apply(machine);
+				Step(instructions[(int)machine.InstructionCounter]);
 			}
 
 			// Reset the instruction counter so another set of instructions can be executed.
 			machine.JumpToInstruction(0);
 		}
 
+		public void Step(Instruction instruction)
+		{
+			machine = instruction.Apply(machine);
+		}
+
 		public BigInteger GetReturnValue()
 		{
-			return machine.Memory.Read(RegisterAddress.FromInt(42));
+			return machine.Memory.Read(RegisterAddress.FromInt(machine.Memory.Size - 1));
 		}
 	}
 }

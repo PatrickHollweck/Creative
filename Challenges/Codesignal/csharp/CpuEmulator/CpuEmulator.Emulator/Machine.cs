@@ -2,12 +2,13 @@ using System.Numerics;
 
 namespace CpuEmulator.Emulator
 {
-	public sealed class Machine
+	public class Machine
 	{
 		public Memory Memory { get; set; }
-		public BigInteger InstructionCounter { get; set; }
 
-		private Machine(Memory memory, BigInteger instructionCounter)
+		public BigInteger InstructionCounter { get; protected set; }
+
+		public Machine(Memory memory, BigInteger instructionCounter)
 		{
 			Memory = memory;
 			InstructionCounter = instructionCounter;
@@ -15,7 +16,7 @@ namespace CpuEmulator.Emulator
 
 		public static Machine Default()
 		{
-			return new Machine(new Memory(), 0);
+			return new Machine(new Memory(43), 0);
 		}
 
 		public void NextInstruction()
