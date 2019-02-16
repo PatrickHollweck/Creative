@@ -39,7 +39,7 @@ namespace CpuEmulator.Emulator
 
 		public BigInteger GetReturnValue()
 		{
-			return machine.Vm.Read(RegisterAddress.FromInt(42));
+			return machine.Memory.Read(RegisterAddress.FromInt(42));
 		}
 	}
 }

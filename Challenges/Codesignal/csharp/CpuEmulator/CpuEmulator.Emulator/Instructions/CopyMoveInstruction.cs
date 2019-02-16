@@ -15,7 +15,7 @@ namespace CpuEmulator.Emulator.Instructions
 
 		public Machine Apply(Machine machine)
 		{
-			machine.Vm.Write(To, machine.Vm.Read(From));
+			machine.Memory.Write(To, machine.Memory.Read(From));
 			machine.NextInstruction();
 
 			return machine;

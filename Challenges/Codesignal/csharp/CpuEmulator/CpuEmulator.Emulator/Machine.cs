@@ -4,18 +4,18 @@ namespace CpuEmulator.Emulator
 {
 	public sealed class Machine
 	{
-		public VM Vm { get; set; }
+		public Memory Memory { get; set; }
 		public BigInteger InstructionCounter { get; set; }
 
-		private Machine(VM vm, BigInteger instructionCounter)
+		private Machine(Memory memory, BigInteger instructionCounter)
 		{
-			Vm = vm;
+			Memory = memory;
 			InstructionCounter = instructionCounter;
 		}
 
 		public static Machine Default()
 		{
-			return new Machine(new VM(), 0);
+			return new Machine(new Memory(), 0);
 		}
 
 		public void NextInstruction()

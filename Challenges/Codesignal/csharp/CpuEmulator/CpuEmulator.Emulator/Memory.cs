@@ -2,13 +2,13 @@ using System.Linq;
 
 namespace CpuEmulator.Emulator
 {
-	public class VM
+	public class Memory
 	{
 		public readonly uint DEFAULT_REGISTER_VALUE = 0;
 
 		protected Register[] Registers;
 
-		public VM()
+		public Memory()
 		{
 			Registers = new Register[Emulator.REGISTER_COUNT];
 

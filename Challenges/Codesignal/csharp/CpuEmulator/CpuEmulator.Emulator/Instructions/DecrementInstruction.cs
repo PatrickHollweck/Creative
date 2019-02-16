@@ -14,15 +14,15 @@ namespace CpuEmulator.Emulator.Instructions
 
 		public Machine Apply(Machine machine)
 		{
-			var storedValue = machine.Vm.Read(Target);
+			var storedValue = machine.Memory.Read(Target);
 
 			if (storedValue == 0)
 			{
-				machine.Vm.Write(Target, (uint)Math.Pow(2, 32) - 1);
+				machine.Memory.Write(Target, (uint)Math.Pow(2, 32) - 1);
 			}
 			else
 			{
-				machine.Vm.Write(Target, storedValue - 1);
+				machine.Memory.Write(Target, storedValue - 1);
 			}
 
 			machine.NextInstruction();

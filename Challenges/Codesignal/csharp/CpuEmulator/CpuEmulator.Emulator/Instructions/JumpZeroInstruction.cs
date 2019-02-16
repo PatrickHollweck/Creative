@@ -13,7 +13,7 @@ namespace CpuEmulator.Emulator.Instructions
 
 		public Machine Apply(Machine machine)
 		{
-			if (machine.Vm.Read(RegisterAddress.FromInt(0)) == 0)
+			if (machine.Memory.Read(RegisterAddress.FromInt(0)) == 0)
 			{
 				machine.JumpToInstruction(Target.GetIndex() - 1);
 			}
