@@ -1,7 +1,7 @@
 using System;
 using System.Numerics;
 
-namespace CpuEmulator.Emulator.Tokens.Instructions
+namespace CpuEmulator.Emulator.Instructions
 {
 	public class DecrementInstruction : Instruction
 	{

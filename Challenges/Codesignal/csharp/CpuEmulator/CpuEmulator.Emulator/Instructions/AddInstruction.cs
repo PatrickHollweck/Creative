@@ -1,6 +1,6 @@
 using System;
 
-namespace CpuEmulator.Emulator.Tokens.Instructions
+namespace CpuEmulator.Emulator.Instructions
 {
 	public class AddInstruction : Instruction
 	{

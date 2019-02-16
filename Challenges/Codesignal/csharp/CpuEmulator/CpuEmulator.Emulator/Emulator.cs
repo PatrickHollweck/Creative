@@ -1,58 +1,54 @@
 using System.Numerics;
 using System.Collections.Generic;
 
-using CpuEmulator.Emulator.Parser;
-using CpuEmulator.Emulator.Tokens.Instructions;
-using CpuEmulator.Emulator.Tokens;
+using CpuEmulator.Emulator.Instructions;
+using CpuEmulator.Emulator.Assembler.Compiler;
 
 namespace CpuEmulator.Emulator
 {
 	public class Emulator
 	{
-		public Machine machine { get; protected set; }
+		public Machine Machine { get; protected set; }
 
 		public Emulator(int memorySize)
 		{
-			machine = Machine.Default();
+			Machine = new Machine(new Memory(memorySize), 0);
 		}
 
 		public Emulator(Machine machine)
 		{
-			this.machine = machine;
+			this.Machine = machine;
 		}
 
-		public static BigInteger Run(string instructions, int memorySize = 43)
+		public static BigInteger Run(string source, int memorySize = 43)
 		{
-			var parsedInstructions = InstructionParser.Parse(instructions);
+			var instructions = AssemblyCompiler.Compile(source);
 
 			var emulator = new Emulator(memorySize);
-			emulator.Execute(parsedInstructions);
+			emulator.Execute(instructions);
 
 			return emulator.GetReturnValue();
 		}
 
-		public void Execute(List<Token> instructions)
+		public void Execute(List<Instruction> instructions)
 		{
-			while (machine.InstructionCounter < instructions.Count)
+			while (Machine.InstructionCounter < instructions.Count)
 			{
-				Step(instructions[(int)machine.InstructionCounter]);
+				Step(instructions[(int)Machine.InstructionCounter]);
 			}
 
 			// Reset the instruction counter so another set of instructions can be executed.
-			machine.JumpToInstruction(0);
+			Machine.JumpToInstruction(0);
 		}
 
-		public void Step(Token token)
+		public void Step(Instruction instruction)
 		{
-			if(token is Instruction instruction)
-			{
-				machine = instruction.Apply(machine);
-			}
+			Machine = instruction.Apply(Machine);
 		}
 
 		public BigInteger GetReturnValue()
 		{
-			return machine.Memory.Read(RegisterAddress.FromInt(machine.Memory.Size - 1));
+			return Machine.Memory.Read(RegisterAddress.FromInt(Machine.Memory.Size - 1));
 		}
 	}
 }

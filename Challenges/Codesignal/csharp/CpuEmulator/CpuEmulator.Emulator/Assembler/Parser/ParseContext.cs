@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace CpuEmulator.Emulator.Parser
+namespace CpuEmulator.Emulator.Assembler.Parser
 {
 	public class ParseContext
 	{

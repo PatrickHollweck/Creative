@@ -16,19 +16,16 @@ namespace CpuEmulator.Benchmark
 		[Benchmark]
 		public void Default()
 		{
-			Emulator.Emulator.Run(
-				new string[]
-				{
-					"MOV 32,R00",
-					"MOV 1,R41",
-					"JZ 8",
-					"MOV R41,R42",
-					"ADD R41,R42",
-					"DEC R00",
-					"JMP 3",
-					"NOP"
-				}
-			);
+			Emulator.Emulator.Run(@"
+				MOV 32,R00
+				MOV 1,R41
+				JZ 8
+				MOV R41,R42
+				ADD R41,R42
+				DEC R00
+				JMP 3
+				NOP
+			");
 		}
 	}
 }

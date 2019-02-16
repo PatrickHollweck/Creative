@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace CpuEmulator.Emulator.Tokens
+namespace CpuEmulator.Emulator.Assembler.Tokens
 {
 	public class Label : Token
 	{
