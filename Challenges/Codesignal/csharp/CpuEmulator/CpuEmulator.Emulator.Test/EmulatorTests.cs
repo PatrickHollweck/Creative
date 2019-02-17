@@ -140,21 +140,5 @@ namespace CpuEmulator.Emulator.Test
 
 			Assert.Equal("0", result.ToString());
 		}
-
-		[Fact]
-		public void ShouldSupportLabels()
-		{
-			var result = Emulator.Run(@"
-				main:
-					MOV 10,R00
-					MOV 20,R01
-					CALL add
-				add:
-					ADD R00,R01
-					MOV R00,R42
-			");
-
-			Assert.Equal("30", result.ToString());
-		}
 	}
 }

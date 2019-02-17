@@ -28,22 +28,10 @@ namespace CpuEmulator.Emulator.Assembler.Parser
 				var trimmedLine = line.Trim();
 				var context = new ParseContext(i, trimmedLine);
 
-				if(trimmedLine.EndsWith(":")) {
-					result.Add(ParseLabel(context));
-				} else {
-					result.Add(ParseInstruction(context));
-				}
+				result.Add(ParseInstruction(context));
 			}
 
 			return result;
-		}
-
-		protected static Label ParseLabel(ParseContext context)
-		{
-			return new Label(
-				ParseLabelName(context.Source),
-				context.CurrentLineNumber
-			);
 		}
 
 		protected static Token ParseInstruction(ParseContext context)
@@ -72,8 +60,6 @@ namespace CpuEmulator.Emulator.Assembler.Parser
 				case "JZ":
 					var jumpZeroIndex = int.Parse(tokens[1]);
 					return InstructionToToken(new JumpZeroInstruction(RegisterAddress.FromInt(jumpZeroIndex)));
-				case "CALL":
-					return new CallToken(ParseLabelName(context.Source));
 				case "NOP":
 					return InstructionToToken(new NoOperationInstruction());
 				default:

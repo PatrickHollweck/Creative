@@ -12,7 +12,6 @@ namespace CpuEmulator.Emulator.Assembler.Compiler
 		public static List<Instruction> Compile(string source)
 		{
 			var tokens = InstructionParser.Parse(source);
-
 			var result = new List<Instruction>();
 
 			tokens.ForEach(token =>
