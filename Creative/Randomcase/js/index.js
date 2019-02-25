@@ -12,7 +12,7 @@ class Randomcase {
 			.map(char =>
 				Math.random() > 0.5 ? char.toUpperCase() : char.toLowerCase()
 			)
-			.reduce((acc, curr) => acc += curr, "");
+			.join("");
 	}
 }
 
@@ -22,14 +22,14 @@ class Randomcase {
 
 const input = process.argv[2];
 
-if(!input) {
+if (!input) {
 	console.error('Input has to be provided! Use "--help" for help');
 } else {
 	processInput(input);
 }
 
 function processInput(input) {
-	switch(input) {
+	switch (input) {
 		case "--help":
 		case "-h":
 			console.log("Usage: node index.js \"<string to randomcase>\"");
