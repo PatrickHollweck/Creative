@@ -9,7 +9,7 @@ using StatoBot.Reports.Formatters;
 
 namespace StatoBot.Terminal
 {
-	internal class Program
+	internal static class Program
 	{
 		private static void Main()
 		{
@@ -53,7 +53,7 @@ namespace StatoBot.Terminal
 
 			var saver = new StatisticsSaver($"{basePath}/{bot.Channel}_stats.json", bot.Analyzer);
 
-			bot.Analyzer.OnStatisticsChanged += (e) =>
+			bot.Analyzer.OnStatisticsChanged += (_) =>
 			{
 				if (!timeout.IsOver())
 				{

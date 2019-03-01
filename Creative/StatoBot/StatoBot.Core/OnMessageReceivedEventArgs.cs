@@ -20,7 +20,7 @@ namespace StatoBot.Core
 			Bot = bot;
 			RawMessage = rawMessage;
 
-			Author = new Regex(@"@(.*).tmi.twitch.tv").Match(RawMessage).Groups[1].Value;
+			Author = new Regex("@(.*).tmi.twitch.tv").Match(RawMessage).Groups[1].Value;
 			Content = new Regex($"PRIVMSG #{Bot.Channel} :(.*)$").Match(RawMessage).Groups[1].Value;
 
 			Author = string.IsNullOrWhiteSpace(Author) ? null : Author;
