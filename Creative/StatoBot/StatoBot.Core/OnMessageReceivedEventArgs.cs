@@ -17,6 +17,8 @@ namespace StatoBot.Core
 
         public OnMessageReceivedEventArgs(string rawMessage, TwitchBot bot)
         {
+            // TODO: Parsing is not really the responsibility of this class.
+
             Bot = bot;
             RawMessage = rawMessage;
 

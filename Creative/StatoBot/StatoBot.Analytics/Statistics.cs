@@ -10,11 +10,7 @@ namespace StatoBot.Analytics
 
         public Statistics()
         {
-            encoder = Encoding.GetEncoding(
-                "UTF-8",
-                new EncoderReplacementFallback(string.Empty),
-                new DecoderExceptionFallback()
-            );
+            encoder = Encoding.UTF8;
         }
 
         public void Increment(string key)
