@@ -28,7 +28,7 @@ namespace StatoBot.Analytics
             else
             {
                 TryGetValue(key, out var count);
-                TryRemove(key, out decimal _);
+                TryRemove(key, out var _);
                 TryAdd(key, count + 1);
             }
         }
