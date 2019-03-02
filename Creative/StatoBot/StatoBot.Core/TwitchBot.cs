@@ -98,7 +98,9 @@ namespace StatoBot.Core
 
         private async void RespondToPing(OnMessageReceivedEventArgs args)
         {
-            var match = new Regex("^PING :(.*)$").Match(args.Message.RawMessage);
+            var match = new Regex("^PING :(.*)$", RegexOptions.Compiled)
+                            .Match(args.Message.RawMessage);
+
             if (match.Success)
             {
                 await WriteToSystemAsync($"PONG {match.NextMatch()}");
