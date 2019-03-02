@@ -9,94 +9,94 @@ using StatoBot.Reports.Formatters;
 
 namespace StatoBot.Terminal
 {
-	internal static class Program
-	{
-		private static void Main()
-		{
-			Task.Run(MainAsync).Wait();
-		}
+    internal static class Program
+    {
+        private static void Main()
+        {
+            Task.Run(MainAsync).Wait();
+        }
 
-		private static async Task MainAsync()
-		{
-			UpdateTitle();
+        private static async Task MainAsync()
+        {
+            UpdateTitle();
 
-			Console.Write("Input the channel name you want stats for: ");
-			var channelName = Console.ReadLine();
+            Console.Write("Input the channel name you want stats for: ");
+            var channelName = Console.ReadLine();
 
-			var credentialsPath = "./twitch_credentials.json";
-			if (!File.Exists(credentialsPath))
-			{
-				Console.Write("Input the path where your twitch credentials are stored: ");
-				credentialsPath = Console.ReadLine();
-			}
+            var credentialsPath = "./twitch_credentials.json";
+            if (!File.Exists(credentialsPath))
+            {
+                Console.Write("Input the path where your twitch credentials are stored: ");
+                credentialsPath = Console.ReadLine();
+            }
 
-			Credentials credentials;
-			try
-			{
-				credentials = Credentials.FromFile(credentialsPath);
-			}
-			catch (Exception e)
-			{
-				Console.Write("Failed to load credentials: \n" + e.Message);
-				Console.Read();
-				return;
-			}
+            Credentials credentials;
+            try
+            {
+                credentials = Credentials.FromFile(credentialsPath);
+            }
+            catch (Exception e)
+            {
+                Console.Write("Failed to load credentials: \n" + e.Message);
+                Console.Read();
+                return;
+            }
 
-			var bot = new AnalyzerBot(credentials, channelName);
-			var timeout = new Timeout(TimeSpan.FromSeconds(-60));
+            var bot = new AnalyzerBot(credentials, channelName);
+            var timeout = new Timeout(TimeSpan.FromSeconds(-60));
 
-			const string basePath = "./statistics";
-			if (!Directory.Exists(basePath))
-			{
-				Directory.CreateDirectory(basePath);
-			}
+            const string basePath = "./statistics";
+            if (!Directory.Exists(basePath))
+            {
+                Directory.CreateDirectory(basePath);
+            }
 
-			var saver = new StatisticsSaver($"{basePath}/{bot.Channel}_stats.json", bot.Analyzer);
+            var saver = new StatisticsSaver($"{basePath}/{bot.Channel}_stats.json", bot.Analyzer);
 
-			bot.Analyzer.OnStatisticsChanged += (_) =>
-			{
-				if (!timeout.IsOver())
-				{
-					return;
-				}
+            bot.Analyzer.OnStatisticsChanged += (_) =>
+            {
+                if (!timeout.IsOver())
+                {
+                    return;
+                }
 
-				WriteReport(bot);
-				UpdateTitle();
-				saver.Save();
-			};
+                WriteReport(bot);
+                UpdateTitle();
+                saver.Save();
+            };
 
-			bot.OnMessageReceived += LoggingHook;
+            bot.OnMessageReceived += LoggingHook;
 
-			await bot.SetupAndListenAsync();
-		}
+            await bot.SetupAndListenAsync();
+        }
 
-		private static void UpdateTitle()
-		{
-			Console.Title = "StatoBot - Last Save: " + DateTime.Now;
-			Console.BackgroundColor = ConsoleColor.Yellow;
-			Console.ForegroundColor = ConsoleColor.Black;
+        private static void UpdateTitle()
+        {
+            Console.Title = "StatoBot - Last Save: " + DateTime.Now;
+            Console.BackgroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.Black;
 
-			Console.WriteLine("------ S A V E D ------");
+            Console.WriteLine("------ S A V E D ------");
 
-			Console.BackgroundColor = ConsoleColor.Black;
-			Console.ForegroundColor = ConsoleColor.White;
-		}
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.White;
+        }
 
-		private static void WriteReport(AnalyzerBot bot)
-		{
-			File.WriteAllText($"./statistics/{bot.Channel}_chat_report.md", ReportGenerator.ForAnalyzingBot(bot).FormatWith<MarkdownFormatter>());
-		}
+        private static void WriteReport(AnalyzerBot bot)
+        {
+            File.WriteAllText($"./statistics/{bot.Channel}_chat_report.md", ReportGenerator.ForAnalyzingBot(bot).FormatWith<MarkdownFormatter>());
+        }
 
-		private static void LoggingHook(OnMessageReceivedEventArgs e)
-		{
-			if (e.IsChatMessage)
-			{
-				Console.WriteLine(e.Author.PadRight(40) + " ::: " + e.Content);
-			}
-			else
-			{
-				Console.WriteLine("TWITCH_SYSTEM ::: " + e.RawMessage);
-			}
-		}
-	}
+        private static void LoggingHook(OnMessageReceivedEventArgs e)
+        {
+            if (e.Message.IsChatMessage)
+            {
+                Console.WriteLine(e.Message.Author.PadRight(40) + " ::: " + e.Message.Content);
+            }
+            else
+            {
+                Console.WriteLine("TWITCH_SYSTEM ::: " + e.Message.RawMessage);
+            }
+        }
+    }
 }

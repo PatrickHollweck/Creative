@@ -69,7 +69,7 @@ namespace StatoBot.Core
             while (!InputStream.EndOfStream)
             {
                 OnMessageReceived?.Invoke(
-                    new OnMessageReceivedEventArgs(await InputStream.ReadLineAsync(), this)
+                    OnMessageReceivedEventArgs.FromRawMessage(await InputStream.ReadLineAsync(), this)
                 );
             }
 
@@ -98,7 +98,7 @@ namespace StatoBot.Core
 
         private async void RespondToPing(OnMessageReceivedEventArgs args)
         {
-            var match = new Regex("^PING :(.*)$").Match(args.RawMessage);
+            var match = new Regex("^PING :(.*)$").Match(args.Message.RawMessage);
             if (match.Success)
             {
                 await WriteToSystemAsync($"PONG {match.NextMatch()}");

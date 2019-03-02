@@ -5,7 +5,6 @@ namespace StatoBot.Reports.Formatters
 {
 	public class MarkdownFormatter : ReportFormatter
 	{
-
 		public string Format(Report report)
 		{
 			return
