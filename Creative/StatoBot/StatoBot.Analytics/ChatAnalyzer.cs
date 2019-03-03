@@ -15,11 +15,6 @@ namespace StatoBot.Analytics
             Statistics = new ChatStatistics();
         }
 
-        public Action<OnMessageReceivedEventArgs> AsHook()
-        {
-            return async (e) => await AnalyzeAsync(e);
-        }
-
         public void Analyze(OnMessageReceivedEventArgs e)
         {
             if (e.Message.IsSystemMessage)

@@ -18,7 +18,7 @@ namespace StatoBot.Core
         protected StreamReader InputStream;
         protected StreamWriter OutputStream;
 
-        public event Action<OnMessageReceivedEventArgs> OnMessageReceived;
+        public event EventHandler<OnMessageReceivedEventArgs> OnMessageReceived;
 
         public TwitchBot(Credentials credentials, string channel)
         {
@@ -64,16 +64,19 @@ namespace StatoBot.Core
 
         public async Task StartReadAsync()
         {
-            OnMessageReceived += RespondToPing;
+            EventHandler<OnMessageReceivedEventArgs> pingResponder = (_, args) => RespondToPing(args.Message);
+
+            OnMessageReceived += pingResponder;
 
             while (!InputStream.EndOfStream)
             {
                 OnMessageReceived?.Invoke(
+                    this,
                     OnMessageReceivedEventArgs.FromRawMessage(await InputStream.ReadLineAsync(), this)
                 );
             }
 
-            OnMessageReceived -= RespondToPing;
+            OnMessageReceived -= pingResponder;
         }
 
         public void Stop()
@@ -96,10 +99,10 @@ namespace StatoBot.Core
             Socket.Dispose();
         }
 
-        private async void RespondToPing(OnMessageReceivedEventArgs args)
+        private async void RespondToPing(TwitchMessage message)
         {
             var match = new Regex("^PING :(.*)$", RegexOptions.Compiled)
-                            .Match(args.Message.RawMessage);
+                            .Match(message.RawMessage);
 
             if (match.Success)
             {

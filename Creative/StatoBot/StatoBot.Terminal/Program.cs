@@ -65,7 +65,7 @@ namespace StatoBot.Terminal
                 saver.Save();
             };
 
-            bot.OnMessageReceived += LoggingHook;
+            bot.OnMessageReceived += (_, args) => LoggingHook(args.Message);
 
             await bot.SetupAndListenAsync();
         }
@@ -84,18 +84,21 @@ namespace StatoBot.Terminal
 
         private static void WriteReport(AnalyzerBot bot)
         {
-            File.WriteAllText($"./statistics/{bot.Channel}_chat_report.md", ReportGenerator.ForAnalyzingBot(bot).FormatWith<MarkdownFormatter>());
+            File.WriteAllText(
+                $"./statistics/{bot.Channel}_chat_report.md",
+                ReportGenerator.FromBot(bot).FormatWith<MarkdownFormatter>()
+            );
         }
 
-        private static void LoggingHook(OnMessageReceivedEventArgs e)
+        private static void LoggingHook(TwitchMessage message)
         {
-            if (e.Message.IsChatMessage)
+            if (message.IsChatMessage)
             {
-                Console.WriteLine(e.Message.Author.PadRight(40) + " ::: " + e.Message.Content);
+                Console.WriteLine(message.Author.PadRight(40) + " ::: " + message.Content);
             }
             else
             {
-                Console.WriteLine("TWITCH_SYSTEM ::: " + e.Message.RawMessage);
+                Console.WriteLine("TWITCH_SYSTEM ::: " + message.RawMessage);
             }
         }
     }
