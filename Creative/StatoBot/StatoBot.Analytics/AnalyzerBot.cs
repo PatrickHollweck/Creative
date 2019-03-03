@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Timers;
+using System.Threading.Tasks;
 
 using StatoBot.Core;
 
@@ -18,9 +19,10 @@ namespace StatoBot.Analytics
 
         private void AnalyzeMessage(object sender, OnMessageReceivedEventArgs args)
         {
-            Analyzer
-                .AnalyzeAsync(args)
-                .Start();
+            Task.Run(() =>
+                Analyzer
+                    .AnalyzeAsync(args)
+            );
         }
     }
 }
