@@ -1,0 +1,16 @@
+[
+    {
+        "modid": "minbo",
+        "name": "Minbo",
+        "description": "",
+        "version": "${version}",
+        "mcversion": "${mcversion}",
+        "url": "",
+        "updateUrl": "",
+        "authorList": [""],
+        "credits": "",
+        "logoFile": "",
+        "screenshots": [],
+        "dependencies": [""]
+    }
+]
