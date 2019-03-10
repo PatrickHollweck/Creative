@@ -2,7 +2,7 @@ using CpuEmulator.Emulator.Instructions;
 
 namespace CpuEmulator.Emulator.Assembler.Tokens
 {
-	public class InstructionToken : Token
+	public class InstructionToken : IToken
 	{
 		public readonly Instruction Instruction;
 

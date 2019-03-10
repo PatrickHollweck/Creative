@@ -1,26 +1,32 @@
 using System;
-using System.Numerics;
 using System.Collections.Generic;
 
 using CpuEmulator.Emulator.Instructions;
-
-using CpuEmulator.Emulator.Assembler;
 using CpuEmulator.Emulator.Assembler.Tokens;
 
 namespace CpuEmulator.Emulator.Assembler.Parser
 {
+	/// <summary>
+	/// An instruction Parser.
+	/// Takes a string and parses instruction out of it.
+	/// </summary>
 	public class InstructionParser
 	{
-		public static List<Token> Parse(string source)
+		/// <summary>
+		/// Parses a string of assembly source code.
+		/// </summary>
+		/// <param name="source">A string containing the instructions</param>
+		/// <returns>A list of <list type="IToken">Tokens</list></returns>
+		public static List<IToken> Parse(string source)
 		{
-			var result = new List<Token>();
+			var result = new List<IToken>();
 			var lines = source.Split('\n');
 
 			for (int i = 0; i < lines.Length; i++)
 			{
 				var line = lines[i];
 
-				if(string.IsNullOrWhiteSpace(line))
+				if (string.IsNullOrWhiteSpace(line))
 				{
 					continue;
 				}
@@ -28,16 +34,17 @@ namespace CpuEmulator.Emulator.Assembler.Parser
 				var trimmedLine = line.Trim();
 				var context = new ParseContext(i, trimmedLine);
 
-				if(trimmedLine.EndsWith(":")) {
-					result.Add(ParseLabel(context));
-				} else {
-					result.Add(ParseInstruction(context));
-				}
+				result.Add(trimmedLine.EndsWith(":") ? ParseLabel(context) : ParseInstruction(context));
 			}
 
 			return result;
 		}
 
+		/// <summary>
+		/// Parses a Label.
+		/// </summary>
+		/// <param name="context">The parsing sub-context</param>
+		/// <returns>The label</returns>
 		protected static Label ParseLabel(ParseContext context)
 		{
 			return new Label(
@@ -46,7 +53,12 @@ namespace CpuEmulator.Emulator.Assembler.Parser
 			);
 		}
 
-		protected static Token ParseInstruction(ParseContext context)
+		/// <summary>
+		/// Parses a single instruction.
+		/// </summary>
+		/// <param name="context">The Parsing sub-context</param>
+		/// <returns>The Instruction wrapped in an IToken</returns>
+		protected static IToken ParseInstruction(ParseContext context)
 		{
 			var tokens = context.Source.Split(' ', ',');
 			var instructionName = tokens[0];
@@ -81,11 +93,21 @@ namespace CpuEmulator.Emulator.Assembler.Parser
 			}
 		}
 
-		protected static Token InstructionToToken(Instruction instruction)
+		/// <summary>
+		/// Converts a Instruction to a Token
+		/// </summary>
+		/// <param name="instruction">The instruction to convert.</param>
+		/// <returns>The token</returns>
+		protected static IToken InstructionToToken(Instruction instruction)
 		{
 			return new InstructionToken(instruction);
 		}
 
+		/// <summary>
+		/// Parses a label name out of a label declaration.
+		/// </summary>
+		/// <param name="label">The label declaration source.</param>
+		/// <returns>The label name</returns>
 		protected static string ParseLabelName(string label)
 		{
 			return label.Substring(0, label.Length - 1);
