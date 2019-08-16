@@ -1,12 +1,10 @@
+from database import Database
+
 import collections
 
 
 class PriceCalculator:
     """ Class to calculate all sort of bratwurst Stuff! """
-
-    SAUSAGE_PRICE = 1.10
-    BREAD_PRICE = 0.30
-
     SIZES = [
         0.010,
         0.020,
@@ -27,14 +25,17 @@ class PriceCalculator:
 
     @staticmethod
     def get_price(sausage_count, bread_count):
+        sausage_price = Database.settings.SAUSAGE_PRICE.get()
+        bread_price = Database.settings.BREAD_PRICE.get()
+
         if sausage_count is None or sausage_count < 0:
             sausage_count = 0
 
         if bread_count is None or bread_count < 0:
             bread_count = 0
 
-        sausage_price = sausage_count * PriceCalculator.SAUSAGE_PRICE
-        bread_price = bread_count * PriceCalculator.BREAD_PRICE
+        sausage_price = sausage_count * sausage_price
+        bread_price = bread_count * bread_price
 
         return sausage_price + bread_price
 

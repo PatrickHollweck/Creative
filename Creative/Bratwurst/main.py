@@ -2,11 +2,13 @@ __author__ = "Patrick Hollweck - patrick-hollweck@gmx.de"
 
 import collections
 
-from gui import GUI
+from gui import GUI, GLOBAL_MENU
+from gui_screens import Screens
+
 from console import Console
+
 
 if __name__ == "__main__":
     Console.Output.clear()
 
-    menu = GUI.Managers.Console()
-    menu.show(GUI.Screens.Router)
+    GLOBAL_MENU.show(Screens.Router)
