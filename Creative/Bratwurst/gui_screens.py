@@ -1,9 +1,10 @@
 import sys
 import shutil
+import datetime
 
 from gui import GUI
 from console import Console
-from database import Database
+from database import Database, Statistic
 from price_calculator import PriceCalculator
 
 
@@ -14,6 +15,14 @@ class Screens:
             while True:
                 Console.Output.header("Bratwurst Calculator!")
                 print("NOTE: To return to the menu enter '-1'\n")
+
+                if Database.settings.BREAD_PRICE.get() == None:
+                    print("BREAD_PRICE IS NOT SET! SET IT BEFORE USE!")
+                    break
+
+                if Database.settings.SAUSAGE_PRICE.get() == None:
+                    print("SAUSAGE_PRICE IS NOT SET! SET IT BEFORE USE!")
+                    break
 
                 sausage_count = Console.Input.safe_int(
                     "Sausages Count: ", allow_no_input=True
@@ -64,6 +73,24 @@ class Screens:
                         Console.PrettyPrint.dict(money_size_format)
                     else:
                         print("None :)")
+
+                    Console.Output.header("Database")
+
+                    try:
+                        Database.statistics.publish(Statistic(
+                            datetime.datetime.now(),
+                            bread_count,
+                            sausage_count,
+                            price,
+                            given
+                        ))
+                        print("Saved statistic to database! :)")
+                    except Exception as e:
+                        print("Failed to save to the Database...")
+                        print("--- Error info ---")
+                        print(type(e))
+                        print(e)
+                        print("--- END ERROR INFO ---")
 
                     reenter_given_prompt = Console.Input.safe_string(
                         "\n... Continue..."
@@ -137,10 +164,11 @@ class Screens:
                     )
 
                 menu.show_dialog(options_box)
-                setting = settings[options_box.get_chosen()]
 
-                if setting == "Exit":
+                if options_box.get_chosen() == "Exit":
                     break
+
+                setting = settings[options_box.get_chosen()]
 
                 setting["setter"](
                     setting["input_fn"](
@@ -158,7 +186,9 @@ class Screens:
     class ViewStatistics:
         @staticmethod
         def draw(menu):
-            Database.statistics.view()
+            Console.Output.header("Statistics file content")
+            for line in Database.statistics.read_all_lines():
+                print(line)
 
     class Router:
         @staticmethod
