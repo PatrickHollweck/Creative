@@ -105,8 +105,11 @@ class Setting:
     def __init__(self, key):
         self.key = key
 
-    def get(self):
-        return Database.settings_db.get(self.key)
+    def is_set(self):
+        return self.get() is not None
+
+    def get(self, default=None):
+        return Database.settings_db.get(self.key, default=default)
 
     def set(self, value):
         return Database.settings_db.set(self.key, value)
@@ -134,11 +137,13 @@ class SettingsDatabase(FileDatabase):
         print("DB: Set value for " + str(key) + " to " + str(value))
         self.commit(self.memory)
 
-    def get(self, key):
+    def get(self, key, default=None):
         retrieved = self.memory.get(key)
         if retrieved is None:
-            print("Tried to access invalid settings key: " + key)
-            return None
+            if default is None:
+                print("Tried to access invalid settings key: " + key)
+                return None
+            return default
         return retrieved
 
 

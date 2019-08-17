@@ -11,18 +11,26 @@ from price_calculator import PriceCalculator
 class Screens:
     class Calculator:
         @staticmethod
+        def ensure_settings(menu):
+            while True:
+                if not Database.settings.BREAD_PRICE.is_set():
+                    Console.Messages.missing_setting("Bread price")
+                    menu.show_dialog(Screens.PriceSettings())
+                    continue
+
+                if not Database.settings.SAUSAGE_PRICE.is_set():
+                    Console.Messages.missing_setting("Sausage price")
+                    menu.show_dialog(Screens.PriceSettings())
+                    continue
+                break
+
+        @staticmethod
         def draw(menu):
             while True:
                 Console.Output.header("Bratwurst Calculator!")
                 print("NOTE: To return to the menu enter '-1'\n")
 
-                if Database.settings.BREAD_PRICE.get() is None:
-                    print("BREAD_PRICE IS NOT SET! SET IT BEFORE USE!")
-                    break
-
-                if Database.settings.SAUSAGE_PRICE.get() is None:
-                    print("SAUSAGE_PRICE IS NOT SET! SET IT BEFORE USE!")
-                    break
+                Screens.Calculator.ensure_settings(menu)
 
                 sausage_count = Console.Input.safe_int(
                     "Sausages Count: ", allow_no_input=True
@@ -143,12 +151,12 @@ class Screens:
             while True:
                 settings = {
                     "Bread price": {
-                        "getter": (lambda: Database.settings.BREAD_PRICE.get()),
+                        "getter": (lambda: Database.settings.BREAD_PRICE.get(default="None")),
                         "setter": (lambda x: Database.settings.BREAD_PRICE.set(x)),
                         "input_fn": Console.Input.safe_float
                     },
                     "Sausage price": {
-                        "getter": (lambda: Database.settings.SAUSAGE_PRICE.get()),
+                        "getter": (lambda: Database.settings.SAUSAGE_PRICE.get(default="None")),
                         "setter": (lambda x: Database.settings.SAUSAGE_PRICE.set(x)),
                         "input_fn": Console.Input.safe_float,
                     }

@@ -70,6 +70,12 @@ class Console:
             for key in dictionary.keys():
                 Console.PrettyPrint.key_value(key, dictionary[key])
 
+    class Messages:
+        def missing_setting(setting_key):
+            print(
+                "ERROR: " + setting_key + " IS NOT SET! Set it before use! Starting config menu..."
+            )
+
     class Output:
         """ Output helpers """
 
