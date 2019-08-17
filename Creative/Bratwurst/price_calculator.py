@@ -24,7 +24,7 @@ class PriceCalculator:
     ]
 
     @staticmethod
-    def get_price(sausage_count, bread_count):
+    def get_total(sausage_count, bread_count):
         sausage_price = Database.settings.SAUSAGE_PRICE.get()
         bread_price = Database.settings.BREAD_PRICE.get()
 

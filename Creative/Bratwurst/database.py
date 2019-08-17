@@ -54,6 +54,33 @@ class FileDatabase(FileStore):
                 json.dump(content, outfile, indent=4)
         self.reload()
 
+    def handle_access_error(self, e):
+        Console.Messages.error(
+            "Failed to access database", category="DB", exception=e
+        )
+
+        options_menu = GUI.Dialogs.OptionsBox(
+            "How to resolve?",
+            ["Delete file", "Reseed with defaults", "Exit"]
+        )
+
+        GLOBAL_MENU.show_dialog(options_menu)
+
+        index = options_menu.get_chosen_index()
+        if index == 0:
+            self.remove_persistent_store()
+            self.reload()
+        elif index == 1:
+            if hasattr(self, "set_defaults"):
+                Database.settings_db.set_defaults()
+            else:
+                print("Action can not be executed on this damaged db.")
+        elif index == 2:
+            sys.exit()
+        else:
+            print("Unknown option! Exiting...")
+            sys.exit()
+
     def reload(self, is_retry=False):
         try:
             self.ensure_file()
@@ -72,33 +99,7 @@ class FileDatabase(FileStore):
                 self.reload(is_retry=True)
                 return
 
-            print("--- DB ERROR ---")
-            print(type(e))
-            print(e)
-
-            options_menu = GUI.Dialogs.OptionsBox(
-                "How to resolve?",
-                ["Delete file", "Reseed with defaults", "Exit"]
-            )
-
-            GLOBAL_MENU.show_dialog(options_menu)
-
-            index = options_menu.get_chosen_index()
-            if index == 0:
-                self.remove_persistent_store()
-                self.reload()
-            elif index == 1:
-                if hasattr(self, "set_defaults"):
-                    Database.settings_db.set_defaults()
-                else:
-                    print("Action can not be executed on this damaged db.")
-            elif index == 2:
-                sys.exit()
-            else:
-                print("Unknown option! Exiting...")
-                sys.exit()
-
-            print("--- END DB ERROR ---")
+            self.handle_access_error(e)
 
 
 class Setting:
@@ -162,6 +163,7 @@ class StatisticsDatabase(FileStore):
 
     def publish(self, statistic):
         self.append(json.dumps(statistic.__dict__, default=str))
+        self.fix_first_line()
 
 
 class Database:

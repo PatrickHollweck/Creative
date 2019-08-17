@@ -14,12 +14,16 @@ class Screens:
         def ensure_settings(menu):
             while True:
                 if not Database.settings.BREAD_PRICE.is_set():
-                    Console.Messages.missing_setting("Bread price")
+                    Console.Messages.Predefined.missing_setting(
+                        "Bread price"
+                    )
                     menu.show_dialog(Screens.PriceSettings())
                     continue
 
                 if not Database.settings.SAUSAGE_PRICE.is_set():
-                    Console.Messages.missing_setting("Sausage price")
+                    Console.Messages.Predefined.missing_setting(
+                        "Sausage price"
+                    )
                     menu.show_dialog(Screens.PriceSettings())
                     continue
                 break
@@ -44,7 +48,7 @@ class Screens:
                     "Bread Count: ", allow_no_input=True
                 )
 
-                price = PriceCalculator.get_price(
+                price = PriceCalculator.get_total(
                     sausage_count, bread_count
                 )
 
@@ -92,14 +96,14 @@ class Screens:
                         ))
                         print("\nSaved statistic to database! :)")
                     except Exception as e:
-                        print("\nFailed to save to the Database...")
-                        print("--- Error info ---")
-                        print(type(e))
-                        print(e)
-                        print("--- END ERROR INFO ---\n")
+                        Console.Messages.error(
+                            "Failed to save to the Database",
+                            category="Statistics",
+                            exception=e,
+                        )
 
                     reenter_given_prompt = Console.Input.safe_string(
-                        "... Continue..."
+                        "...Continue..."
                     )
 
                     if reenter_given_prompt is not None:
@@ -124,26 +128,27 @@ class Screens:
                     options
                 )
 
-                print("Statistics DB path: " + Database.statistics.file_path)
-                print("Settings DB path: " + Database.settings_db.file_path)
+                Console.Messages.debug(
+                    "Statistics DB path: " + Database.statistics.file_path
+                )
+
+                Console.Messages.debug(
+                    "Settings DB path: " + Database.settings_db.file_path
+                )
 
                 menu.show_dialog(options_box)
-
                 chosen = options_box.get_chosen()
 
                 if chosen == options[0]:
                     break
                 elif chosen == options[1]:
                     Database.settings_db.set_defaults()
-                    continue
                 elif chosen == options[2]:
-                    shutil.rmtree("./db")
+                    shutil.rmtree(Database.settings_db.file_folder)
                     Database.reload()
                     print("Nuked!")
-                    continue
                 elif chosen == options[3]:
                     menu.show_dialog(Screens.PriceSettings())
-                    continue
 
     class PriceSettings:
         @staticmethod
@@ -190,6 +195,7 @@ class Screens:
     class Exit:
         @staticmethod
         def draw(menu):
+            print("E X I T I N G - Bye :)")
             sys.exit()
 
     class ViewStatistics:

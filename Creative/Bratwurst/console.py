@@ -71,10 +71,30 @@ class Console:
                 Console.PrettyPrint.key_value(key, dictionary[key])
 
     class Messages:
-        def missing_setting(setting_key):
-            print(
-                "ERROR: " + setting_key + " IS NOT SET! Set it before use! Starting config menu..."
-            )
+        def warning(message):
+            print("WARNING: " + message)
+
+        def error(message, category=None, exception=None):
+            header = "ERROR: "
+            if category is not None:
+                header = category + header
+
+            if exception is None:
+                print(header + message)
+            else:
+                print("--- " + header + message + " ---")
+                print(type(exception))
+                print(exception)
+                print("--- END ERROR ---")
+
+        def debug(message):
+            print("DEBUG: " + message)
+
+        class Predefined:
+            def missing_setting(setting_key):
+                print(
+                    "ERROR: " + setting_key + " IS NOT SET! Set it before use! Starting config menu..."
+                )
 
     class Output:
         """ Output helpers """
