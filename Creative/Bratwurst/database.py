@@ -4,11 +4,12 @@ from gui import GUI, GLOBAL_MENU
 import os
 import sys
 import json
+import shutil
 
 
 class FileStore:
     def __init__(self, file_name):
-        self.file_folder = "./db/"
+        self.file_folder = "/storage/3663-3138/qpython/projects3/Bratwurst/db/"
         self.file_name = file_name
         self.file_path = os.path.join(self.file_folder, self.file_name)
         self.ensure_file()
@@ -16,7 +17,7 @@ class FileStore:
     def ensure_file(self):
         if not os.path.exists(self.file_path):
             if not os.path.exists(self.file_folder):
-                os.mkdir("./db")
+                os.mkdir(self.file_folder)
 
             temp = open(self.file_path, "x")
             temp.close()
