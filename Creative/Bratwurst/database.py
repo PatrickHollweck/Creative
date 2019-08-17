@@ -1,3 +1,4 @@
+from console import Console
 from gui import GUI, GLOBAL_MENU
 
 import os
@@ -21,11 +22,20 @@ class Settings:
     SAUSAGE_PRICE = Setting("SAUSAGE_PRICE")
 
 
-class SettingsDatabase:
-    def __init__(self):
-        self.file_folder = "./db"
-        self.file_path = self.file_folder + "/settings.json"
+class Database:
+    def __init__(self, file_name):
+        self.file_folder = "./db/"
+        self.file_name = file_name
+        self.file_path = os.path.join(self.file_folder, self.file_name)
         self.memory = {}
+        self.reload()
+
+    def commit(self, content, raw=False):
+        with open(self.file_path, 'w') as outfile:
+            if raw:
+                outfile.write(content)
+            else:
+                json.dump(content, outfile, indent=4)
         self.reload()
 
     def reload(self):
@@ -35,7 +45,7 @@ class SettingsDatabase:
                     os.mkdir("./db")
 
                 with open(self.file_path, "w") as temp:
-                    temp.write("{}")
+                    self.commit(self.create_structure(), raw=True)
 
             with open(self.file_path, "r") as json_file:
                 self.memory = json.load(json_file)
@@ -56,8 +66,10 @@ class SettingsDatabase:
                 os.remove(self.file_path)
                 self.reload()
             elif index is 1:
-                Database.settings.BREAD_PRICE.set(1)
-                Database.settings.SAUSAGE_PRICE.set(0.30)
+                if hasattr("set_defaults"):
+                    self.set_defaults()
+                else:
+                    print("This action cannot be performed...")
             elif index is 2:
                 sys.exit()
             else:
@@ -66,15 +78,37 @@ class SettingsDatabase:
 
             print("--- END DB ERROR ---")
 
-    def commit(self):
-        with open(self.file_path, 'w') as outfile:
-            json.dump(self.memory, outfile)
-        self.reload()
+
+class StatisticsDatabase(Database):
+    def __init__(self):
+        Database.__init__(self, "statistics.json")
+
+    def create_structure(self):
+        return '{ "statistics": {} }'
+
+    def publish(self, statistic):
+        self.memory["statistics"].append(statistic)
+        self.commit()
+
+    def view(self):
+        Console.PrettyPrint.dict(self.memory["statistics"])
+
+
+class SettingsDatabase(Database):
+    def __init__(self):
+        Database.__init__(self, "settings.json")
+
+    def create_structure(self):
+        return "{}"
+
+    def set_defaults(self):
+        Database.settings.SAUSAGE_PRICE.set(1.1)
+        Database.settings.BREAD_PRICE.set(0.3)
 
     def set(self, key, value):
         self.memory[key] = value
         print("DB: Set value for " + str(key) + " to " + str(value))
-        self.commit()
+        self.commit(self.memory)
 
     def get(self, key):
         retrieved = self.memory.get(key)
@@ -87,3 +121,9 @@ class SettingsDatabase:
 class Database:
     settings = Settings
     settings_db = SettingsDatabase()
+    statistics = StatisticsDatabase()
+
+    @staticmethod
+    def reload():
+        Database.settings_db.reload()
+        Database.statistics.reload()

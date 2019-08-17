@@ -15,10 +15,10 @@ class GUI:
 
     class Dialogs:
         class OptionsBox:
-            def __init__(self, title, options):
+            def __init__(self, title, options, extras=[]):
                 self.title = title
                 self.options = options
-                self.extras = []
+                self.extras = extras
                 self.chosen_option_index = -1
 
             def draw(self, menu):

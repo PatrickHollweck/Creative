@@ -1,3 +1,6 @@
+import sys
+import shutil
+
 from gui import GUI
 from console import Console
 from database import Database
@@ -76,6 +79,39 @@ class Screens:
         @staticmethod
         def draw(menu):
             while True:
+                options = [
+                    "Exit",
+                    "Reset to Defaults",
+                    "Nuke Database",
+                    "Change Prices"
+                ]
+
+                options_box = GUI.Dialogs.OptionsBox(
+                    "Choose a Setting you want to change",
+                    options
+                )
+
+                menu.show_dialog(options_box)
+                chosen = options_box.get_chosen()
+
+                if chosen == options[0]:
+                    break
+                elif chosen == options[1]:
+                    Database.settings_db.set_defaults()
+                    continue
+                elif chosen == options[2]:
+                    shutil.rmtree("./db")
+                    Database.reload()
+                    print("Nuked!")
+                    continue
+                elif chosen == options[3]:
+                    menu.show_dialog(Screens.PriceSettings())
+                    continue
+
+    class PriceSettings:
+        @staticmethod
+        def draw(menu):
+            while True:
                 settings = {
                     "Bread price": {
                         "getter": (lambda: Database.settings.BREAD_PRICE.get()),
@@ -89,53 +125,59 @@ class Screens:
                     }
                 }
 
-                options = ["Exit"]
-                extras = [""]
+                options_box = GUI.Dialogs.OptionsBox(
+                    "What to change?",
+                    ["Exit"], [""]
+                )
+
                 for key in list(settings.keys()):
-                    options.append(key)
-                    extras.append(
+                    options_box.options.append(key)
+                    options_box.extras.append(
                         " - Current: " + str(settings[key]["getter"]())
                     )
 
-                options_box = GUI.Dialogs.OptionsBox(
-                    "Choose a Setting you want to change",
-                    options
-                )
-
-                options_box.extras = extras
                 menu.show_dialog(options_box)
-
-                if options_box.get_chosen() == "Exit":
-                    break
-
                 setting = settings[options_box.get_chosen()]
+
+                if setting == "Exit":
+                    break
 
                 setting["setter"](
                     setting["input_fn"](
                         "Enter the new value for setting '" +
-                        str(options_box.get_chosen()) + "': "
+                        str(options_box.get_chosen()
+                            ) + "': "
                     )
                 )
 
     class Exit:
         @staticmethod
         def draw(menu):
-            import sys
             sys.exit()
+
+    class ViewStatistics:
+        @staticmethod
+        def draw(menu):
+            Database.statistics.view()
 
     class Router:
         @staticmethod
         def draw(menu):
+            screens = {
+                "Calculator": Screens.Calculator,
+                "Settings": Screens.Options,
+                "View Statistics": Screens.ViewStatistics,
+                "Exit": Screens.Exit
+            }
+
+            options = list(screens.keys())
             options_box = GUI.Dialogs.OptionsBox(
-                "Choose a Path!", ["Calculator", "Options", "Exit"])
+                "Choose a Path!",
+                options
+            )
 
             while True:
                 menu.show_dialog(options_box)
 
-                current_screen = {
-                    "Calculator": Screens.Calculator,
-                    "Options": Screens.Options,
-                    "Exit": Screens.Exit
-                }[options_box.get_chosen()]
-
+                current_screen = screens[options_box.get_chosen()]
                 menu.show(current_screen)
