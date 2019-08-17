@@ -1,6 +1,3 @@
-import collections
-
-
 class Console:
     """ Console helpers """
 
@@ -10,27 +7,27 @@ class Console:
         @staticmethod
         def safe_string(message):
             latest = input(message)
-            if latest == "" or latest == " ":
+            if latest in ("", " "):
                 return None
-            else:
-                return latest
+            return latest
 
         @staticmethod
         def safe_int(message, allow_no_input=False):
-            return Console.Input.__safe_base(message, allow_no_input, int)
+            return Console.Input._safe_base(message, allow_no_input, int)
 
         @staticmethod
         def safe_float(message, allow_no_input=False):
-            return Console.Input.__safe_base(message, allow_no_input, float)
+            return Console.Input._safe_base(message, allow_no_input, float)
 
         @staticmethod
-        def __safe_base(message, allow_no_input, typefunc):
+        def _safe_base(message, allow_no_input, typefunc):
             while True:
                 try:
                     result = input(message)
                     if result == "" and allow_no_input:
                         return None
-                    elif result == "clear":
+
+                    if result == "clear":
                         Console.Output.clear()
                         continue
                     else:
@@ -42,16 +39,23 @@ class Console:
     class Format:
         """ Formating functions for the console """
 
+        def float(number, decimal_places):
+            return ("{0:." + str(decimal_places) + "f}").format(number)
+
         @staticmethod
-        def float(number):
-            return "{0:.2f}".format(number)
+        def currency(number):
+            return Console.Format.float(number, 2)
 
     class PrettyPrint:
         """ Use this class for pretty printing commons types """
 
         @staticmethod
-        def float(number):
-            print(Console.Format.float(number))
+        def float(number, decimal_places):
+            print(Console.Format.float(number, decimal_places))
+
+        @staticmethod
+        def currency(number):
+            return Console.PrettyPrint.float(number, 2)
 
         @staticmethod
         def key_value(key, value):
@@ -59,7 +63,7 @@ class Console:
 
         @staticmethod
         def dict(dictionary):
-            if len(dictionary) is 0:
+            if not dictionary:
                 print("Cannot print empty dict")
                 return
 

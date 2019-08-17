@@ -1,7 +1,5 @@
 from console import Console
 
-import collections
-
 
 class GUI:
     class Managers:

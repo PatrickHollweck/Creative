@@ -16,11 +16,11 @@ class Screens:
                 Console.Output.header("Bratwurst Calculator!")
                 print("NOTE: To return to the menu enter '-1'\n")
 
-                if Database.settings.BREAD_PRICE.get() == None:
+                if Database.settings.BREAD_PRICE.get() is None:
                     print("BREAD_PRICE IS NOT SET! SET IT BEFORE USE!")
                     break
 
-                if Database.settings.SAUSAGE_PRICE.get() == None:
+                if Database.settings.SAUSAGE_PRICE.get() is None:
                     print("SAUSAGE_PRICE IS NOT SET! SET IT BEFORE USE!")
                     break
 
@@ -41,7 +41,7 @@ class Screens:
                 )
 
                 Console.Output.header("TOTAL PRICE")
-                Console.PrettyPrint.float(price)
+                Console.PrettyPrint.currency(price)
 
                 while True:
                     given = Console.Input.safe_float(
@@ -61,7 +61,7 @@ class Screens:
                     if return_money < 0:
                         print("WARNING: Not enought money!")
 
-                    Console.PrettyPrint.float(return_money)
+                    Console.PrettyPrint.currency(return_money)
 
                     Console.Output.header("RETURN MONEY FORMAT")
 
@@ -69,12 +69,10 @@ class Screens:
                         return_money
                     )
 
-                    if len(money_size_format) > 0:
+                    if not money_size_format:
                         Console.PrettyPrint.dict(money_size_format)
                     else:
                         print("None :)")
-
-                    Console.Output.header("Database")
 
                     try:
                         Database.statistics.publish(Statistic(
@@ -84,16 +82,16 @@ class Screens:
                             price,
                             given
                         ))
-                        print("Saved statistic to database! :)")
+                        print("\nSaved statistic to database! :)")
                     except Exception as e:
-                        print("Failed to save to the Database...")
+                        print("\nFailed to save to the Database...")
                         print("--- Error info ---")
                         print(type(e))
                         print(e)
-                        print("--- END ERROR INFO ---")
+                        print("--- END ERROR INFO ---\n")
 
                     reenter_given_prompt = Console.Input.safe_string(
-                        "\n... Continue..."
+                        "... Continue..."
                     )
 
                     if reenter_given_prompt is not None:
@@ -118,7 +116,11 @@ class Screens:
                     options
                 )
 
+                print("Statistics DB path: " + Database.statistics.file_path)
+                print("Settings DB path: " + Database.settings_db.file_path)
+
                 menu.show_dialog(options_box)
+
                 chosen = options_box.get_chosen()
 
                 if chosen == options[0]:
@@ -173,8 +175,7 @@ class Screens:
                 setting["setter"](
                     setting["input_fn"](
                         "Enter the new value for setting '" +
-                        str(options_box.get_chosen()
-                            ) + "': "
+                        str(options_box.get_chosen()) + "': "
                     )
                 )
 
@@ -188,6 +189,7 @@ class Screens:
         def draw(menu):
             Console.Output.header("Statistics file content")
             for line in Database.statistics.read_all_lines():
+                line = line.strip()
                 print(line)
 
     class Router:

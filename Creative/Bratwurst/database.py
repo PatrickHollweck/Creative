@@ -1,15 +1,14 @@
-from console import Console
 from gui import GUI, GLOBAL_MENU
+from console import Console
 
 import os
 import sys
 import json
-import shutil
 
 
 class FileStore:
     def __init__(self, file_name):
-        self.file_folder = "/storage/3663-3138/qpython/projects3/Bratwurst/db/"
+        self.file_folder = os.path.join(os.getcwd(), "db")
         self.file_name = file_name
         self.file_path = os.path.join(self.file_folder, self.file_name)
         self.ensure_file()
@@ -19,21 +18,29 @@ class FileStore:
             if not os.path.exists(self.file_folder):
                 os.mkdir(self.file_folder)
 
-            temp = open(self.file_path, "x")
-            temp.close()
-            return True
+            with open(self.file_path, "w") as f:
+                default_content = ""
+                if hasattr(self, "create_structure"):
+                    default_content = self.create_structure()
+                f.write(default_content)
+                return True
         return False
 
+    def remove_persistent_store(self):
+        os.remove(self.file_path)
+
     def append(self, content):
+        self.ensure_file()
         with open(self.file_path, "a") as f:
             f.write("\n" + content)
 
     def read_all_lines(self):
+        self.ensure_file()
         with open(self.file_path, "r") as f:
             return f.readlines()
 
 
-class Database(FileStore):
+class FileDatabase(FileStore):
     def __init__(self, file_name):
         FileStore.__init__(self, file_name)
         self.memory = {}
@@ -47,14 +54,24 @@ class Database(FileStore):
                 json.dump(content, outfile, indent=4)
         self.reload()
 
-    def reload(self):
+    def reload(self, is_retry=False):
         try:
-            if self.ensure_file():
-                with open(self.file_path) as f:
-                    self.commit(self.create_structure(), raw=True)
+            self.ensure_file()
             with open(self.file_path, "r") as json_file:
-                self.memory = json.load(json_file)
+                try:
+                    self.memory = json.load(json_file)
+                except json.JSONDecodeError:
+                    if os.stat(self.file_path).st_size == 0:
+                        if not is_retry:
+                            self.remove_persistent_store()
+                            self.reload(is_retry=True)
+                            return
         except Exception as e:
+            if not is_retry:
+                print("Retrying...")
+                self.reload(is_retry=True)
+                return
+
             print("--- DB ERROR ---")
             print(type(e))
             print(e)
@@ -68,14 +85,14 @@ class Database(FileStore):
 
             index = options_menu.get_chosen_index()
             if index == 0:
-                os.remove(self.file_path)
+                self.remove_persistent_store()
                 self.reload()
             elif index == 1:
                 if hasattr(self, "set_defaults"):
                     Database.settings_db.set_defaults()
                 else:
                     print("Action can not be executed on this damaged db.")
-            elif index is 2:
+            elif index == 2:
                 sys.exit()
             else:
                 print("Unknown option! Exiting...")
@@ -100,9 +117,9 @@ class Settings:
     SAUSAGE_PRICE = Setting("SAUSAGE_PRICE")
 
 
-class SettingsDatabase(Database):
+class SettingsDatabase(FileDatabase):
     def __init__(self):
-        Database.__init__(self, "settings.json")
+        FileDatabase.__init__(self, "settings.json")
 
     def create_structure(self):
         print("DO NOT FORGET TO SET PRICES!")
@@ -119,10 +136,10 @@ class SettingsDatabase(Database):
 
     def get(self, key):
         retrieved = self.memory.get(key)
-        if retrieved == None:
+        if retrieved is None:
             print("Tried to access invalid settings key: " + key)
-        else:
-            return retrieved
+            return None
+        return retrieved
 
 
 class Statistic:
@@ -130,13 +147,13 @@ class Statistic:
         self.time = time
         self.bread_count = bread_count
         self.sausage_count = sausage_count
-        self.price = price
-        self.given_money = given_money
+        self.price = Console.Format.currency(price)
+        self.given_money = Console.Format.currency(given_money)
 
 
 class StatisticsDatabase(FileStore):
     def __init__(self):
-        FileStore.__init__(self, "./statistics")
+        FileStore.__init__(self, "statistics")
 
     def publish(self, statistic):
         self.append(json.dumps(statistic.__dict__, default=str))
