@@ -1,9 +1,0 @@
-{
-	"configurations": [{
-		"type": "java",
-		"name": "CodeLens (Launch) - UPS",
-		"request": "launch",
-		"mainClass": "com.patrickhollweck.UPS.EntryPoint",
-		"projectName": "UPS"
-	}]
-}

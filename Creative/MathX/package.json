@@ -1,0 +1,23 @@
+{
+	"name": "mathx",
+	"version": "0.0.1",
+	"description": "A Math expression parser",
+	"main": "index.js",
+	"scripts": {
+		"test": "jest",
+		"test:watch": "jest --watch"
+	},
+	"author": "Patrick Hollweck",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/jest": "^24.0.18",
+		"jest": "^24.9.0",
+		"ts-jest": "^24.1.0",
+		"typescript": "^3.6.3"
+	},
+	"jest": {
+		"transform": {
+			"^.+\\.tsx?$": "ts-jest"
+		}
+	}
+}
