@@ -52,13 +52,12 @@
     <Compile Include="ChatStatistics.cs" />
     <Compile Include="OnStatisticsChangedEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Statistics.cs" />
-    <Compile Include="StatisticsSaver.cs" />
+    <Compile Include="CountStatistics.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\StatoBot.Core\StatoBot.Core.csproj">
+    <ProjectReference Include="..\StatoBot.Core\StatoBot.Twitch.csproj">
       <Project>{63db6921-7fea-4bf9-b2c8-ce3e37c74481}</Project>
-      <Name>StatoBot.Core</Name>
+      <Name>StatoBot.Twitch</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

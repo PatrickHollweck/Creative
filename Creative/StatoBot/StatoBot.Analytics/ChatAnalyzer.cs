@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 
 using StatoBot.Core;
 
@@ -15,17 +14,16 @@ namespace StatoBot.Analytics
             Statistics = new ChatStatistics();
         }
 
-        public void Analyze(OnMessageReceivedEventArgs e)
+        public void Analyze(TwitchMessage message)
         {
-            if (e.Message.IsSystemMessage)
+            if (message.IsSystemMessage)
             {
                 return;
             }
 
-            Statistics.Users.Increment(e.Message.Author);
+            Statistics.Users.Increment(message.Author);
 
-            var words = e.Message.Content.Split(' ');
-            foreach (var word in words)
+            foreach (var word in message.Content.Split(' '))
             {
                 Statistics.Words.Increment(word);
 
@@ -36,11 +34,6 @@ namespace StatoBot.Analytics
             }
 
             OnStatisticsChanged?.Invoke(new OnStatisticsChangedEventArgs(Statistics));
-        }
-
-        public async Task AnalyzeAsync(OnMessageReceivedEventArgs e)
-        {
-            await Task.Run(() => Analyze(e));
         }
     }
 }

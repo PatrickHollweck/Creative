@@ -2,17 +2,17 @@ namespace StatoBot.Analytics
 {
 	public class ChatStatistics
 	{
-		public Statistics Words { get; }
-		public Statistics Letters { get;}
-		public Statistics Users { get; }
-		public Statistics Messages { get; }
+		public readonly CountStatistics Words;
+		public readonly CountStatistics Letters;
+		public readonly CountStatistics Users;
+		public readonly CountStatistics Messages;
 
 		public ChatStatistics()
 		{
-			Words = new Statistics();
-			Letters = new Statistics();
-			Users = new Statistics();
-			Messages = new Statistics();
+			Words = new CountStatistics();
+			Letters = new CountStatistics();
+			Users = new CountStatistics();
+			Messages = new CountStatistics();
 		}
 	}
 }

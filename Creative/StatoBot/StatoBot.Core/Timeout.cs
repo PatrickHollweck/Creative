@@ -9,7 +9,7 @@ namespace StatoBot.Core
 
 		public Timeout(TimeSpan timeout)
 		{
-			this.lastAction = DateTime.Now;
+			lastAction = DateTime.Now;
 			this.timeout = timeout;
 		}
 
@@ -35,7 +35,7 @@ namespace StatoBot.Core
 
 		public void Reset()
 		{
-			this.lastAction = DateTime.Now;
+			lastAction = DateTime.Now;
 		}
 	}
 }

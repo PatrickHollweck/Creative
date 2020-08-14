@@ -2,12 +2,12 @@ using StatoBot.Analytics;
 
 namespace StatoBot.Reports
 {
-	public class ReportInput
+	public class ReportData
 	{
 		public ChatStatistics Statistics;
 		public BotInfo BotInfo { get; set; }
 
-		public ReportInput(
+		public ReportData(
 			ChatStatistics statistics,
 			BotInfo botInfo
 		)

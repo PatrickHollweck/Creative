@@ -1,6 +1,8 @@
 using System;
 using System.IO;
+using System.Timers;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using StatoBot.Core;
 using StatoBot.Reports;
@@ -11,12 +13,7 @@ namespace StatoBot.Terminal
 {
     internal static class Program
     {
-        private static void Main()
-        {
-            Task.Run(MainAsync).Wait();
-        }
-
-        private static async Task MainAsync()
+        private static async Task Main()
         {
             UpdateTitle();
 
@@ -30,45 +27,54 @@ namespace StatoBot.Terminal
                 credentialsPath = Console.ReadLine();
             }
 
-            Credentials credentials;
-            try
-            {
-                credentials = Credentials.FromFile(credentialsPath);
-            }
-            catch (Exception e)
-            {
-                Console.Write("Failed to load credentials: \n" + e.Message);
-                Console.Read();
-                return;
-            }
+            var bot = new AnalyzerBot(ReadCredentials(credentialsPath), channelName);
 
-            var bot = new AnalyzerBot(credentials, channelName);
-            var timeout = new Timeout(TimeSpan.FromSeconds(-60));
-
-            const string basePath = "./statistics";
+			string basePath = Path.Combine(Directory.GetCurrentDirectory(), "statistics");
             if (!Directory.Exists(basePath))
             {
                 Directory.CreateDirectory(basePath);
             }
 
-            var saver = new StatisticsSaver($"{basePath}/{bot.Channel}_stats.json", bot.Analyzer);
+			var statisticsWriter = new ReportWriter(
+				$"{basePath}/{bot.Channel}/",
+				bot.Analyzer,
+				new List<IReportFormatter>() {
+					new JsonFormatter(),
+					new MarkdownFormatter()
+				}
+			);
 
-            bot.Analyzer.OnStatisticsChanged += (_) =>
-            {
-                if (!timeout.IsOver())
-                {
-                    return;
-                }
+			var timer = new Timer(15_000)
+			{
+				AutoReset = true,
+				Enabled = true
+			};
 
-                WriteReport(bot);
-                UpdateTitle();
-                saver.Save();
-            };
+			timer.Elapsed += (sender, e) =>
+			{
+				UpdateTitle();
+				statisticsWriter.Save(bot);
+			};
 
-            bot.OnMessageReceived += (_, args) => LoggingHook(args.Message);
+            bot.OnMessageReceived += (_, args) => LogMessage(args.Message);
 
             await bot.SetupAndListenAsync();
         }
+
+		private static Credentials ReadCredentials(string credentialsPath)
+		{
+            try
+            {
+				return Credentials.FromFile(credentialsPath);
+            }
+            catch (Exception e)
+            {
+                Console.Write("Failed to load credentials: \n" + e.Message);
+                Console.Read();
+
+				throw;
+            }
+		}
 
         private static void UpdateTitle()
         {
@@ -82,19 +88,11 @@ namespace StatoBot.Terminal
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        private static void WriteReport(AnalyzerBot bot)
-        {
-            File.WriteAllText(
-                $"./statistics/{bot.Channel}_chat_report.md",
-                ReportGenerator.FromBot(bot).FormatWith<MarkdownFormatter>()
-            );
-        }
-
-        private static void LoggingHook(TwitchMessage message)
+        private static void LogMessage(TwitchMessage message)
         {
             if (message.IsChatMessage)
             {
-                Console.WriteLine(message.Author.PadRight(40) + " ::: " + message.Content);
+                Console.WriteLine(message.Author.PadRight(30) + " ::: " + message.Content);
             }
             else
             {

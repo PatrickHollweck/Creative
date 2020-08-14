@@ -11,12 +11,18 @@ namespace StatoBot.Core
         public const string TwitchHost = "irc.twitch.tv";
         public const int TwitchPort = 6667;
 
-        private readonly Credentials credentials;
         public readonly string Channel;
+
+		public DateTime StartTime { get; protected set; }
 
         protected TcpClient Socket;
         protected StreamReader InputStream;
         protected StreamWriter OutputStream;
+
+		protected TwitchMessageParser MessageParser;
+		protected Regex PingRegex = new Regex("^PING :(.*)$", RegexOptions.Compiled);
+
+        private readonly Credentials credentials;
 
         public event EventHandler<OnMessageReceivedEventArgs> OnMessageReceived;
 
@@ -25,6 +31,7 @@ namespace StatoBot.Core
             this.credentials = credentials;
 
             Channel = channel;
+			MessageParser = new TwitchMessageParser(Channel);
         }
 
         public async Task SetupAndListenAsync()
@@ -41,6 +48,8 @@ namespace StatoBot.Core
 
             InputStream = new StreamReader(Socket.GetStream());
             OutputStream = new StreamWriter(Socket.GetStream());
+
+			StartTime = DateTime.Now;
         }
 
         public async Task LoginAsync()
@@ -64,15 +73,17 @@ namespace StatoBot.Core
 
         public async Task StartReadAsync()
         {
-            EventHandler<OnMessageReceivedEventArgs> pingResponder = (_, args) => RespondToPing(args.Message);
-
-            OnMessageReceived += pingResponder;
+			void pingResponder(object _, OnMessageReceivedEventArgs args) => RespondToPing(args.Message);
+			OnMessageReceived += pingResponder;
 
             while (!InputStream.EndOfStream)
             {
                 OnMessageReceived?.Invoke(
                     this,
-                    OnMessageReceivedEventArgs.FromRawMessage(await InputStream.ReadLineAsync(), this)
+                    new OnMessageReceivedEventArgs(
+						MessageParser.Parse(await InputStream.ReadLineAsync()),
+						this
+					)
                 );
             }
 
@@ -101,8 +112,7 @@ namespace StatoBot.Core
 
         private async void RespondToPing(TwitchMessage message)
         {
-            var match = new Regex("^PING :(.*)$", RegexOptions.Compiled)
-                            .Match(message.RawMessage);
+            var match = PingRegex.Match(message.RawMessage);
 
             if (match.Success)
             {

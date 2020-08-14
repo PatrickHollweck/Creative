@@ -12,10 +12,5 @@ namespace StatoBot.Core
             Message = message;
             Bot = bot;
         }
-
-        public static OnMessageReceivedEventArgs FromRawMessage(string rawMessage, TwitchBot bot)
-        {
-            return new OnMessageReceivedEventArgs(TwitchMessageParser.Parse(rawMessage, bot.Channel), bot);
-        }
     }
 }

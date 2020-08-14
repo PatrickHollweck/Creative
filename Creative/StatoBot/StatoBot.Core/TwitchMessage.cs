@@ -14,39 +14,18 @@ namespace StatoBot.Core
         public readonly string Content;
 
         public readonly string RawMessage;
-
         public readonly TwitchMessageType Type;
-        public readonly bool IsChatMessage;
-        public readonly bool IsSystemMessage;
+
+        public bool IsChatMessage => Type == TwitchMessageType.Chat;
+        public bool IsSystemMessage => Type == TwitchMessageType.System;
 
         public TwitchMessage(string rawMessage, string author, string content, TwitchMessageType type)
         {
             RawMessage = rawMessage;
 
+            Type = type;
             Author = author;
             Content = content;
-
-            Type = type;
-            if (type == TwitchMessageType.Chat)
-            {
-                IsChatMessage = true;
-                IsSystemMessage = false;
-            }
-            else
-            {
-                IsChatMessage = false;
-                IsSystemMessage = true;
-            }
-        }
-
-        public static TwitchMessage FromRawMessage(string rawMessage, string channelName)
-        {
-            return TwitchMessageParser.Parse(rawMessage, channelName);
-        }
-
-        public static async Task<TwitchMessage> FromRawMessageAsync(string rawMessage, string channelName)
-        {
-            return await Task.Run(() => TwitchMessageParser.Parse(rawMessage, channelName));
         }
     }
 }

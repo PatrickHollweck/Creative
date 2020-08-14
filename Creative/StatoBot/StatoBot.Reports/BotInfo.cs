@@ -20,8 +20,7 @@ namespace StatoBot.Reports
 
         public static BotInfo FromBot(TwitchBot bot)
         {
-            // TODO: Replace `DateTime.Now`'s with actual timings
-            return new BotInfo(DateTime.Now, DateTime.Now, bot.Channel);
+            return new BotInfo(bot.StartTime, DateTime.Now, bot.Channel);
         }
     }
 }

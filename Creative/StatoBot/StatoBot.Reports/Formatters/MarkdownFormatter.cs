@@ -3,28 +3,23 @@ using System.Linq;
 
 namespace StatoBot.Reports.Formatters
 {
-	public class MarkdownFormatter : ReportFormatter
+	public class MarkdownFormatter : IReportFormatter
 	{
+		public string FileExtension => ".md";
+
 		public string Format(Report report)
 		{
 			return
 $@"
-# Chat statistics report for: '{report.Input.BotInfo.Channel}'
+# Chat statistics report for channel '{report.Input.BotInfo.Channel}'
 #### Statistics from {report.Input.BotInfo.StartTime} until {report.Input.BotInfo.EndTime}
 
 ---
 
-## General
+## Overview
 
-#### Stream Length
+#### Total Statistics collection time
 {report.Statistics.StreamLength}
-
-#### Average word length
-{report.Statistics.AverageWordLength}
-
----
-
-## Totals
 
 #### Total Words used
 {report.Statistics.TotalWords}

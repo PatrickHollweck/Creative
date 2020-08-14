@@ -1,6 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
+using System.Numerics;
+
 using StatoBot.Reports.Formatters;
 
 using Entry = System.Collections.Generic.KeyValuePair<string, decimal>;
@@ -14,9 +16,9 @@ namespace StatoBot.Reports
         public OrderedEntry LettersSortedByUsage;
         public OrderedEntry WordsSortedByUsage;
 
-        public decimal TotalWords;
-        public decimal TotalUsers;
-        public decimal TotalLetters;
+        public BigInteger TotalWords;
+        public BigInteger TotalUsers;
+        public BigInteger TotalLetters;
 
         public float AverageWordLength;
 
@@ -25,10 +27,10 @@ namespace StatoBot.Reports
 
     public class Report
     {
-        public ReportInput Input { get; }
+        public ReportData Input { get; }
         public ReportStatistics Statistics { get; }
 
-        public Report(ReportInput input)
+        public Report(ReportData input)
         {
             Input = input;
             Statistics = new ReportStatistics();
@@ -37,21 +39,21 @@ namespace StatoBot.Reports
         }
 
         public string FormatWith<T>()
-            where T : ReportFormatter, new()
+            where T : IReportFormatter, new()
         {
             return new T().Format(this);
         }
 
-        public string FormatWith(ReportFormatter formatter)
+        public string FormatWith(IReportFormatter formatter)
         {
             return formatter.Format(this);
         }
 
         private void Generate()
         {
-            var users = Input.Statistics.Users.ToList();
-            var letters = Input.Statistics.Letters.ToList();
-            var words = Input.Statistics.Words.ToList();
+            var users = Input.Statistics.Users.ToArray();
+            var letters = Input.Statistics.Letters.ToArray();
+            var words = Input.Statistics.Words.ToArray();
 
             // Tops
             Statistics.UsersSortedByMessagesSent = SortDescending(users);
@@ -63,14 +65,12 @@ namespace StatoBot.Reports
             Statistics.TotalLetters = Total(letters);
             Statistics.TotalWords = Total(words);
 
-            // Misc
-            Statistics.AverageWordLength = (float)(Statistics.TotalWords / Statistics.TotalLetters);
             Statistics.StreamLength = Input.BotInfo.EndTime - Input.BotInfo.StartTime;
         }
 
-        private static decimal Total(IEnumerable<Entry> collection)
+        private static BigInteger Total(IEnumerable<Entry> collection)
         {
-            return collection.Aggregate((decimal)0, (acc, item) => acc += item.Value);
+            return collection.Aggregate((BigInteger)0, (acc, item) => acc + (BigInteger)item.Value);
         }
 
         private static OrderedEntry SortDescending(IEnumerable<Entry> collection)
