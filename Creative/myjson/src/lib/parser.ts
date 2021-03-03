@@ -96,8 +96,6 @@ function parseArray(tokens: Token[]): ArrayNode {
     const entry = parse(tokens);
 
     arrayNode.addChild(entry);
-
-    tokens.shift();
   }
 
   throw new Error("Unexpected end of source, while parsing array");
@@ -125,15 +123,13 @@ function parseObject(tokens: Token[]) {
     const entry = parseObjectEntry(tokens);
 
     objectNode.addEntry(entry.key, entry.value);
-
-    tokens.shift();
   }
 
   throw new Error("Unexpected end of source, while parsing object!");
 }
 
 function parseObjectEntry(tokens: Token[]) {
-  const [keyToken, seperatorToken, ...rest] = tokens;
+  const [keyToken, seperatorToken] = tokens;
 
   if (!keyToken || keyToken.type !== "string") {
     throw new Error(
@@ -152,7 +148,7 @@ function parseObjectEntry(tokens: Token[]) {
 
   tokens.splice(0, 2);
 
-  const scalarNode = parse(rest);
+  const scalarNode = parse(tokens);
 
   return {
     key: keyToken.value,

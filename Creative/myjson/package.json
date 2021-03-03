@@ -13,7 +13,8 @@
     "test:watch": "yarn test --watch",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write src/**/*.ts tests/**/*.ts",
-    "review": "yarn build && yarn format && yarn lint && yarn test"
+    "review": "yarn build && yarn format && yarn lint && yarn test",
+    "jestrunner.jestCommand": "jest"
   },
   "devDependencies": {
     "@babel/core": "^7.13.8",

@@ -44,7 +44,7 @@ export function tokenize(source: string): Token[] {
 function tokenizeNumber(source: string, cursor: number): TokenizerResult {
   // This only supports simple numbers, not floats or anything, also no decimal point.
   // TODO: Implement more spec-compliant number parsing
-  const result = matchRegex(source, cursor, /[0-9]+/);
+  const result = matchRegex(source, cursor, /^[0-9]+/);
 
   if (result.matched) {
     return {
@@ -66,7 +66,7 @@ function tokenizeString(source: string, cursor: number): TokenizerResult {
   // This does not do any of the backslash or escape-sequence parsing
   // We also do not allow all of the unicode character set, which is technically required.
   // TODO: Implement more spec-compliant string parsing
-  const result = matchRegex(source, cursor, /"[a-zA-Z]*"/);
+  const result = matchRegex(source, cursor, /^"[a-zA-Z]*"/);
 
   if (result.matched) {
     let value = result.value;
