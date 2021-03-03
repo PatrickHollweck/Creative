@@ -4,9 +4,9 @@ export class Node {}
 
 export class ScalarNode extends Node {
   public readonly type: string;
-  public readonly value: any;
+  public readonly value: string;
 
-  public constructor(type: string, value: any) {
+  public constructor(type: string, value: string) {
     super();
 
     this.type = type;
@@ -23,7 +23,7 @@ export class ObjectNode extends Node {
     this.entries = new Map();
   }
 
-  public addEntry(key: string, value: Node) {
+  public addEntry(key: string, value: Node): void {
     this.entries.set(key, value);
   }
 }
@@ -37,12 +37,12 @@ export class ArrayNode extends Node {
     this.children = [];
   }
 
-  public addChild(value: Node) {
+  public addChild(value: Node): void {
     this.children.push(value);
   }
 }
 
-export function parse(tokens: Token[]) {
+export function parse(tokens: Token[]): Node {
   if (tokens.length === 0) {
     throw new Error("Unexpected end of source!");
   }
@@ -64,9 +64,9 @@ export function parse(tokens: Token[]) {
   throw new Error(`Could not parse token '${type}' at this location`);
 }
 
-function parseScalar(tokens: Token[]) {
+function parseScalar(tokens: Token[]): ScalarNode {
   const { type, value } = tokens[0];
-  
+
   const scalar = new ScalarNode(type, value);
 
   tokens.shift();
@@ -74,12 +74,12 @@ function parseScalar(tokens: Token[]) {
   return scalar;
 }
 
-function parseArray(tokens: Token[]) {
+function parseArray(tokens: Token[]): ArrayNode {
   const arrayNode = new ArrayNode();
-  
+
   tokens.shift();
 
-  while (true) {
+  while (tokens.length > 0) {
     const { type, value } = tokens[0];
 
     if (type === "punctuation" && value === "]") {
@@ -93,16 +93,14 @@ function parseArray(tokens: Token[]) {
       tokens.shift();
     }
 
-    const entry = parseArrayEntry(tokens);
+    const entry = parse(tokens);
 
     arrayNode.addChild(entry);
 
     tokens.shift();
   }
-}
 
-function parseArrayEntry(tokens: Token[]) {
-  return parse(tokens);
+  throw new Error("Unexpected end of source, while parsing array");
 }
 
 function parseObject(tokens: Token[]) {
@@ -110,7 +108,7 @@ function parseObject(tokens: Token[]) {
 
   tokens.shift();
 
-  while (true) {
+  while (tokens.length > 0) {
     const { type, value } = tokens[0];
 
     if (type === "punctuation" && value === "}") {
@@ -126,10 +124,7 @@ function parseObject(tokens: Token[]) {
     // TODO: Check if this works with nested objects.
     const entry = parseObjectEntry(tokens);
 
-    objectNode.addEntry(
-      entry.key,
-      entry.value
-    );
+    objectNode.addEntry(entry.key, entry.value);
 
     tokens.shift();
   }
@@ -142,13 +137,16 @@ function parseObjectEntry(tokens: Token[]) {
 
   if (!keyToken || keyToken.type !== "string") {
     throw new Error(
-      `Unexpected token of type "${keyToken.type}" ("${keyToken.value}") on object key`
+      `Unexpected token of type "${keyToken.type}" ("${keyToken.value}") on object key`,
     );
   }
 
-  if (!seperatorToken || seperatorToken.type !== "punctuation" && seperatorToken.value === ":") {
+  if (
+    !seperatorToken ||
+    (seperatorToken.type !== "punctuation" && seperatorToken.value === ":")
+  ) {
     throw new Error(
-      `Unexpected token of type "${seperatorToken.type}" ("${seperatorToken.value}") as object key-value seperator`
+      `Unexpected token of type "${seperatorToken.type}" ("${seperatorToken.value}") as object key-value seperator`,
     );
   }
 
@@ -158,6 +156,6 @@ function parseObjectEntry(tokens: Token[]) {
 
   return {
     key: keyToken.value,
-    value: scalarNode
+    value: scalarNode,
   };
 }

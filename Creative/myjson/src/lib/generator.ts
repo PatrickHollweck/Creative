@@ -1,12 +1,13 @@
+import { JsonObject, JsonValue } from "./types";
 import { Node, ObjectNode, ArrayNode, ScalarNode } from "./parser";
 
-export function convertNodeToJsValue(root: Node) {
+export function convertNodeToJsValue(root: Node): JsonValue {
   if (root instanceof ScalarNode) {
     return scalarToJsValue(root);
   }
 
   if (root instanceof ObjectNode) {
-    const result: { [k: string]: any } = {};
+    const result: JsonObject = {};
 
     for (const [key, value] of root.entries) {
       result[key] = convertNodeToJsValue(value);
@@ -37,7 +38,7 @@ function scalarToJsValue(node: ScalarNode) {
 
       throw new Error("Invalid boolean value");
     case "number":
-      return parseInt(value, 10);
+      return parseInt(value as string, 10);
     case "string":
       return value;
     default:

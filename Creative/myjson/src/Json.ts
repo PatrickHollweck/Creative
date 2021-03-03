@@ -1,6 +1,7 @@
 import { parse } from './lib/parser';
 import { tokenize } from "./lib/lexer";
 import { convertNodeToJsValue } from './lib/generator';
+import { JsonValue } from './lib/types';
 
 export class Json {
   private source: string;
@@ -9,11 +10,11 @@ export class Json {
     this.source = source;
   }
 
-  static fromString(source: string) {
+  static parse(source: string): JsonValue {
     return new Json(source).processSource();
   }
 
-  processSource() {
+  processSource(): JsonValue {
     const tokens = tokenize(this.source);
     const ast = parse(tokens);
     const jsValue = convertNodeToJsValue(ast);
