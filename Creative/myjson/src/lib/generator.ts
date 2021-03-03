@@ -26,7 +26,7 @@ export function convertNodeToJsValue(root: Node): JsonValue {
       return result;
   }
 
-  throw new Error(`Unknown node type "${root.constructor.name}"`);
+  throw new Error(`Unknown node type "${root.constructor.name}" found while deserializing tree`);
 }
 
 function scalarToJsValue(node: ScalarNode) {
@@ -42,7 +42,7 @@ function scalarToJsValue(node: ScalarNode) {
         return false;
       }
 
-      throw new Error("Invalid boolean value");
+      throw new Error(`Invalid boolean value "${value}" found.`);
     case "null":
       return null;
     case "number":

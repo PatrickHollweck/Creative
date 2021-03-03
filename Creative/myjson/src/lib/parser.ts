@@ -1,9 +1,10 @@
 import { Token } from "./Token";
 import { Node, ScalarNode, ObjectNode, ArrayNode } from './nodes';
+import { JsonError } from "./util/JsonError";
 
 export function parse(tokens: Token[]): Node {
   if (tokens.length === 0) {
-    throw new Error("Unexpected end of source!");
+    throw new JsonError("Unexpected end of source!", tokens);
   }
 
   const initialToken = tokens[0];
@@ -20,9 +21,9 @@ export function parse(tokens: Token[]): Node {
     return parseArray(tokens);
   }
 
-  // TODO: We can improve errors, by creating a custom error type, which serializes the tokens.
-  throw new Error(
-      `Could not parse token of type '${initialToken.type}' at this location`
+  throw new JsonError(
+      `Could not parse token of type '${initialToken.type}' at this location`,
+      tokens
   );
 }
 
@@ -51,25 +52,25 @@ function parseArray(tokens: Token[]): ArrayNode {
       return arrayNode;
     }
 
-    if (firstToken.isComma) {
-      tokens.shift();
-    }
-
     arrayNode.addChild(parse(tokens));
 
-    const [nextToken] = tokens;
+    // The next token is either a comma or it is the closing bracket.
+    // In both cases the token needs to be removed. We just need to keep it around
+    // to check if it is a comma.
+    const nextToken = tokens.shift();
 
     // If the next token "after" the value is not a comma, we do not expect
     // any more values. Technically we dont even need the comma, but we are stick
     // to the standard strictly.
-    if (!nextToken.isComma) {
-        tokens.shift();
-
+    if (nextToken && !nextToken.isComma) {
         return arrayNode;
     }
   }
 
-  throw new Error("Unexpected end of source, while parsing array");
+  throw new JsonError(
+    "Unexpected end of source, while parsing array",
+    tokens
+  );
 }
 
 function parseObject(tokens: Token[]) {
@@ -86,41 +87,37 @@ function parseObject(tokens: Token[]) {
       return objectNode;
     }
 
-    if (firstToken.isComma) {
-      tokens.shift();
-    }
-
     objectNode.addEntry(
         parseObjectEntry(tokens)
     );
 
-    const [nextToken] = tokens;
+    const nextToken = tokens.shift();
 
-    // If the next token "after" the value is not a comma, we do not expect
-    // any more values. Technically we dont even need the comma, but we are stick
-    // to the standard strictly.
-    if (nextToken.type !== "punctuation" || nextToken.value !== ",") {
-        tokens.shift();
-
+    if (nextToken && !nextToken.isComma) {
         return objectNode;
     }
   }
 
-  throw new Error("Unexpected end of source, while parsing object!");
+  throw new JsonError(
+    "Unexpected end of source, while parsing object",
+    tokens
+  );
 }
 
 function parseObjectEntry(tokens: Token[]) {
   const [keyToken, seperatorToken] = tokens;
 
   if (!keyToken || !keyToken.isString) {
-    throw new Error(
+    throw new JsonError(
       `Unexpected token of type "${keyToken.type}" ("${keyToken.value}") on object key`,
+      tokens
     );
   }
 
   if (!seperatorToken || !seperatorToken.isColon) {
-    throw new Error(
+    throw new JsonError(
       `Unexpected token of type "${seperatorToken.type}" ("${seperatorToken.value}") as object key-value seperator`,
+      tokens,
     );
   }
 

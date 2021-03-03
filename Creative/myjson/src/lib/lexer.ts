@@ -163,7 +163,10 @@ function matchRegex(
     };
   }
 
-  throw new Error("Invalid regex parse.");
+  // This is pretty much only reachable in case of a programmer Error
+  // The regex should be constructed as such that it only matches one
+  // thing at the start of the given string
+  throw new Error("Invalid regex lex.");
 }
 
 function matchLiteral(
