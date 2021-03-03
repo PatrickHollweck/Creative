@@ -1,4 +1,4 @@
-import { JsonObject, JsonValue } from "./types";
+import { JsonArray, JsonObject, JsonValue } from "./types";
 import { Node, ObjectNode, ArrayNode, ScalarNode } from "./parser";
 
 export function convertNodeToJsValue(root: Node): JsonValue {
@@ -17,7 +17,13 @@ export function convertNodeToJsValue(root: Node): JsonValue {
   }
 
   if (root instanceof ArrayNode) {
-    throw new Error("Not implemented");
+      const result: JsonArray = [];
+
+      for (const value of root.children) {
+          result.push(convertNodeToJsValue(value));
+      }
+
+      return result;
   }
 
   throw new Error(`Unknown node type "${root.constructor.name}"`);
