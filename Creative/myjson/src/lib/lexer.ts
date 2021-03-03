@@ -1,7 +1,4 @@
-export type Token = {
-  type: "punctuation" | "boolean" | "string" | "number" | "null";
-  value: string;
-};
+import { PUNCTUATION_TOKENS, Token } from "./Token";
 
 type TokenizerResult =
   | { matched: false }
@@ -10,12 +7,20 @@ type TokenizerResult =
 type Tokenizer = (source: string, cursor: number) => TokenizerResult;
 
 export function tokenize(source: string): Token[] {
+  // Json is a free-form format. This means that we can disregard any whitespace.
+  // We deal with this at the start, to avoid complexity later.
   const trimmedSource = source.replace(/\s/g, "");
 
   let cursor = 0;
   const tokens: Token[] = [];
 
-  const tokenizers: Tokenizer[] = [tokenizeSimpleToken, tokenizeString, tokenizeNumber];
+  const tokenizers: Tokenizer[] = [
+      tokenizePunctuation,
+      tokenizeNull,
+      tokenizeNumber,
+      tokenizeString,
+      tokenizeBoolean,
+  ];
 
   while (cursor < trimmedSource.length) {
     let didMatch = false;
@@ -33,7 +38,6 @@ export function tokenize(source: string): Token[] {
     }
 
     if (!didMatch) {
-      console.log(tokens);
       throw new Error(`Could not lex token: "${trimmedSource.substr(cursor)}"`);
     }
   }
@@ -41,19 +45,40 @@ export function tokenize(source: string): Token[] {
   return tokens;
 }
 
+function tokenizeNull(source: string, cursor: number): TokenizerResult {
+    return matchStaticToken(source, cursor, new Token("null", "null"));
+}
+
+function tokenizeBoolean(source: string, cursor: number): TokenizerResult {
+    const booleanTokens = [
+        new Token("boolean", "true"),
+        new Token("boolean", "false"),
+    ];
+
+    for (const token of booleanTokens) {
+        const result = matchStaticToken(source, cursor, token);
+
+        if (result.matched) {
+            return result;
+        }
+    }
+
+    return {
+        matched: false,
+    };
+}
+
 function tokenizeNumber(source: string, cursor: number): TokenizerResult {
-  // This only supports simple numbers, not floats or anything, also no decimal point.
   // TODO: Implement more spec-compliant number parsing
+  // This only supports simple decimal numbers - no float, fraction, negative number,
+  // exponent or ocal/hexadecimal support is currently implemented...
   const result = matchRegex(source, cursor, /^[0-9]+/);
 
   if (result.matched) {
     return {
       matched: true,
       cursor: result.cursor,
-      token: {
-        type: "number",
-        value: result.value,
-      },
+      token: new Token("number", result.value),
     };
   }
 
@@ -63,29 +88,27 @@ function tokenizeNumber(source: string, cursor: number): TokenizerResult {
 }
 
 function tokenizeString(source: string, cursor: number): TokenizerResult {
+  // TODO: Implement more spec-compliant string parsing
   // This does not do any of the backslash or escape-sequence parsing
   // We also do not allow all of the unicode character set, which is technically required.
-  // TODO: Implement more spec-compliant string parsing
   const result = matchRegex(source, cursor, /^"[a-zA-Z]*"/);
 
   if (result.matched) {
     let value = result.value;
 
-    if (value == null || value.length === 0) {
-      throw new Error("Empty string is not allowed!");
-    }
-
-    if (value[0] === '"' || value[value.length - 1] === '"') {
-      value = value.replace(/"/g, "");
+    if (
+        (value != null && value.length > 0) &&
+        (value[0] === '"' || value[value.length - 1] === '"')
+    ) {
+      value = value
+        .replace(/^"/, "")
+        .replace(/"$/, "");
     }
 
     return {
       matched: true,
       cursor: result.cursor,
-      token: {
-        type: "string",
-        value,
-      },
+      token: new Token("string", value),
     };
   }
 
@@ -94,22 +117,8 @@ function tokenizeString(source: string, cursor: number): TokenizerResult {
   };
 }
 
-function tokenizeSimpleToken(source: string, cursor: number): TokenizerResult {
-  const simpleTokenDefinitions: Token[] = [
-    // Simple Literals
-    { type: "boolean", value: "false" },
-    { type: "boolean", value: "true" },
-    { type: "null", value: "null" },
-    // Punctuation
-    { type: "punctuation", value: "{" },
-    { type: "punctuation", value: "}" },
-    { type: "punctuation", value: "[" },
-    { type: "punctuation", value: "]" },
-    { type: "punctuation", value: ":" },
-    { type: "punctuation", value: "," },
-  ];
-
-  for (const token of simpleTokenDefinitions) {
+function tokenizePunctuation(source: string, cursor: number): TokenizerResult {
+  for (const token of Object.values(PUNCTUATION_TOKENS)) {
     const matchResult = matchLiteral(source, cursor, token.value);
 
     if (matchResult.matched) {
@@ -125,6 +134,10 @@ function tokenizeSimpleToken(source: string, cursor: number): TokenizerResult {
     matched: false,
   };
 }
+
+/*
+ * Helper Functions
+ */
 
 function matchRegex(
   source: string,
@@ -168,4 +181,20 @@ function matchLiteral(
   return {
     matched: false,
   };
+}
+
+function matchStaticToken(source: string, cursor: number, token: Token): TokenizerResult {
+    const lookahead = matchLiteral(source, cursor, token.value);
+
+    if (lookahead.matched) {
+        return {
+            matched: true,
+            cursor: lookahead.cursor,
+            token
+        };
+    }
+
+    return {
+        matched: false
+    };
 }

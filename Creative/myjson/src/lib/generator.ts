@@ -1,5 +1,5 @@
 import { JsonArray, JsonObject, JsonValue } from "./types";
-import { Node, ObjectNode, ArrayNode, ScalarNode } from "./parser";
+import { Node, ObjectNode, ArrayNode, ScalarNode } from "./nodes";
 
 export function convertNodeToJsValue(root: Node): JsonValue {
   if (root instanceof ScalarNode) {
@@ -43,6 +43,8 @@ function scalarToJsValue(node: ScalarNode) {
       }
 
       throw new Error("Invalid boolean value");
+    case "null":
+      return null;
     case "number":
       return parseInt(value as string, 10);
     case "string":
