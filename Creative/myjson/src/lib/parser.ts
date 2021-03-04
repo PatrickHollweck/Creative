@@ -1,15 +1,15 @@
 import { Token } from "./Token";
-import { Node, ScalarNode, ObjectNode, ArrayNode } from './nodes';
+import { Node, ScalarNode, ObjectNode, ArrayNode } from "./nodes";
 import { JsonError } from "./util/JsonError";
 
 export function parse(tokens: Token[]): Node {
-    const rootNode = parseSingle(tokens);
+  const rootNode = parseSingle(tokens);
 
-    if (tokens.length > 0) {
-        throw new JsonError("Unexpected tokens at the end of source", tokens);
-    }
+  if (tokens.length > 0) {
+    throw new JsonError("Unexpected tokens at the end of source", tokens);
+  }
 
-    return rootNode;
+  return rootNode;
 }
 
 export function parseSingle(tokens: Token[]): Node {
@@ -32,8 +32,8 @@ export function parseSingle(tokens: Token[]): Node {
   }
 
   throw new JsonError(
-      `Could not parse token of type '${initialToken.type}' at this location`,
-      tokens
+    `Could not parse token of type '${initialToken.type}' at this location`,
+    tokens,
   );
 }
 
@@ -58,9 +58,9 @@ function parseArray(tokens: Token[]): ArrayNode {
 
     // Empty Array, exit early.
     if (initialToken.isArrayClose) {
-        tokens.shift();
+      tokens.shift();
 
-        return arrayNode;
+      return arrayNode;
     }
 
     arrayNode.addChild(parseSingle(tokens));
@@ -74,22 +74,19 @@ function parseArray(tokens: Token[]): ArrayNode {
     // any more values. Technically we dont even need the comma, but we are stick
     // to the standard strictly.
     if (nextToken && nextToken.isComma) {
-        continue;
+      continue;
     }
 
     if (nextToken && nextToken.isArrayClose) {
-        return arrayNode;
+      return arrayNode;
     }
 
-    throw new JsonError(
-        "Additional comma at end of array entries",
-        tokens
-    );
+    throw new JsonError("Additional comma at end of array entries", tokens);
   }
 
   throw new JsonError(
     "Unexpected token at the end of an array entry, most likely a missing comma",
-    tokens
+    tokens,
   );
 }
 
@@ -103,39 +100,34 @@ function parseObject(tokens: Token[]) {
 
     // Empty Object, exit early
     if (initialToken.isObjectClose) {
-        tokens.shift();
+      tokens.shift();
 
-        return objectNode;
+      return objectNode;
     }
 
-    objectNode.addEntry(
-        parseObjectEntry(tokens)
-    );
+    objectNode.addEntry(parseObjectEntry(tokens));
 
     const nextToken = tokens.shift();
 
     // If there is a comma, the json specifies that there *must*
     // be another entry on the object
     if (nextToken && nextToken.isComma) {
-        continue;
+      continue;
     }
 
     // If the next token is not a comma, there are no more entries
     // which means that the next token *must* be a "}
     if (nextToken && nextToken.isObjectClose) {
-        return objectNode;
+      return objectNode;
     }
 
     throw new JsonError(
-        "Unexpected token at the end of an object entry, most likely a missing comma",
-        tokens
+      "Unexpected token at the end of an object entry, most likely a missing comma",
+      tokens,
     );
   }
 
-  throw new JsonError(
-    "Unexpected end of source, while parsing object",
-    tokens
-  );
+  throw new JsonError("Unexpected end of source, while parsing object", tokens);
 }
 
 function parseObjectEntry(tokens: Token[]) {
@@ -144,7 +136,7 @@ function parseObjectEntry(tokens: Token[]) {
   if (!keyToken || !keyToken.isString) {
     throw new JsonError(
       `Unexpected token of type "${keyToken.type}" ("${keyToken.value}") on object key`,
-      tokens
+      tokens,
     );
   }
 

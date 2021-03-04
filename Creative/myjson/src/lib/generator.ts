@@ -17,16 +17,18 @@ export function convertNodeToJsValue(root: Node): JsonValue {
   }
 
   if (root instanceof ArrayNode) {
-      const result: JsonArray = [];
+    const result: JsonArray = [];
 
-      for (const value of root.children) {
-          result.push(convertNodeToJsValue(value));
-      }
+    for (const value of root.children) {
+      result.push(convertNodeToJsValue(value));
+    }
 
-      return result;
+    return result;
   }
 
-  throw new Error(`Unknown node type "${root.constructor.name}" found while deserializing tree`);
+  throw new Error(
+    `Unknown node type "${root.constructor.name}" found while deserializing tree`,
+  );
 }
 
 function scalarToJsValue(node: ScalarNode) {

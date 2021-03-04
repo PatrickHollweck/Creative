@@ -1,7 +1,7 @@
 import { PUNCTUATION_TOKENS, Token } from "./Token";
 
 type TokenizerResult =
-  | { matched: false, cursor?: number }
+  | { matched: false; cursor?: number }
   | { matched: true; token: Token; cursor: number };
 
 type Tokenizer = (source: string, cursor: number) => TokenizerResult;
@@ -11,12 +11,12 @@ export function tokenize(source: string): Token[] {
   const tokens: Token[] = [];
 
   const tokenizers: Tokenizer[] = [
-      tokenizeWhitespace,
-      tokenizePunctuation,
-      tokenizeNull,
-      tokenizeNumber,
-      tokenizeString,
-      tokenizeBoolean,
+    tokenizeWhitespace,
+    tokenizePunctuation,
+    tokenizeNull,
+    tokenizeNumber,
+    tokenizeString,
+    tokenizeBoolean,
   ];
 
   while (cursor < source.length) {
@@ -36,10 +36,10 @@ export function tokenize(source: string): Token[] {
       // Even if a tokenizer did not match, it is free to move the cursor
       // this is usefull for example when parsing white-space, which does not result in a token
       if (!result.matched && typeof result.cursor === "number") {
-          didMatch = true;
-          cursor = result.cursor;
+        didMatch = true;
+        cursor = result.cursor;
 
-          break;
+        break;
       }
     }
 
@@ -52,48 +52,45 @@ export function tokenize(source: string): Token[] {
 }
 
 function tokenizeWhitespace(source: string, cursor: number): TokenizerResult {
-    const result = matchRegex(source, cursor, /^\s/);
+  const result = matchRegex(source, cursor, /^\s/);
 
-    if (result.matched) {
-        return {
-            matched: false,
-            cursor: result.cursor
-        };
-    }
-
+  if (result.matched) {
     return {
-        matched: false
+      matched: false,
+      cursor: result.cursor,
     };
+  }
+
+  return {
+    matched: false,
+  };
 }
 
 function tokenizeNull(source: string, cursor: number): TokenizerResult {
-    return matchStaticToken(source, cursor, new Token("null", "null"));
+  return matchStaticToken(source, cursor, new Token("null", "null"));
 }
 
 function tokenizeBoolean(source: string, cursor: number): TokenizerResult {
-    const booleanTokens = [
-        new Token("boolean", "true"),
-        new Token("boolean", "false"),
-    ];
+  const booleanTokens = [new Token("boolean", "true"), new Token("boolean", "false")];
 
-    for (const token of booleanTokens) {
-        const result = matchStaticToken(source, cursor, token);
+  for (const token of booleanTokens) {
+    const result = matchStaticToken(source, cursor, token);
 
-        if (result.matched) {
-            return result;
-        }
+    if (result.matched) {
+      return result;
     }
+  }
 
-    return {
-        matched: false,
-    };
+  return {
+    matched: false,
+  };
 }
 
 function tokenizeNumber(source: string, cursor: number): TokenizerResult {
   const result = matchRegex(
-      source,
-      cursor,
-      /^(?:(?!0\d)(?!\-0\d)-?(?:0(?:\.\d+)|\d+(?:\d+)?(?:\.\d+)?)(?:(?:e|E)(?:-?|\+?)\d+)?)/
+    source,
+    cursor,
+    /^(?:(?!0\d)(?!-0\d)-?(?:0(?:\.\d+)|\d+(?:\d+)?(?:\.\d+)?)(?:(?:e|E)(?:-?|\+?)\d+)?)/,
   );
 
   if (result.matched) {
@@ -119,16 +116,15 @@ function tokenizeString(source: string, cursor: number): TokenizerResult {
     let value = result.value;
 
     if (
-        // Check if we even have a value, dont run the following check if we dont
-        (value != null && value.length > 0) &&
-        // Check if the first or last character is a quotation mark, in which case we would need to remove them
-        (value[0] === '"' || value[value.length - 1] === '"') &&
-        // Ensure we do not remove quotation marks on a string with no content ("")
-        !(value.length === 2 && value[0] === '"' && value[value.length - 1] === '"')
+      // Check if we even have a value, dont run the following check if we dont
+      value != null &&
+      value.length > 0 &&
+      // Check if the first or last character is a quotation mark, in which case we would need to remove them
+      (value[0] === '"' || value[value.length - 1] === '"') &&
+      // Ensure we do not remove quotation marks on a string with no content ("")
+      !(value.length === 2 && value[0] === '"' && value[value.length - 1] === '"')
     ) {
-      value = value
-        .replace(/^"/, "")
-        .replace(/"$/, "");
+      value = value.replace(/^"/, "").replace(/"$/, "");
     }
 
     return {
@@ -213,17 +209,17 @@ function matchLiteral(
 }
 
 function matchStaticToken(source: string, cursor: number, token: Token): TokenizerResult {
-    const lookahead = matchLiteral(source, cursor, token.value);
+  const lookahead = matchLiteral(source, cursor, token.value);
 
-    if (lookahead.matched) {
-        return {
-            matched: true,
-            cursor: lookahead.cursor,
-            token
-        };
-    }
-
+  if (lookahead.matched) {
     return {
-        matched: false
+      matched: true,
+      cursor: lookahead.cursor,
+      token,
     };
+  }
+
+  return {
+    matched: false,
+  };
 }
