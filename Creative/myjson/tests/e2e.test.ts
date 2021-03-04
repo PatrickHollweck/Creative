@@ -24,6 +24,9 @@ describe("End2End", () => {
         expect(Json.parse("100")).toEqual(100);
         expect(Json.parse("8747540")).toEqual(8747540);
 
+        // Large Numbers
+        expect(Json.parse("-9223372036854775808")).toEqual(-9223372036854775808);
+
         // Negatives
         expect(Json.parse("-10")).toEqual(-10);
 
@@ -33,6 +36,8 @@ describe("End2End", () => {
         // Exponents
         expect(Json.parse("2e10")).toEqual(2e10);
         expect(Json.parse("2E10")).toEqual(2E10);
+        expect(Json.parse("2E+10")).toEqual(2E10);
+        expect(Json.parse("123.456e-789")).toEqual(123.456e-789);
 
         // Invalid Basic
         expect(() => Json.parse("+178")).toThrow();
