@@ -1,20 +1,17 @@
 import { PUNCTUATION_TOKENS, Token } from "./Token";
 
 type TokenizerResult =
-  | { matched: false }
+  | { matched: false, cursor?: number }
   | { matched: true; token: Token; cursor: number };
 
 type Tokenizer = (source: string, cursor: number) => TokenizerResult;
 
 export function tokenize(source: string): Token[] {
-  // Json is a free-form format. This means that we can disregard any whitespace.
-  // We deal with this at the start, to avoid complexity later.
-  const trimmedSource = source.replace(/\s/g, "");
-
   let cursor = 0;
   const tokens: Token[] = [];
 
   const tokenizers: Tokenizer[] = [
+      tokenizeWhitespace,
       tokenizePunctuation,
       tokenizeNull,
       tokenizeNumber,
@@ -22,11 +19,11 @@ export function tokenize(source: string): Token[] {
       tokenizeBoolean,
   ];
 
-  while (cursor < trimmedSource.length) {
+  while (cursor < source.length) {
     let didMatch = false;
 
     for (const tokenizer of tokenizers) {
-      const result = tokenizer(trimmedSource, cursor);
+      const result = tokenizer(source, cursor);
 
       if (result.matched) {
         didMatch = true;
@@ -35,14 +32,35 @@ export function tokenize(source: string): Token[] {
 
         break;
       }
+
+      // Even if a tokenizer did not match, it is free to move the cursor
+      // this is usefull for example when parsing white-space, which does not result in a token
+      if (!result.matched && typeof result.cursor === "number") {
+          cursor = result.cursor;
+      }
     }
 
     if (!didMatch) {
-      throw new Error(`Could not lex token: "${trimmedSource.substr(cursor)}"`);
+      throw new Error(`Could not lex token: "${source.substr(cursor)}"`);
     }
   }
 
   return tokens;
+}
+
+function tokenizeWhitespace(source: string, cursor: number): TokenizerResult {
+    const result = matchRegex(source, cursor, /^\s/);
+
+    if (result.matched) {
+        return {
+            matched: false,
+            cursor: result.cursor
+        };
+    }
+
+    return {
+        matched: false
+    };
 }
 
 function tokenizeNull(source: string, cursor: number): TokenizerResult {
@@ -69,10 +87,11 @@ function tokenizeBoolean(source: string, cursor: number): TokenizerResult {
 }
 
 function tokenizeNumber(source: string, cursor: number): TokenizerResult {
-  // TODO: Implement more spec-compliant number parsing
-  // This only supports simple decimal numbers - no float, fraction, negative number,
-  // exponent or ocal/hexadecimal support is currently implemented...
-  const result = matchRegex(source, cursor, /^[0-9]+/);
+  const result = matchRegex(
+      source,
+      cursor,
+      /^(0$|-?(0(\.\d+)|[1-9]+([0-9]+)?(\.\d+)?)((e|E)(-?|\+?)\d+)?)/
+  );
 
   if (result.matched) {
     return {
@@ -91,7 +110,7 @@ function tokenizeString(source: string, cursor: number): TokenizerResult {
   // TODO: Implement more spec-compliant string parsing
   // This does not do any of the backslash or escape-sequence parsing
   // We also do not allow all of the unicode character set, which is technically required.
-  const result = matchRegex(source, cursor, /^"[a-zA-Z]*"/);
+  const result = matchRegex(source, cursor, /^"[^"]*"/u);
 
   if (result.matched) {
     let value = result.value;
@@ -153,20 +172,13 @@ function matchRegex(
     };
   }
 
-  if (match.length === 1) {
-    const value = match[0];
+  const value = match[0];
 
-    return {
-      value,
-      matched: true,
-      cursor: cursor + value.toString().length,
-    };
-  }
-
-  // This is pretty much only reachable in case of a programmer Error
-  // The regex should be constructed as such that it only matches one
-  // thing at the start of the given string
-  throw new Error("Invalid regex lex.");
+  return {
+    value,
+    matched: true,
+    cursor: cursor + value.toString().length,
+  };
 }
 
 function matchLiteral(

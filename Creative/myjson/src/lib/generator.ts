@@ -46,7 +46,7 @@ function scalarToJsValue(node: ScalarNode) {
     case "null":
       return null;
     case "number":
-      return parseInt(value as string, 10);
+      return Number(value as string);
     case "string":
       return value;
     default:
