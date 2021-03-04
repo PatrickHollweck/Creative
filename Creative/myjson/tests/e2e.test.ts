@@ -1,12 +1,6 @@
 import { Json } from "../src/Json";
 
 describe("End2End", () => {
-  test("debug", () => {
-    const source = '["",]';
-
-    expect(() => Json.parse(source)).toThrowError();
-  });
-
   test("Simple Object", () => {
     const source = '{ "name": "Patrick" }';
 
@@ -21,6 +15,13 @@ describe("End2End", () => {
     expect(Json.parse("false")).toEqual(false);
     expect(Json.parse("10")).toEqual(10);
     expect(Json.parse("null")).toEqual(null);
+  });
+
+  test("String Formats", () => {
+    expect(() => Json.parse('"Hello \\a World"')).toThrow();
+
+    expect(() => Json.parse('["\\n"]')).not.toThrow();
+    expect(() => Json.parse('["\\\\n"]')).not.toThrow();
   });
 
   test("Number Formats", () => {

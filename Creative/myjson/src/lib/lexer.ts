@@ -52,7 +52,7 @@ export function tokenize(source: string): Token[] {
 }
 
 function tokenizeWhitespace(source: string, cursor: number): TokenizerResult {
-  const result = matchRegex(source, cursor, /^\s/);
+  const result = matchRegex(source, cursor, /^(?!\f)\s/);
 
   if (result.matched) {
     return {
@@ -107,10 +107,7 @@ function tokenizeNumber(source: string, cursor: number): TokenizerResult {
 }
 
 function tokenizeString(source: string, cursor: number): TokenizerResult {
-  // TODO: Implement more spec-compliant string parsing
-  // This does not do any of the backslash or escape-sequence parsing
-  // We also do not allow all of the unicode character set, which is technically required.
-  const result = matchRegex(source, cursor, /^"[^"]*"/u);
+  const result = matchRegex(source, cursor, /^"(?:[^\n"\\]|\\.)*"/);
 
   if (result.matched) {
     let value = result.value;

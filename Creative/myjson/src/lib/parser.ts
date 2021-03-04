@@ -40,6 +40,10 @@ export function parseSingle(tokens: Token[]): Node {
 function parseScalar(tokens: Token[]): ScalarNode {
   const { type, value } = tokens[0];
 
+  if (type === "string") {
+    validateString(value, tokens);
+  }
+
   const scalar = new ScalarNode(type, value);
 
   tokens.shift();
@@ -153,4 +157,63 @@ function parseObjectEntry(tokens: Token[]) {
     key: keyToken.value,
     value: parseSingle(tokens),
   };
+}
+
+function validateString(value: string, tokens: Token[]) {
+  const chars = value.split("");
+
+  for (let index = 0; index < chars.length; index++) {
+    const element = chars[index];
+
+    if (
+      element === "\t" ||
+      element === "\n" ||
+      element === "\b" ||
+      element === "\f" ||
+      element === "\r"
+    ) {
+      throw new JsonError(
+        "Invalid characters in string. Control characters must be escaped!",
+        tokens,
+      );
+    }
+
+    if (element !== "\\") {
+      continue;
+    }
+
+    if (chars.length <= index + 1) {
+      throw new JsonError("Unexpected end of escape-sequence", tokens);
+    }
+
+    const escapeCharacter = chars[index + 1];
+
+    if (escapeCharacter === "\\" || escapeCharacter === "/") {
+      index++;
+
+      continue;
+    }
+
+    if (["b", "f", "n", "r", "t", '"'].includes(escapeCharacter)) {
+      continue;
+    }
+
+    if (escapeCharacter === "u") {
+      if (chars.length >= index + 6) {
+        const unicodeEscapeSequence = chars.slice(index + 2, index + 6).join("");
+
+        if (/^[0-9A-Fa-f]{4}$/.test(unicodeEscapeSequence)) {
+          index += 5;
+
+          continue;
+        } else {
+          throw new JsonError("Invalid unicode escape sequence", tokens);
+        }
+      } else {
+        throw new JsonError("Unexpected end of escape-sequence", tokens);
+      }
+    }
+
+    throw new JsonError("Unrecognized escape sequence", tokens);
+  }
 }

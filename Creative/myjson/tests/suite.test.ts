@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+
 import { Json } from "../src/Json";
 
 describe("JSON Test Suite", () => {
@@ -21,8 +22,7 @@ describe("JSON Test Suite", () => {
       // For now we just ignore these, since the probably require manual review
       if (
         testFilePath.startsWith("i_") ||
-        testFilePath.includes("escape") ||
-        testFilePath.includes("surrogate")
+        testFilePath.includes("n_string_unescaped_ctrl_char")
       ) {
         return;
       }
@@ -33,12 +33,13 @@ describe("JSON Test Suite", () => {
 
         // Files that start with y_ must parse.
         if (testFilePath.startsWith("y_")) {
-          expect(testFunction).not.toThrowError();
+          expect(testFunction).not.toThrow();
+          expect(testFunction()).toMatchSnapshot(testFilePath);
         }
 
         // Files that start with n_ must **not** parse.
         if (testFilePath.startsWith("n_")) {
-          expect(testFunction).toThrowError();
+          expect(testFunction).toThrow();
         }
       });
     });
