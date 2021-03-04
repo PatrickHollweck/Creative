@@ -36,7 +36,7 @@ describe("JSON Test Suite", () => {
           expect(testFunction).not.toThrowError();
         }
 
-        // Files that start with y_ must **not** parse.
+        // Files that start with n_ must **not** parse.
         if (testFilePath.startsWith("n_")) {
           expect(testFunction).toThrowError();
         }
