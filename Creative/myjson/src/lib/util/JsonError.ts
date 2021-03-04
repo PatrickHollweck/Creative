@@ -1,7 +1,13 @@
 import { Token } from "../Token";
 
 function serializeTokens(tokens: Token[]) {
-    return tokens.map((token) => token.value).join("");
+    return tokens.map((token) => {
+        if (token.isString) {
+            return `"${token.value}"`;
+        }
+
+        return token.value;
+    }).join("");
 }
 
 function formatMessage(message: string, tokens: Token[]): string {

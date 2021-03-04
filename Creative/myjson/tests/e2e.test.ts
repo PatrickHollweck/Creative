@@ -58,9 +58,13 @@ describe("End2End", () => {
     });
 
     test("Missmatched parens", () => {
-        const source = '{ "pets": {} "name": { "first": "A", "last": "B" } } }';
+        expect(
+            () => Json.parse('{ "pets": {}}, "name": "A" }')
+        ).toThrow();
 
-        expect(Json.parse(source)).toThrow();
+        expect(
+            () => Json.parse('{ "pets": [[], "name": "A" }')
+        ).toThrow();
     });
 
     test("Empty Object", () => {
