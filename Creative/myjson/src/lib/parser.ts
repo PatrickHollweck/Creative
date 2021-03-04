@@ -53,16 +53,16 @@ function parseArray(tokens: Token[]): ArrayNode {
   // Removes the opening "[" token.
   tokens.shift();
 
+  const firstToken = tokens[0];
+
+  // Empty Array, exit early.
+  if (firstToken && firstToken.isArrayClose) {
+    tokens.shift();
+
+    return arrayNode;
+  }
+
   while (tokens.length > 0) {
-    const initialToken = tokens[0];
-
-    // Empty Array, exit early.
-    if (initialToken.isArrayClose) {
-      tokens.shift();
-
-      return arrayNode;
-    }
-
     arrayNode.addChild(parseSingle(tokens));
 
     // The next token is either a comma or it is the closing bracket.
@@ -95,16 +95,16 @@ function parseObject(tokens: Token[]) {
 
   tokens.shift();
 
+  const firstToken = tokens[0];
+
+  // Empty Object, exit early
+  if (firstToken && firstToken.isObjectClose) {
+    tokens.shift();
+
+    return objectNode;
+  }
+
   while (tokens.length > 0) {
-    const initialToken = tokens[0];
-
-    // Empty Object, exit early
-    if (initialToken.isObjectClose) {
-      tokens.shift();
-
-      return objectNode;
-    }
-
     objectNode.addEntry(parseObjectEntry(tokens));
 
     const nextToken = tokens.shift();

@@ -1,6 +1,12 @@
 import { Json } from "../src/Json";
 
 describe("End2End", () => {
+  test("debug", () => {
+    const source = '["",]';
+
+    expect(() => Json.parse(source)).toThrowError();
+  });
+
   test("Simple Object", () => {
     const source = '{ "name": "Patrick" }';
 
