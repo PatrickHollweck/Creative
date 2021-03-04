@@ -36,7 +36,10 @@ export function tokenize(source: string): Token[] {
       // Even if a tokenizer did not match, it is free to move the cursor
       // this is usefull for example when parsing white-space, which does not result in a token
       if (!result.matched && typeof result.cursor === "number") {
+          didMatch = true;
           cursor = result.cursor;
+
+          break;
       }
     }
 
@@ -90,7 +93,7 @@ function tokenizeNumber(source: string, cursor: number): TokenizerResult {
   const result = matchRegex(
       source,
       cursor,
-      /^(0$|-?(0(\.\d+)|[1-9]+([0-9]+)?(\.\d+)?)((e|E)(-?|\+?)\d+)?)/
+      /^(?:(?!0\d)(?!\-0\d)-?(?:0(?:\.\d+)|\d+(?:\d+)?(?:\.\d+)?)(?:(?:e|E)(?:-?|\+?)\d+)?)/
   );
 
   if (result.matched) {
@@ -116,8 +119,12 @@ function tokenizeString(source: string, cursor: number): TokenizerResult {
     let value = result.value;
 
     if (
+        // Check if we even have a value, dont run the following check if we dont
         (value != null && value.length > 0) &&
-        (value[0] === '"' || value[value.length - 1] === '"')
+        // Check if the first or last character is a quotation mark, in which case we would need to remove them
+        (value[0] === '"' || value[value.length - 1] === '"') &&
+        // Ensure we do not remove quotation marks on a string with no content ("")
+        !(value.length === 2 && value[0] === '"' && value[value.length - 1] === '"')
     ) {
       value = value
         .replace(/^"/, "")
@@ -172,13 +179,20 @@ function matchRegex(
     };
   }
 
-  const value = match[0];
+  if (match.length === 1) {
+    const value = match[0];
 
-  return {
-    value,
-    matched: true,
-    cursor: cursor + value.toString().length,
-  };
+    return {
+      value,
+      matched: true,
+      cursor: cursor + value.toString().length,
+    };
+  }
+
+  // We should not get here, regex passed in here should be designed
+  // as such that there is only one Group match. (Use non-capture) groups.
+  // Therefore it is most likely a programmer's error if we get here.
+  throw new Error("Invalid regex matches");
 }
 
 function matchLiteral(

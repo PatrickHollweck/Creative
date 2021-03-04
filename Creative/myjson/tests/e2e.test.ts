@@ -45,6 +45,7 @@ describe("End2End", () => {
         // Invalid Fractions
         expect(() => Json.parse("1,178")).toThrow();
         expect(() => Json.parse("01.178")).toThrow();
+        expect(() => Json.parse(".178")).toThrow();
         expect(() => Json.parse("-01.715")).toThrow();
 
         // Invalid Exponents
