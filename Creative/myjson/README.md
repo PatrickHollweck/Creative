@@ -2,7 +2,7 @@
 
 > It's not much, but it's mine.
 
-A more or less spec-compliant zero-dependency JSON parser written in typescript.
+A more or less spec-compliant zero-dependency JSON4 parser written in typescript.
 
 For information on the standard see https://www.json.org/
 
