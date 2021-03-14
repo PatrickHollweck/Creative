@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Latem.Runtime", "Latem.Runtime\Latem.Runtime.csproj", "{7DBA339A-C452-4542-9611-00C99A2F7D12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Latem.Terminal", "Latem.Terminal\Latem.Terminal.csproj", "{10250F7D-910C-40B6-95F7-1DE128226DBE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Latem.Tests", "Latem.Tests\Latem.Tests.csproj", "{3FDF6902-F1C7-42A5-B1CE-B4AEA8ECDBB0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7DBA339A-C452-4542-9611-00C99A2F7D12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DBA339A-C452-4542-9611-00C99A2F7D12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DBA339A-C452-4542-9611-00C99A2F7D12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DBA339A-C452-4542-9611-00C99A2F7D12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10250F7D-910C-40B6-95F7-1DE128226DBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10250F7D-910C-40B6-95F7-1DE128226DBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10250F7D-910C-40B6-95F7-1DE128226DBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10250F7D-910C-40B6-95F7-1DE128226DBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FDF6902-F1C7-42A5-B1CE-B4AEA8ECDBB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FDF6902-F1C7-42A5-B1CE-B4AEA8ECDBB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FDF6902-F1C7-42A5-B1CE-B4AEA8ECDBB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FDF6902-F1C7-42A5-B1CE-B4AEA8ECDBB0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

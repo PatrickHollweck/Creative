@@ -1,0 +1,42 @@
+Resources:
+	Other-Template-Engines:
+		☐ https://github.com/corgi-lang/corgi
+		☐ https://mozilla.github.io/nunjucks/templating.html#extends
+		☐ https://edge.adonisjs.com/docs/syntax-guide
+		☐ https://github.com/pugjs/pug
+		☐ https://scalate.github.io/scalate/documentation/scaml-reference.html#HTML_Comments:__code____code_
+		☐ http://jade-lang.com/
+		☐ http://haml.info/
+		☐ https://laravel.com/docs/5.6/blade#php
+		☐ https://docs.microsoft.com/de-de/aspnet/web-pages/overview/getting-started/introducing-razor-syntax-c#handling-errors
+		☐ http://handlebarsjs.com/
+		☐ http://ejs.co/#docs
+		☐ https://github.com/mattmccray/Template.ts
+		☐ https://github.com/sinclairzx81/magnum
+		☐ https://github.com/hyurl/whatstpl
+	Compiler-Writing:
+		☐ https://norasandler.com/2017/11/29/Write-a-Compiler.html
+		☐ https://ruslanspivak.com/lsbasi-part2/
+		☐ http://blog.klipse.tech/javascript/2017/02/08/tiny-compiler-tokenizer.html
+
+Ideas / Proposals:
+	☐ IDE / Editor integration
+
+Backlog:
+	Features:
+		☐ Docs @high
+		☐ Multiline stuff.
+		☐ XML-Attributes
+		☐ Comments
+		☐ Better Error handling.
+		☐ Dynamic output stuff.
+	Implicit-Implement:
+		☐ Nested tags
+			☐ Parser
+			☐ Code Generator
+		☐ Remove the lexer / parser stuff for "%h1 = TEXT" to "%h1 TEXT"
+	Code-Improvment:
+		☐ Parser: buildString() refactor @critical
+		☐ Parser: Remove concept of "line"
+Done:
+

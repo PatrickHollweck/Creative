@@ -1,0 +1,23 @@
+{
+	"name": "tsml",
+	"version": "0.0.1",
+	"description": "A typescript aware html template engine",
+	"author": "Patrick Hollweck <patrick-hollweck@gmx.de>",
+	"license": "MIT",
+	"scripts": {
+		"test": "jest --config=jest.json",
+		"test:watch": "npm run test -- --watch",
+		"format": "prettier --write */**/*.ts",
+		"start": "nodemon --exec ts-node ./lib/test/manual/debug.ts"
+	},
+	"dependencies": {
+		"@types/node": "^10.5.4",
+		"typescript": "^2.9.2"
+	},
+	"devDependencies": {
+		"@types/jest": "^23.3.1",
+		"ts-node": "^7.0.0",
+		"jest": "^23.4.2",
+		"ts-jest": "^23.0.1"
+	}
+}
