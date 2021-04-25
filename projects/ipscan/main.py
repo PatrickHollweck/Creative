@@ -1,5 +1,6 @@
 import sys
 import ssl
+import argparse
 import itertools
 import http.client
 
@@ -46,7 +47,9 @@ class WebAddress:
 
     @staticmethod
     def from_dotted(address: str):
-        ip, port = address.split(":")
+        split = address.split(":")
+        ip = split[0]
+        port = None if len(split) <= 1 else split[1]
 
         ipBlockBits = [Bits.from_number(int(block)).pad(8).to_array()
                        for block in ip.split(".")]
@@ -71,7 +74,7 @@ class WebAddress:
 
 def ping_webserver(address: WebAddress):
     target = address.to_dotted()
-    target_request = f"GET {target} /".ljust(24)
+    target_request = f"GET / {target}".ljust(24)
 
     try:
         if address.port == 80:
@@ -98,21 +101,31 @@ def ping_webserver(address: WebAddress):
         sys.stdout.flush()
 
 
-current_ip = WebAddress.from_dotted("150.0.0.0:80").ip_decimal
+start_ip = 0
+end_ip = 0
+thread_count = 0
 
 
 def process_ips():
-    global current_ip
+    global start_ip, end_ip
 
-    while current_ip <= 2 ** 32:
-        current_ip = current_ip + 1
-        ping_webserver(WebAddress(current_ip, 80))
+    while start_ip <= end_ip:
+        start_ip = start_ip + 1
+        ping_webserver(WebAddress(start_ip - 1, 80))
 
 
-def main():
+def start_scan():
+    global start_ip, end_ip, thread_count
+
+    print("--- Starting to scan ---")
+    print(f"From        : {WebAddress(start_ip).to_dotted()}")
+    print(f"To          : {WebAddress(end_ip).to_dotted()}")
+    print(f"Thread-Count: {thread_count}")
+    print("------------------------")
+
     threads = []
 
-    for _ in range(50):
+    for _ in range(thread_count):
         thread = Thread(target=process_ips)
         thread.daemon = True
         threads.append(thread)
@@ -122,6 +135,33 @@ def main():
 
     for thread in threads:
         thread.join()
+
+
+def main():
+    global start_ip, end_ip, thread_count
+
+    parser = argparse.ArgumentParser(description="Python IP-Scanner")
+
+    parser.add_argument("--start", action="store", dest="start", type=str,
+                        default=WebAddress.from_dotted("0.0.0.0").ip_decimal,
+                        help="The start IP from which to start scanning (default: 0.0.0.0)")
+
+    parser.add_argument("--end", action="store", dest="end", type=str,
+                        default=WebAddress.from_dotted(
+                            "255.255.255.255").ip_decimal,
+                        help="The last IP that should be scanned (default: 255.255.255.255)")
+
+    parser.add_argument("--thread-count", action="store",
+                        dest="thread_count", type=int, default=1,
+                        help="The amount of thread to use for concurrent scanning (default: 1)")
+
+    args = parser.parse_args()
+
+    end_ip = WebAddress.from_dotted(args.end).ip_decimal
+    start_ip = WebAddress.from_dotted(args.start).ip_decimal
+    thread_count = args.thread_count
+
+    start_scan()
 
 
 if __name__ == "__main__":
