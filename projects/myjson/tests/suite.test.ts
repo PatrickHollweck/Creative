@@ -34,7 +34,14 @@ describe("JSON Test Suite", () => {
         // Files that start with y_ must parse.
         if (testFilePath.startsWith("y_")) {
           expect(testFunction).not.toThrow();
-          expect(testFunction()).toMatchSnapshot(testFilePath);
+          
+          const result = testFunction();
+
+          expect(result).toMatchSnapshot(testFilePath);
+
+          // It's fairly save to assume that the underlying v8 implementation is correct.
+          // So we check our result against the official JSON.parse function.
+          expect(result).toEqual(JSON.parse(content));
         }
 
         // Files that start with n_ must **not** parse.
