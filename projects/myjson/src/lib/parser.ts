@@ -1,6 +1,16 @@
 import { Token } from "./Token";
-import { Node, ScalarNode, ObjectNode, ArrayNode } from "./nodes";
 import { JsonError } from "./util/JsonError";
+
+import {
+  Node,
+  ArrayNode,
+  ObjectNode,
+  AnyScalarNode,
+  NullScalarNode,
+  NumberScalarNode,
+  StringScalarNode,
+  BooleanScalarNode,
+} from "./nodes";
 
 export function parse(tokens: Token[]): Node {
   const rootNode = parseSingle(tokens);
@@ -37,14 +47,34 @@ export function parseSingle(tokens: Token[]): Node {
   );
 }
 
-function parseScalar(tokens: Token[]): ScalarNode {
+function parseScalar(tokens: Token[]): AnyScalarNode {
   const { type, value } = tokens[0];
 
   if (type === "string") {
     validateString(value, tokens);
   }
 
-  const scalar = new ScalarNode(type, value);
+  let scalar = null;
+ 
+  switch (type) {
+    case 'null':
+      scalar = new NullScalarNode();
+      break;
+    case 'number':
+      scalar = NumberScalarNode.fromString(value);
+      break;
+    case 'string':
+      scalar = new StringScalarNode(value);
+      break;
+    case 'boolean':
+      scalar = BooleanScalarNode.fromString(value);
+      break;
+    default:
+      throw new JsonError(
+        `Could not parse scalar "${value}" (Unknown type "${type}")`,
+        tokens
+      );
+  }
 
   tokens.shift();
 
