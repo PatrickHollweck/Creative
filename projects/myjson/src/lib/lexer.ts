@@ -1,10 +1,10 @@
 import { PUNCTUATION_TOKENS, Token } from "./Token";
 
-type TokenizerResult =
-  | { matched: false; cursor?: number }
-  | { matched: true; token: Token; cursor: number };
-
 type Tokenizer = (source: string, cursor: number) => TokenizerResult;
+
+type TokenizerResult =
+  | { matched: false }
+  | { matched: true; token: Token; cursor: number };
 
 export function tokenize(source: string): Token[] {
   let cursor = 0;
@@ -25,26 +25,23 @@ export function tokenize(source: string): Token[] {
     for (const tokenizer of tokenizers) {
       const result = tokenizer(source, cursor);
 
-      if (result.matched) {
-        didMatch = true;
-        cursor = result.cursor;
+      if (!result.matched) {
+        continue;
+      }
+
+      didMatch = true;
+      cursor = result.cursor;
+
+      // Ignore all whitespace tokens, they are not relevant to parsing
+      if (!result.token.isWhitespace) {
         tokens.push(result.token);
-
-        break;
       }
 
-      // Even if a tokenizer did not match, it is free to move the cursor
-      // this is usefull for example when parsing white-space, which does not result in a token
-      if (!result.matched && typeof result.cursor === "number") {
-        didMatch = true;
-        cursor = result.cursor;
-
-        break;
-      }
+      break;
     }
 
     if (!didMatch) {
-      throw new Error(`Could not lex token: "${source.substr(cursor)}"`);
+      throw new Error(`Unknown token at: "${source.substr(cursor, 100)}"`);
     }
   }
 
@@ -56,8 +53,9 @@ function tokenizeWhitespace(source: string, cursor: number): TokenizerResult {
 
   if (result.matched) {
     return {
-      matched: false,
+      matched: true,
       cursor: result.cursor,
+      token: new Token("whitespace", result.value),
     };
   }
 
@@ -183,9 +181,9 @@ function matchRegex(
   }
 
   // We should not get here, regex passed in here should be designed
-  // as such that there is only one Group match. (Use non-capture) groups.
+  // as such that there is only one Group match. (Use non-capture groups!).
   // Therefore it is most likely a programmer's error if we get here.
-  throw new Error("Invalid regex matches");
+  throw new Error("Invalid regex matches! (More than one group!)");
 }
 
 function matchLiteral(
