@@ -1,5 +1,5 @@
-import { Node } from './Node';
-import { JsonObject, JsonValue } from '../types';
+import { Node } from "./Node";
+import { JsonObject, JsonValue } from "../types";
 
 export class ObjectNode extends Node {
   public readonly entries: Map<string, Node>;
@@ -10,7 +10,7 @@ export class ObjectNode extends Node {
     this.entries = new Map();
   }
 
-  public addEntry(entry: { key: string, value: Node }): void {
+  public addEntry(entry: { key: string; value: Node }): void {
     this.entries.set(entry.key, entry.value);
   }
 

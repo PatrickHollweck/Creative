@@ -55,24 +55,24 @@ function parseScalar(tokens: Token[]): AnyScalarNode {
   }
 
   let scalar = null;
- 
+
   switch (type) {
-    case 'null':
+    case "null":
       scalar = new NullScalarNode();
       break;
-    case 'number':
+    case "number":
       scalar = NumberScalarNode.fromString(value);
       break;
-    case 'string':
+    case "string":
       scalar = new StringScalarNode(value);
       break;
-    case 'boolean':
+    case "boolean":
       scalar = BooleanScalarNode.fromString(value);
       break;
     default:
       throw new JsonError(
         `Could not parse scalar "${value}" (Unknown type "${type}")`,
-        tokens
+        tokens,
       );
   }
 

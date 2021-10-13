@@ -1,5 +1,5 @@
-import { Node } from './Node';
-import { JsonArray, JsonValue } from '../types';
+import { Node } from "./Node";
+import { JsonArray, JsonValue } from "../types";
 
 export class ArrayNode extends Node {
   public readonly children: Node[];

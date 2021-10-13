@@ -1,6 +1,6 @@
-import { JsonValue } from './lib/types';
+import { JsonValue } from "./lib/types";
 
-import { parse } from './lib/parser';
+import { parse } from "./lib/parser";
 import { tokenize } from "./lib/lexer";
 
 export class Json {

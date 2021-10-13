@@ -1,5 +1,5 @@
-import { Node } from './Node';
-import { JsonValue } from '../types';
+import { Node } from "./Node";
+import { JsonValue } from "../types";
 
 export abstract class ScalarNode<T extends JsonValue> extends Node {
   public readonly value: T;
@@ -10,12 +10,16 @@ export abstract class ScalarNode<T extends JsonValue> extends Node {
     this.value = value;
   }
 
-  public toJsValue(_root: Node): JsonValue {
+  public toJsValue(): JsonValue {
     return this.value;
   }
 }
 
-export type AnyScalarNode = NullScalarNode | StringScalarNode | NumberScalarNode | BooleanScalarNode;
+export type AnyScalarNode =
+  | NullScalarNode
+  | StringScalarNode
+  | NumberScalarNode
+  | BooleanScalarNode;
 
 export class NullScalarNode extends ScalarNode<null> {
   constructor() {
@@ -26,18 +30,18 @@ export class NullScalarNode extends ScalarNode<null> {
 export class StringScalarNode extends ScalarNode<string> {}
 
 export class NumberScalarNode extends ScalarNode<number> {
-  public static fromString(value: string) {
+  public static fromString(value: string): NumberScalarNode {
     return new NumberScalarNode(Number(value));
   }
 }
 
 export class BooleanScalarNode extends ScalarNode<boolean> {
-  public static fromString(value: string) {
-    if (value === 'true') {
+  public static fromString(value: string): BooleanScalarNode {
+    if (value === "true") {
       return new BooleanScalarNode(true);
     }
 
-    if (value === 'false') {
+    if (value === "false") {
       return new BooleanScalarNode(false);
     }
 
