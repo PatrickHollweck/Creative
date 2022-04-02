@@ -2,6 +2,10 @@ package de.patrickhollweck.towers
 
 import processing.core.PApplet
 
+fun main() {
+    PApplet.main("de.patrickhollweck.towers.App")
+}
+
 class App() : PApplet() {
     override fun settings() {
         size(200, 200)
@@ -13,10 +17,7 @@ class App() : PApplet() {
     }
 
     override fun draw() {
+        fill(255f, 255f, 255f)
         ellipse(20f, 20f, 20f, 20f)
     }
-}
-
-fun main(args: Array<String>) {
-    PApplet.main("de.patrickhollweck.towers.App")
 }
