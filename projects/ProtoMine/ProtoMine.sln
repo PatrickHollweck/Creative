@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtoMine.Core", "ProtoMine.Core\ProtoMine.Core.csproj", "{BFE72E4D-1FC5-46CE-B8C4-BBA04B111D21}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtoMine.Tests", "ProtoMine.Tests\ProtoMine.Tests.csproj", "{F022B485-6400-4D1A-832C-BEBBF2FA0795}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BFE72E4D-1FC5-46CE-B8C4-BBA04B111D21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFE72E4D-1FC5-46CE-B8C4-BBA04B111D21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFE72E4D-1FC5-46CE-B8C4-BBA04B111D21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFE72E4D-1FC5-46CE-B8C4-BBA04B111D21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F022B485-6400-4D1A-832C-BEBBF2FA0795}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F022B485-6400-4D1A-832C-BEBBF2FA0795}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F022B485-6400-4D1A-832C-BEBBF2FA0795}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F022B485-6400-4D1A-832C-BEBBF2FA0795}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
