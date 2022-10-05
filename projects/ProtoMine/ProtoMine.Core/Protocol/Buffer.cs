@@ -1,4 +1,4 @@
-﻿namespace ProtoMine.Core;
+﻿namespace ProtoMine.Core.Protocol;
 
 public class Buffer
 {
@@ -8,6 +8,8 @@ public class Buffer
 	{
 		bytes = new List<byte>();
 	}
+
+	public int Count => bytes.Count;
 
 	#region Write Functions
 

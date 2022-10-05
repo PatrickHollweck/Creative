@@ -1,4 +1,5 @@
 using ProtoMine.Core;
+using ProtoMine.Core.Protocol;
 using Xunit;
 
 namespace ProtoMine.Tests;
