@@ -11,6 +11,18 @@ public class PacketBuffer
 		buffer = new Buffer();
 	}
 
+	public PacketBuffer(IEnumerable<byte> bytes)
+	{
+		buffer = new Buffer(bytes);
+	}
+
+	public int Length => buffer.Count;
+
+	public byte[] ToBytes()
+	{
+		return buffer.ToBytes();
+	}
+
 	#region Write Functions
 
 	public PacketBuffer WriteBool(bool value)

@@ -1,5 +1,7 @@
 package de.patrickhollweck.towers
 
+import de.patrickhollweck.towers.screens.GameScreen
+import de.patrickhollweck.towers.screens.Screen
 import processing.core.PApplet
 
 fun main() {
@@ -7,17 +9,21 @@ fun main() {
 }
 
 class App() : PApplet() {
+	private val screen: Screen = GameScreen()
+	
     override fun settings() {
-        size(200, 200)
+        size(1200, 800)
     }
 
     override fun setup() {
-        frameRate(1f)
-        background(255)
+        frameRate(30f)
+		
+		screen.setup()
     }
 
     override fun draw() {
-        fill(255f, 255f, 255f)
-        ellipse(20f, 20f, 20f, 20f)
-    }
+        background(255)
+
+		screen.draw(this)
+	}
 }

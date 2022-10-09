@@ -9,7 +9,17 @@ public class Buffer
 		bytes = new List<byte>();
 	}
 
+	public Buffer(IEnumerable<byte> inBytes)
+	{
+		bytes = inBytes.ToList();
+	}
+
 	public int Count => bytes.Count;
+
+	public byte[] ToBytes()
+	{
+		return bytes.ToArray();
+	}
 
 	#region Write Functions
 

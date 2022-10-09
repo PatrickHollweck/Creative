@@ -2,10 +2,15 @@
 
 	<PropertyGroup>
 		<Nullable>enable</Nullable>
+		<OutputType>Exe</OutputType>
 		<LangVersion>preview</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<TargetFramework>net6.0</TargetFramework>
 		<EnablePreviewFeatures>True</EnablePreviewFeatures>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\ProtoMine.Core\ProtoMine.Core.csproj"/>
+	</ItemGroup>
 
 </Project>

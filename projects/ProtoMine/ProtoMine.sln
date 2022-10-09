@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtoMine.Core", "ProtoMine
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtoMine.Tests", "ProtoMine.Tests\ProtoMine.Tests.csproj", "{F022B485-6400-4D1A-832C-BEBBF2FA0795}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtoMine.ExampleConsole", "ProtoMine.ExampleConsole\ProtoMine.ExampleConsole.csproj", "{318AE2A1-6761-4547-A8D4-BA554FB345B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{F022B485-6400-4D1A-832C-BEBBF2FA0795}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F022B485-6400-4D1A-832C-BEBBF2FA0795}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F022B485-6400-4D1A-832C-BEBBF2FA0795}.Release|Any CPU.Build.0 = Release|Any CPU
+		{318AE2A1-6761-4547-A8D4-BA554FB345B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{318AE2A1-6761-4547-A8D4-BA554FB345B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{318AE2A1-6761-4547-A8D4-BA554FB345B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{318AE2A1-6761-4547-A8D4-BA554FB345B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
