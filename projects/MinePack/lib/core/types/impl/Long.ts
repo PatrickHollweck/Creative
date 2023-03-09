@@ -1,4 +1,4 @@
-import { PrimitiveFixedLengthProtocolType } from "../base/PrimitiveFixedLengthProtocolType";
+import { PrimitiveFixedLengthProtocolType } from "../base/PrimitiveFixedLengthProtocolType.js";
 
 export class Long extends PrimitiveFixedLengthProtocolType<bigint> {
 	public readonly byteLength = 8;
@@ -8,6 +8,8 @@ export class Long extends PrimitiveFixedLengthProtocolType<bigint> {
 	}
 
 	protected getWriteFunc(buffer: Buffer): (value: bigint) => void {
-		return buffer.writeBigInt64BE.bind(buffer);
+		return (value: bigint) => {
+			buffer.writeBigInt64BE.bind(buffer)(BigInt(value));
+		};
 	}
 }
