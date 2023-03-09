@@ -16,7 +16,10 @@ export class PacketSerializer {
 		for (const field of fields) {
 			const protocolType = new field.metadata.type(buffer);
 
-			protocolType.write(packet[field.key], null);
+			// This any here is needed, we know for sure that the key exists
+			// because of reflection. Typescript cant know that though.
+			// Therefore we need the any to allow the index
+			protocolType.write((packet as any)[field.key], null);
 		}
 
 		// Prepend the packet-id
