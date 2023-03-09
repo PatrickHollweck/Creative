@@ -12,7 +12,7 @@ export interface ProtocolPropertyMetadata {
 }
 
 export interface KeyedProtocolPropertyMetadata {
-	key: string | symbol;
+	key: string;
 	metadata: ProtocolPropertyMetadata;
 }
 
@@ -37,6 +37,12 @@ export function ProtocolProperty<T extends ProtocolTypeConstructor>(
 			props = (target as PacketPrototype).__protocolProperties__;
 		} else {
 			props = (target as PacketPrototype).__protocolProperties__ = [];
+		}
+
+		if (typeof propertyKey === "symbol") {
+			throw new Error(
+				`Cannot use a symbol as a ProtocolProperty (found on key: "${propertyKey.toString()}")`
+			);
 		}
 
 		props.push({ key: propertyKey, metadata: { position, type } });

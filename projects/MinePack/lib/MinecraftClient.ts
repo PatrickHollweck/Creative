@@ -31,4 +31,8 @@ export class MinecraftClient {
 			});
 		});
 	}
+
+	disconnect() {
+		this.socket.destroy();
+	}
 }
