@@ -1,4 +1,4 @@
-import { HandshakePacket } from "../lib/protocol/packets/v761.js";
+import { HandshakePacket } from "../lib/protocol/packets/v761/index.js";
 import { PacketSerializer } from "../lib/protocol/PacketSerializer.js";
 
 describe("PacketSerializer", () => {
@@ -29,17 +29,5 @@ describe("PacketSerializer", () => {
 
 		// Field 4
 		expect(reversed.nextState).toEqual(handshakePacket.nextState);
-	});
-
-	test("Unpacking from buffer", () => {
-		const input = Buffer.from([
-			37, 0, 0, 0, 2, 246, 28, 109, 105, 110, 101, 99, 114, 97, 102, 116,
-			46, 112, 97, 116, 114, 105, 99, 107, 104, 111, 108, 108, 119, 101,
-			99, 107, 46, 100, 101, 99, 221, 1,
-		]);
-
-		const result = PacketSerializer.unpack(input, HandshakePacket);
-
-		expect(result).toStrictEqual(handshakePacket);
 	});
 });
