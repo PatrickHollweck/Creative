@@ -26,9 +26,9 @@ export class PacketSerializer {
 		buffer.varInt.write(packet.packetId, 0);
 
 		// Prepend the final packet length
-		buffer.varInt.write(buffer.combineChunks().byteLength, 0);
+		buffer.varInt.write(buffer.toBytes().byteLength, 0);
 
-		return buffer.combineChunks();
+		return buffer.toBytes();
 	}
 
 	public static unpack<TPacket extends Packet>(

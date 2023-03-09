@@ -22,7 +22,7 @@ describe("PacketBuffer", () => {
 			const buffer = new PacketBuffer();
 			buffer.varInt.write(testCase.decimal);
 
-			expect(Array.from(buffer.combineChunks())).toEqual(testCase.buffer);
+			expect(Array.from(buffer.toBytes())).toEqual(testCase.buffer);
 
 			const readNumber = buffer.varInt.read(0);
 

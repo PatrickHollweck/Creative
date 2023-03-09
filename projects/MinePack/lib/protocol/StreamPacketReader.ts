@@ -158,7 +158,7 @@ export class StreamPacketReader {
 		);
 
 		if (receivablePackets.length === 1) {
-			return source[0].type;
+			return receivablePackets[0].type;
 		}
 
 		// In some cases the filtration by sendable/receivable is not enough!

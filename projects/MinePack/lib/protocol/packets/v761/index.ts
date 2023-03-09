@@ -1,3 +1,3 @@
 export * from "./HandshakePacket";
-export * from "./StatusResponsePacket";
 export * from "./StatusRequestPacket";
+export * from "./StatusResponsePacket";

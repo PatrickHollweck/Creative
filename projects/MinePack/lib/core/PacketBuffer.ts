@@ -40,7 +40,7 @@ export class PacketBuffer {
 	 * @returns {number} The amount of bytes
 	 */
 	public get length(): number {
-		return this.combineChunks().length;
+		return this.toBytes().length;
 	}
 
 	/**
@@ -54,7 +54,7 @@ export class PacketBuffer {
 			return;
 		}
 
-		const combined = this.combineChunks();
+		const combined = this.toBytes();
 
 		// If the offset is greater of equal to the length of the combined buffer
 		// then there is nothing to special to do, just append the given buffer.
@@ -78,7 +78,7 @@ export class PacketBuffer {
 	 * Turns the PacketBuffer into a node buffer
 	 * @returns {Buffer}
 	 */
-	public combineChunks(): Buffer {
+	public toBytes(): Buffer {
 		if (this.chunks.length > 1) {
 			const combined = Buffer.concat(this.chunks);
 

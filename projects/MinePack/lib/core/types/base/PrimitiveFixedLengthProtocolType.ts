@@ -7,7 +7,7 @@ export abstract class PrimitiveFixedLengthProtocolType<
 	protected abstract getWriteFunc(buffer: Buffer): (value: T) => void;
 
 	public read(offset: number): T {
-		const buffer = this.buffer.combineChunks();
+		const buffer = this.buffer.toBytes();
 		const reader = this.getReadFunc(buffer);
 
 		return reader(offset);
