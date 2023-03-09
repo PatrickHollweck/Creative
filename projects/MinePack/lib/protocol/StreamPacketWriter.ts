@@ -7,6 +7,7 @@ import { PacketSerializer } from "./PacketSerializer";
 import { Writable } from "node:stream";
 
 type Events = {
+	sendError: (error: Error) => void;
 	sendComplete: (packet: Packet, bytes: Buffer) => void;
 };
 
@@ -28,10 +29,11 @@ export class StreamPacketWriter {
 			}
 
 			this.output.write(bytes, "binary", (error) => {
-				// TODO: Respect this error flag here.
-				console.log("SOCKET WRITE DONE # Error:", error);
-
-				this.events.emit("sendComplete", packet, bytes);
+				if (error == null) {
+					this.events.emit("sendComplete", packet, bytes);
+				} else {
+					this.events.emit("sendError", error);
+				}
 
 				resolve();
 			});

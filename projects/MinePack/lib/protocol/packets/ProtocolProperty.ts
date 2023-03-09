@@ -1,61 +1,64 @@
+/* eslint-disable no-prototype-builtins */
+/* eslint-disable @typescript-eslint/ban-types */
+
 import "reflect-metadata";
 
+import { PacketConstructor } from "./Packet";
 import { ProtocolTypeConstructor } from "../../core/types/base/ProtocolType";
-
-export const PROTOCOL_PROPERTY_KEY = Symbol("PROTOCOL_PROPERTY_DECORATOR");
 
 export interface ProtocolPropertyMetadata {
 	position: number;
 	type: ProtocolTypeConstructor;
 }
 
-export function getAllProps(
-	// eslint-disable-next-line
-	clazz: new (...args: any[]) => any
-): { key: string; metadata: ProtocolPropertyMetadata }[] {
-	const result = [];
+export interface KeyedProtocolPropertyMetadata {
+	key: string | symbol;
+	metadata: ProtocolPropertyMetadata;
+}
 
-	// eslint-disable-next-line
-	let prototype = clazz.prototype;
-	while (prototype != null) {
-		// eslint-disable-next-line
-		let props = prototype["__props__"];
-
-		if (Array.isArray(props)) {
-			// eslint-disable-next-line
-			result.push(...props);
-		}
-
-		// eslint-disable-next-line
-		prototype = Object.getPrototypeOf(prototype);
-	}
-
-	// eslint-disable-next-line
-	return result;
+interface PacketPrototype {
+	__protocolProperties__: KeyedProtocolPropertyMetadata[];
 }
 
 export function ProtocolProperty<T extends ProtocolTypeConstructor>(
 	position: number,
 	type: T
 ): PropertyDecorator {
-	// eslint-disable-next-line
-	return (target: any, propertyKey: string | symbol): void => {
-		let props: unknown[];
-
-		// eslint-disable-next-line
-		if (target.hasOwnProperty("__props__")) {
-			// eslint-disable-next-line
-			props = target.__props__;
-		} else {
-			// eslint-disable-next-line
-			props = target.__props__ = [];
+	return (target: unknown, propertyKey: string | symbol): void => {
+		if (typeof target !== "object" || target == null) {
+			throw new Error("Decorator must be applied to an object!");
 		}
 
-		const metadata = {
-			position,
-			type,
-		} as ProtocolPropertyMetadata;
+		let props: KeyedProtocolPropertyMetadata[];
 
-		props.push({ key: propertyKey, metadata });
+		if (
+			(target as PacketPrototype).hasOwnProperty("__protocolProperties__")
+		) {
+			props = (target as PacketPrototype).__protocolProperties__;
+		} else {
+			props = (target as PacketPrototype).__protocolProperties__ = [];
+		}
+
+		props.push({ key: propertyKey, metadata: { position, type } });
 	};
+}
+
+export function getProtocolProperties(
+	classConstructor: PacketConstructor
+): KeyedProtocolPropertyMetadata[] {
+	const result = [] as KeyedProtocolPropertyMetadata[];
+
+	let prototype = classConstructor.prototype as PacketPrototype | null;
+
+	while (prototype != null) {
+		const props = prototype.__protocolProperties__;
+
+		if (Array.isArray(props)) {
+			result.push(...props);
+		}
+
+		prototype = Object.getPrototypeOf(prototype) as PacketPrototype | null;
+	}
+
+	return result;
 }

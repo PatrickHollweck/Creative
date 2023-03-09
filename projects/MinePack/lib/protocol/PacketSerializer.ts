@@ -2,7 +2,7 @@ import { VarInt } from "../core/types";
 import { PacketBuffer } from "../core/PacketBuffer";
 import { Packet, PacketConstructor } from "./packets/Packet";
 
-import { getAllProps } from "./packets/ProtocolProperty";
+import { getProtocolProperties } from "./packets/ProtocolProperty";
 
 import { FixedLengthProtocolType } from "../core/types/base/FixedLengthProtocolType";
 import { VariableLengthProtocolType } from "../core/types/base/VariableLengthProtocolType";
@@ -122,7 +122,7 @@ export class PacketSerializer {
 	private static getProtocolFields(type: PacketConstructor) {
 		const result = [];
 
-		for (const property of getAllProps(type)) {
+		for (const property of getProtocolProperties(type)) {
 			result.push({
 				key: property.key,
 				metadata: property.metadata,

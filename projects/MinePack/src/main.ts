@@ -1,6 +1,8 @@
 import { MinecraftClient } from "../lib/MinecraftClient";
 import { ProtocolVersion } from "../lib/ProtocolVersion";
 
+import { waitForPacket } from "../lib/protocol/packets/util";
+
 import * as packets from "../lib/protocol/packets/v761";
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -40,4 +42,11 @@ import * as packets from "../lib/protocol/packets/v761";
 
 	const statusRequestPacket = new packets.StatusRequestPacket();
 	await client.writer.sendPacket(statusRequestPacket);
+
+	const statusResponse = await waitForPacket(
+		client.reader,
+		packets.StatusResponsePacket
+	);
+
+	console.log("GOT RESPONSE", statusResponse.response);
 })();

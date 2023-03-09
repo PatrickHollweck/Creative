@@ -5,6 +5,8 @@ export abstract class Packet {
 
 	public abstract get packetId(): number;
 
+	public static __protocolProperties__: object[];
+
 	// eslint-disable-next-line @typescript-eslint/no-useless-constructor
 	constructor() {
 		// Force empty!

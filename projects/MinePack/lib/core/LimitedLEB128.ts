@@ -7,7 +7,7 @@ export class LimitedLEB128 {
 	public static toBytes(value: number): number[] {
 		const bytes = [];
 
-		// eslint-disable-next-line
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, no-constant-condition
 		while (true) {
 			if ((value & ~this.SEGMENT_BITS) == 0) {
 				bytes.push(value);
@@ -30,7 +30,7 @@ export class LimitedLEB128 {
 		let bytesRead = 0;
 		let currentByte;
 
-		// eslint-disable-next-line
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, no-constant-condition
 		while (true) {
 			currentByte = nextByte(bytesRead);
 			bytesRead++;
