@@ -19,7 +19,16 @@ const port = 25565;
 
 client.reader.events.on("packet", (packet, type) => {
 	displayHeader(`RECEIVED PACKET (${type.name})`, c.bgGreenBright.black.bold);
-	console.log(c.green(JSON.stringify(packet, null, 4)));
+
+	const serialized = JSON.stringify(
+		packet,
+		(key, value) => {
+			return typeof value === "bigint" ? value.toString() : value;
+		},
+		4
+	);
+
+	console.log(c.green(serialized));
 });
 
 client.writer.events.on("sendComplete", (packet, buffer) => {
@@ -53,7 +62,9 @@ client.socket.on("error", (error) => {
 
 client.socket.on("end", (reason: unknown) => {
 	displayHeader("SOCKET END", c.bgYellow.black);
-	console.log(c.yellow(JSON.stringify(reason)));
+	console.log(c.yellow("Reason:", JSON.stringify(reason)));
+
+	client.disconnect();
 });
 
 client.socket.on("close", () =>
