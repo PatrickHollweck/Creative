@@ -1,5 +1,5 @@
-import { FixedLengthProtocolType } from "../base/FixedLengthProtocolType";
-import { CombiningSizePrefixedProtocolType } from "../base/CombiningSizePrefixedProtocolType";
+import { FixedLengthProtocolType } from "../base/FixedLengthProtocolType.js";
+import { CombiningSizePrefixedProtocolType } from "../base/CombiningSizePrefixedProtocolType.js";
 
 const PROTOCOL_STRING_ENCODING = "utf-8";
 

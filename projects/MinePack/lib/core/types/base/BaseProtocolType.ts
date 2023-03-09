@@ -1,4 +1,4 @@
-import type { PacketBuffer } from "../../PacketBuffer";
+import type { PacketBuffer } from "../../PacketBuffer.js";
 
 export abstract class BaseProtocolType {
 	protected buffer: PacketBuffer;

@@ -1,5 +1,5 @@
-import { FixedLengthProtocolType } from "./FixedLengthProtocolType";
-import { VariableLengthProtocolType } from "./VariableLengthProtocolType";
+import { FixedLengthProtocolType } from "./FixedLengthProtocolType.js";
+import { VariableLengthProtocolType } from "./VariableLengthProtocolType.js";
 
 export abstract class MetaProtocolType<
 	// Type of content of the shadowed protocol type

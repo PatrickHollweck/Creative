@@ -1,8 +1,8 @@
-import { Packet } from "../Packet";
-import { SendOnlyPacket } from "../VersionedPacket";
-import { ProtocolVersion } from "../../../ProtocolVersion";
+import { Packet } from "../Packet.js";
+import { SendablePacket } from "../VersionedPacket.js";
+import { ProtocolVersion } from "../../../ProtocolVersion.js";
 
-@SendOnlyPacket(ProtocolVersion.v761)
+@SendablePacket(ProtocolVersion.v761)
 export class StatusRequestPacket extends Packet {
 	public readonly packetId = 0x00;
 }

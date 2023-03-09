@@ -1,15 +1,15 @@
-import { PacketBuffer } from "../core/PacketBuffer";
-import { ProtocolVersion } from "../ProtocolVersion";
-import { PacketSerializer } from "./PacketSerializer";
-import { Packet, PacketConstructor } from "./packets/Packet";
+import EventEmitter from "node:events";
+import { TypedEmitter } from "../types/TypeEmitter.js";
+
+import { PacketBuffer } from "../core/PacketBuffer.js";
+import { ProtocolVersion } from "../ProtocolVersion.js";
+import { PacketSerializer } from "./PacketSerializer.js";
+import { Packet, PacketConstructor } from "./packets/Packet.js";
 
 import {
 	VersionedPacketRegistry,
 	PacketRegistryEntry,
-} from "./packets/VersionedPacketRegistry";
-
-import EventEmitter from "events";
-import TypedEmitter from "typed-emitter";
+} from "./packets/VersionedPacketRegistry.js";
 
 enum ParseState {
 	RECEIVE_CONTENT = "RECEIVE_CONTENT",
@@ -17,7 +17,7 @@ enum ParseState {
 }
 
 type Events = {
-	packet: (packet: Packet) => void;
+	packet: (packet: Packet, type: PacketConstructor, buffer: Buffer) => void;
 };
 
 export class StreamPacketReader {
@@ -115,15 +115,15 @@ export class StreamPacketReader {
 					);
 				}
 
+				const packetBytes = Buffer.concat(this.packetChunks);
+				const packetType = this.findMostVexingPacket(registeredPackets);
+
 				// When we get here we have received a full packet.
 				// Finally, time to interpret it's content!
-				const packet = PacketSerializer.unpack(
-					Buffer.concat(this.packetChunks),
-					this.findMostVexingPacket(registeredPackets)
-				);
+				const packet = PacketSerializer.unpack(packetBytes, packetType);
 
 				// Emit the packet to the end-user
-				this.events.emit("packet", packet);
+				this.events.emit("packet", packet, packetType, packetBytes);
 
 				// Reset state variables.
 				this.futureChunks = [];

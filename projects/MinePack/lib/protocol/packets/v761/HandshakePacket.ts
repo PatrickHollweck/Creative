@@ -1,11 +1,11 @@
-import { Packet } from "../Packet";
-import { SendOnlyPacket } from "../VersionedPacket";
-import { ProtocolVersion } from "../../../ProtocolVersion";
-import { ProtocolProperty } from "../ProtocolProperty";
+import { Packet } from "../Packet.js";
+import { SendablePacket } from "../VersionedPacket.js";
+import { ProtocolVersion } from "../../../ProtocolVersion.js";
+import { ProtocolProperty } from "../ProtocolProperty.js";
 
-import { VarInt, VarString, UnsignedShort } from "../../../core/types";
+import { VarInt, VarString, UnsignedShort } from "../../../core/types/index.js";
 
-@SendOnlyPacket(ProtocolVersion.v761)
+@SendablePacket(ProtocolVersion.v761)
 export class HandshakePacket extends Packet {
 	public readonly packetId = 0x00;
 

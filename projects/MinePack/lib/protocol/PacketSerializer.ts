@@ -1,19 +1,16 @@
-import { VarInt } from "../core/types";
-import { PacketBuffer } from "../core/PacketBuffer";
-import { Packet, PacketConstructor } from "./packets/Packet";
+import { VarInt } from "../core/types/index.js";
+import { PacketBuffer } from "../core/PacketBuffer.js";
+import { Packet, PacketConstructor } from "./packets/Packet.js";
 
-import { getProtocolProperties } from "./packets/ProtocolProperty";
+import { getProtocolProperties } from "./packets/ProtocolProperty.js";
 
-import { FixedLengthProtocolType } from "../core/types/base/FixedLengthProtocolType";
-import { VariableLengthProtocolType } from "../core/types/base/VariableLengthProtocolType";
+import { FixedLengthProtocolType } from "../core/types/base/FixedLengthProtocolType.js";
+import { VariableLengthProtocolType } from "../core/types/base/VariableLengthProtocolType.js";
 
 export class PacketSerializer {
 	public static pack(packet: Packet): Buffer {
 		const buffer = new PacketBuffer();
-
-		const fields = this.getProtocolFields(
-			packet.constructor as PacketConstructor
-		);
+		const fields = this.getProtocolFields(this.getPacketType(packet));
 
 		// Write the class defined protocol properties
 		for (const field of fields) {
@@ -80,6 +77,15 @@ export class PacketSerializer {
 		}
 
 		return packet;
+	}
+
+	/**
+	 * Gets the constructor of a given packet.
+	 * @param packet The packet to get the type of
+	 * @returns {PacketConstructor} The constructor
+	 */
+	public static getPacketType(packet: Packet): PacketConstructor {
+		return packet.constructor as PacketConstructor;
 	}
 
 	/**

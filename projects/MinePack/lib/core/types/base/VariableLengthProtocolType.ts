@@ -1,4 +1,4 @@
-import { ReadWriteProtocolType } from "./ReadWriteProtocolType";
+import { ReadWriteProtocolType } from "./ReadWriteProtocolType.js";
 
 export abstract class VariableLengthProtocolType<
 	T,

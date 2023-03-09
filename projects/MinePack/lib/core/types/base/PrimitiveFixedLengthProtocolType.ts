@@ -1,4 +1,4 @@
-import { FixedLengthProtocolType } from "./FixedLengthProtocolType";
+import { FixedLengthProtocolType } from "./FixedLengthProtocolType.js";
 
 export abstract class PrimitiveFixedLengthProtocolType<
 	T

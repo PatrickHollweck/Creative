@@ -1,13 +1,12 @@
-import EventEmitter from "events";
-import TypedEmitter from "typed-emitter";
-
-import { Packet } from "./packets/Packet";
-import { PacketSerializer } from "./PacketSerializer";
-
+import EventEmitter from "node:events";
 import { Writable } from "node:stream";
+import { TypedEmitter } from "../types/TypeEmitter.js";
+
+import { Packet } from "./packets/Packet.js";
+import { PacketSerializer } from "./PacketSerializer.js";
 
 type Events = {
-	sendError: (error: Error) => void;
+	sendError: (error: Error, packet: Packet) => void;
 	sendComplete: (packet: Packet, bytes: Buffer) => void;
 };
 
@@ -32,7 +31,7 @@ export class StreamPacketWriter {
 				if (error == null) {
 					this.events.emit("sendComplete", packet, bytes);
 				} else {
-					this.events.emit("sendError", error);
+					this.events.emit("sendError", error, packet);
 				}
 
 				resolve();

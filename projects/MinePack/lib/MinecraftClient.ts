@@ -1,9 +1,9 @@
 import * as net from "node:net";
 
-import { ProtocolVersion } from "./ProtocolVersion";
+import { ProtocolVersion } from "./ProtocolVersion.js";
 
-import { StreamPacketWriter } from "./protocol/StreamPacketWriter";
-import { StreamPacketReader } from "./protocol/StreamPacketReader";
+import { StreamPacketWriter } from "./protocol/StreamPacketWriter.js";
+import { StreamPacketReader } from "./protocol/StreamPacketReader.js";
 
 export class MinecraftClient {
 	public readonly reader: StreamPacketReader;

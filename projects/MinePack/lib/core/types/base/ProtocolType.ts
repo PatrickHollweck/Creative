@@ -1,6 +1,6 @@
-import { PacketBuffer } from "../../PacketBuffer";
-import { FixedLengthProtocolType } from "./FixedLengthProtocolType";
-import { VariableLengthProtocolType } from "./VariableLengthProtocolType";
+import { PacketBuffer } from "../../PacketBuffer.js";
+import { FixedLengthProtocolType } from "./FixedLengthProtocolType.js";
+import { VariableLengthProtocolType } from "./VariableLengthProtocolType.js";
 
 export type UnsizedReadWriteProtocolType<T> =
 	| FixedLengthProtocolType<T>

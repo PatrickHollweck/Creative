@@ -1,4 +1,4 @@
-import { PacketBuffer } from "../lib/core/PacketBuffer";
+import { PacketBuffer } from "../lib/core/PacketBuffer.js";
 
 describe("PacketBuffer", () => {
 	it("should read/write VarInt", () => {

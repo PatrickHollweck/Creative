@@ -3,8 +3,8 @@
 
 import "reflect-metadata";
 
-import { PacketConstructor } from "./Packet";
-import { ProtocolTypeConstructor } from "../../core/types/base/ProtocolType";
+import { PacketConstructor } from "./Packet.js";
+import { ProtocolTypeConstructor } from "../../core/types/base/ProtocolType.js";
 
 export interface ProtocolPropertyMetadata {
 	position: number;

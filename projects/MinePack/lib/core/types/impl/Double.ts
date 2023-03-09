@@ -1,4 +1,4 @@
-import { PrimitiveFixedLengthProtocolType } from "../base/PrimitiveFixedLengthProtocolType";
+import { PrimitiveFixedLengthProtocolType } from "../base/PrimitiveFixedLengthProtocolType.js";
 
 export class Double extends PrimitiveFixedLengthProtocolType<number> {
 	public readonly byteLength = 8;

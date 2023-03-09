@@ -1,5 +1,5 @@
-import { MetaProtocolType } from "./MetaProtocolType";
-import { FixedLengthProtocolType } from "./FixedLengthProtocolType";
+import { MetaProtocolType } from "./MetaProtocolType.js";
+import { FixedLengthProtocolType } from "./FixedLengthProtocolType.js";
 
 export abstract class SizePrefixedProtocolType<T> extends MetaProtocolType<
 	T,

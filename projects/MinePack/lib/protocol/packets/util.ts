@@ -1,5 +1,5 @@
-import { PacketConstructor, Packet } from "./Packet";
-import { StreamPacketReader } from "../StreamPacketReader";
+import { StreamPacketReader } from "../StreamPacketReader.js";
+import { PacketConstructor, Packet } from "./Packet.js";
 
 export function isPacket<TPacketConstructor extends PacketConstructor>(
 	input: Packet,

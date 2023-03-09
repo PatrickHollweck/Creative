@@ -1,5 +1,5 @@
-import { HandshakePacket } from "../lib/protocol/packets/v761";
-import { PacketSerializer } from "../lib/protocol/PacketSerializer";
+import { HandshakePacket } from "../lib/protocol/packets/v761.js";
+import { PacketSerializer } from "../lib/protocol/PacketSerializer.js";
 
 describe("PacketSerializer", () => {
 	const handshakePacket = new HandshakePacket();

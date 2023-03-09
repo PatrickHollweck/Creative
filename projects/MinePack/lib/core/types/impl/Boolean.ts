@@ -1,4 +1,4 @@
-import { FixedLengthProtocolType } from "../base/FixedLengthProtocolType";
+import { FixedLengthProtocolType } from "../base/FixedLengthProtocolType.js";
 
 export class Boolean extends FixedLengthProtocolType<boolean> {
 	public readonly byteLength = 1;

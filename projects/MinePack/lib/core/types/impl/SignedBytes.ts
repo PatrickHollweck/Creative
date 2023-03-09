@@ -1,5 +1,7 @@
-// import { MetaProtocolType } from "../base/MetaProtocolType";
-// import { FixedLengthProtocolType } from "../base/FixedLengthProtocolType";
+// TODO: This file...
+
+// import { MetaProtocolType } from "../base/MetaProtocolType.js";
+// import { FixedLengthProtocolType } from "../base/FixedLengthProtocolType.js";
 
 // export class SignedBytes extends MetaProtocolType<number[], number[]> {
 // 	protected getShadowedType(): FixedLengthProtocolType<number[]> {

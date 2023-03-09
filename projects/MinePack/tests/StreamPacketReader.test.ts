@@ -1,8 +1,8 @@
-import { isPacket } from "../lib/protocol/packets/util";
-import { HandshakePacket } from "../lib/protocol/packets/v761";
-import { ProtocolVersion } from "../lib/ProtocolVersion";
-import { PacketSerializer } from "../lib/protocol/PacketSerializer";
-import { StreamPacketReader } from "../lib/protocol/StreamPacketReader";
+import { isPacket } from "../lib/protocol/packets/util.js";
+import { HandshakePacket } from "../lib/protocol/packets/v761.js";
+import { ProtocolVersion } from "../lib/ProtocolVersion.js";
+import { PacketSerializer } from "../lib/protocol/PacketSerializer.js";
+import { StreamPacketReader } from "../lib/protocol/StreamPacketReader.js";
 
 describe("StreamPacketReader", () => {
 	it("should work", (done) => {

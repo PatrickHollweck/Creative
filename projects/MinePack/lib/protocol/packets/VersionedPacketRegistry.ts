@@ -1,5 +1,5 @@
-import { ProtocolVersion } from "../../ProtocolVersion";
-import { PacketConstructor } from "./Packet";
+import { ProtocolVersion } from "../../ProtocolVersion.js";
+import { PacketConstructor } from "./Packet.js";
 
 export interface PacketMetadata {
 	sendable: boolean;

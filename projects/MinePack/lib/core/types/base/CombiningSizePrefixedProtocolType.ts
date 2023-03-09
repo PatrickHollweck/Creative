@@ -1,6 +1,6 @@
-import { MetaProtocolType } from "./MetaProtocolType";
-import { FixedLengthProtocolType } from "./FixedLengthProtocolType";
-import { SizePrefixedProtocolType } from "./SizePrefixedProtocolType";
+import { MetaProtocolType } from "./MetaProtocolType.js";
+import { FixedLengthProtocolType } from "./FixedLengthProtocolType.js";
+import { SizePrefixedProtocolType } from "./SizePrefixedProtocolType.js";
 
 export abstract class CombiningSizePrefixedProtocolType<
 	TComponent,

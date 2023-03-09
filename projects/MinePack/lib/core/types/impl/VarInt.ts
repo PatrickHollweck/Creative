@@ -1,5 +1,5 @@
-import { LimitedLEB128 } from "../../LimitedLEB128";
-import { VariableLengthProtocolType } from "../base/VariableLengthProtocolType";
+import { LimitedLEB128 } from "../../LimitedLEB128.js";
+import { VariableLengthProtocolType } from "../base/VariableLengthProtocolType.js";
 
 /**
  * This is a implementation of VarInt and VarLong!

@@ -3,10 +3,10 @@ import "reflect-metadata";
 import {
 	PacketMetadata,
 	VersionedPacketRegistry,
-} from "./VersionedPacketRegistry";
+} from "./VersionedPacketRegistry.js";
 
-import { ProtocolVersion } from "../../ProtocolVersion";
-import { PacketConstructor } from "./Packet";
+import { ProtocolVersion } from "../../ProtocolVersion.js";
+import { PacketConstructor } from "./Packet.js";
 
 export function VersionedPacket(
 	version: ProtocolVersion,
@@ -22,10 +22,10 @@ export function VersionedPacket(
 	};
 }
 
-export function SendOnlyPacket(version: ProtocolVersion) {
+export function SendablePacket(version: ProtocolVersion) {
 	return VersionedPacket(version, { sendable: true });
 }
 
-export function ReceiveOnlyPacket(version: ProtocolVersion) {
+export function ReceivablePacket(version: ProtocolVersion) {
 	return VersionedPacket(version, { receivable: true });
 }

@@ -1,6 +1,6 @@
-import { BaseProtocolType } from "./BaseProtocolType";
-import { IReadableProtocolType } from "./IReadableProtocolType";
-import { IWritableProtocolType } from "./IWritableProtocolType";
+import { BaseProtocolType } from "./BaseProtocolType.js";
+import { IReadableProtocolType } from "./IReadableProtocolType.js";
+import { IWritableProtocolType } from "./IWritableProtocolType.js";
 
 export abstract class ReadWriteProtocolType<
 		TWriteInput,

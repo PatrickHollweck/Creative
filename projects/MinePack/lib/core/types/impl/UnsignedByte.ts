@@ -1,4 +1,4 @@
-import { PrimitiveFixedLengthProtocolType } from "../base/PrimitiveFixedLengthProtocolType";
+import { PrimitiveFixedLengthProtocolType } from "../base/PrimitiveFixedLengthProtocolType.js";
 
 export class UnsignedByte extends PrimitiveFixedLengthProtocolType<number> {
 	public readonly byteLength = 1;
