@@ -24,6 +24,9 @@ public abstract class Packet
 		// Write Content
 		packet.WriteAllBytes(contentBytes.ReadBytes(0, contentBytes.Length));
 
+		Console.WriteLine("PACKAGED BYTES");
+		Console.WriteLine(packet.ToBytes());
+
 		return packet;
 	}
 }

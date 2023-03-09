@@ -1,190 +1,92 @@
-const SEGMENT_BITS = 0x7f;
-const CONTINUE_BIT = 0x80;
+import * as types from "./types";
 
 export class PacketBuffer {
 	private chunks: Buffer[];
 
-	constructor() {
-		this.chunks = [];
+	constructor(...chunks: Buffer[]) {
+		if (chunks.length == 0) {
+			this.chunks = [Buffer.alloc(0)];
+		} else {
+			this.chunks = chunks;
+		}
 	}
 
-	public toBuffer() {
-		return Buffer.concat(this.chunks);
+	// Primitives
+	public readonly string = new types.VarString(this);
+	public readonly boolean = new types.Boolean(this);
+
+	// Unsigned Integer types
+	public readonly ubyte = new types.UnsignedByte(this);
+	public readonly ushort = new types.UnsignedShort(this);
+
+	// Signed Integer types
+	public readonly int = new types.Int(this);
+	public readonly long = new types.Long(this);
+	public readonly byte = new types.SignedByte(this);
+	public readonly short = new types.SignedShort(this);
+
+	// TODO: Implement PacketBuffer.bytes
+	// public readonly bytes = new types.SignedBytes(this);
+
+	// Floating Point types
+	public readonly float = new types.Float(this);
+	public readonly double = new types.Double(this);
+
+	// Variable Length types
+	public readonly varInt = new types.VarInt(this);
+
+	/**
+	 * Gets the length (read: amount of bytes) in the combined buffer
+	 * @returns {number} The amount of bytes
+	 */
+	public get length(): number {
+		return this.combineChunks().length;
 	}
 
-	public write = {
-		boolean: (value: boolean) => {
-			const buffer = Buffer.alloc(1);
-			buffer.writeInt8(value === true ? 0x01 : 0x00);
-			return this.pushBuffer(buffer);
-		},
-		sbyte: (value: number) => {
-			const buffer = Buffer.alloc(1);
-			buffer.writeInt8(value);
-			return this.pushBuffer(buffer);
-		},
-		ubyte: (value: number) => {
-			const buffer = Buffer.alloc(1);
-			buffer.writeUInt8(value);
-			return this.pushBuffer(buffer);
-		},
-		sbytes: (values: number[]) => {
-			for (const value of values) {
-				this.write.sbyte(value);
-			}
-		},
-		ubytes: (values: number[]) => {
-			for (const value of values) {
-				this.write.ubyte(value);
-			}
-		},
-		short: (value: number) => {
-			const buffer = Buffer.alloc(2);
-			buffer.writeInt16BE(value);
-			return this.pushBuffer(buffer);
-		},
-		ushort: (value: number) => {
-			const buffer = Buffer.alloc(2);
-			buffer.writeUInt16BE(value);
-			return this.pushBuffer(buffer);
-		},
-		int: (value: number) => {
-			const buffer = Buffer.alloc(4);
-			buffer.writeInt32BE(value);
-			return this.pushBuffer(buffer);
-		},
-		long: (value: number | bigint) => {
-			const buffer = Buffer.alloc(8);
+	/**
+	 * Adds a given buffer to the "parent" PacketBuffer
+	 * @param buffer The buffer to add
+	 * @param offset Offset of where to insert the given buffers content, if null will insert at the end
+	 */
+	public commitChunk(buffer: Buffer, offset: number | null): void {
+		if (offset === null) {
+			this.chunks.push(buffer);
+			return;
+		}
 
-			buffer.writeBigInt64BE(
-				typeof value === "bigint" ? value : BigInt(value)
-			);
+		const combined = this.combineChunks();
 
-			return this.pushBuffer(buffer);
-		},
-		float: (value: number) => {
-			const buffer = Buffer.alloc(4);
-			buffer.writeFloatBE(value);
-			return this.pushBuffer(buffer);
-		},
-		double: (value: number) => {
-			const buffer = Buffer.alloc(8);
-			buffer.writeDoubleBE(value);
-			return this.pushBuffer(buffer);
-		},
-		string: (value: string) => {
-			this.write.varInt(value.length);
+		// If the offset is greater of equal to the length of the combined buffer
+		// then there is nothing to special to do, just append the given buffer.
+		if (offset >= combined.length) {
+			return this.commitChunk(buffer, null);
+		}
 
-			const buffer = Buffer.alloc(value.length);
-			buffer.write(value, "utf8");
-			return this.pushBuffer(buffer);
-		},
-		varInt: (value: number) => {
-			while (true) {
-				if ((value & ~SEGMENT_BITS) == 0) {
-					this.write.ubyte(value);
+		// If the offset is smaller than the length of the combine buffer
+		// then we need to split the combined buffer at the offset and
+		// insert a new chunk in between
+		if (offset < combined.length) {
+			this.chunks = [
+				combined.subarray(0, offset),
+				buffer,
+				combined.subarray(offset),
+			];
+		}
+	}
 
-					return this;
-				}
+	/**
+	 * Turns the PacketBuffer into a node buffer
+	 * @returns {Buffer}
+	 */
+	public combineChunks(): Buffer {
+		if (this.chunks.length > 1) {
+			const combined = Buffer.concat(this.chunks);
 
-				this.write.ubyte((value & SEGMENT_BITS) | CONTINUE_BIT);
+			this.chunks = [combined];
 
-				value >>>= 7;
-			}
-		},
-	};
+			return combined;
+		}
 
-	public read = {
-		boolean: (offset: number) => {
-			return this.read.sbyte(offset) === 0x00 ? false : true;
-		},
-		sbyte: (offset: number) => {
-			return this.toBuffer().readInt8(offset);
-		},
-		ubyte: (offset: number) => {
-			return this.toBuffer().readUInt8(offset);
-		},
-		sbytes: (offset: number, count: number) => {
-			const bytes = [];
-
-			for (let i = offset; i < count; i++) {
-				bytes.push(this.read.sbyte(offset));
-			}
-
-			return bytes;
-		},
-		ubytes: (offset: number, count: number) => {
-			const bytes = [];
-
-			for (let i = offset; i < count; i++) {
-				bytes.push(this.read.ubyte(offset));
-			}
-
-			return bytes;
-		},
-		short: (offset: number) => {
-			return this.toBuffer().readInt16BE(offset);
-		},
-		ushort: (offset: number) => {
-			return this.toBuffer().readUInt16BE(offset);
-		},
-		int: (offset: number) => {
-			return this.toBuffer().readInt32BE(offset);
-		},
-		long: (offset: number) => {
-			return this.toBuffer().readBigInt64BE(offset);
-		},
-		float: (offset: number) => {
-			return this.toBuffer().readFloatBE(offset);
-		},
-		double: (offset: number) => {
-			return this.toBuffer().readDoubleBE(offset);
-		},
-		string: (offset: number) => {
-			const stringLength = this.read.varInt(offset);
-			const stringBytes = [];
-
-			for (
-				let charIndex = offset + stringLength.bytesRead;
-				charIndex <
-				offset + stringLength.bytesRead + stringLength.value;
-				charIndex++
-			) {
-				stringBytes.push(this.read.ubyte(charIndex));
-			}
-
-			return Buffer.from(stringBytes).toString("utf8");
-		},
-		varInt: (offset: number) => {
-			let value = 0;
-			let position = 0;
-			let bytesRead = 0;
-			let currentByte;
-
-			while (true) {
-				currentByte = this.read.ubyte(offset + bytesRead);
-				bytesRead++;
-
-				value |= (currentByte & SEGMENT_BITS) << position;
-
-				if ((currentByte & CONTINUE_BIT) == 0) {
-					break;
-				}
-
-				position += 7;
-
-				if (position >= 32) {
-					throw new Error("VarInt is too big");
-				}
-			}
-
-			return { value, bytesRead };
-		},
-	};
-
-	private pushBuffer(...buffer: Buffer[]): this {
-		this.chunks.push(...buffer);
-
-		return this;
+		return this.chunks[0];
 	}
 }

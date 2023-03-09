@@ -29,12 +29,13 @@ client.OnPacket += (_, buffer) =>
 		);
 	}
 
+	Console.WriteLine(buffer.ToBytes().ToString());
 	Console.WriteLine("\n");
 };
 
 var pingRequestPacket = new PingRequestPacket(DateTime.Now.Millisecond);
 var statusRequestPacket = new StatusRequestPacket();
-var handshakePacket = new HandshakePacket(758, "minecraft.patrickhollweck.de", 25565, 1);
+var handshakePacket = new HandshakePacket(761, "minecraft.patrickhollweck.de", 25565, 1);
 
 await client.WritePacket(handshakePacket);
 await client.WritePacket(statusRequestPacket);

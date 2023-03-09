@@ -19,11 +19,12 @@ describe("PacketBuffer", () => {
 		];
 
 		for (const testCase of cases) {
-			const buffer = new PacketBuffer().write.varInt(testCase.decimal);
+			const buffer = new PacketBuffer();
+			buffer.varInt.write(testCase.decimal);
 
-			expect(Array.from(buffer.toBuffer())).toEqual(testCase.buffer);
+			expect(Array.from(buffer.combineChunks())).toEqual(testCase.buffer);
 
-			const readNumber = buffer.read.varInt(0);
+			const readNumber = buffer.varInt.read(0);
 
 			expect(readNumber).toEqual({
 				value: testCase.decimal,
@@ -45,10 +46,13 @@ describe("PacketBuffer", () => {
 		];
 
 		for (const testCase of cases) {
-			const buffer = new PacketBuffer().write.string(testCase);
-			const read = buffer.read.string(0);
+			const buffer = new PacketBuffer();
 
-			expect(read).toEqual(testCase);
+			buffer.string.write(testCase);
+
+			const read = buffer.string.read(0);
+
+			expect(read.value).toEqual(testCase);
 		}
 	});
 });
