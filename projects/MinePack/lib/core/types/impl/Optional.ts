@@ -29,7 +29,7 @@ export function makeOptional(
 		public read(offset: number): { value: unknown; bytesUsed: number } {
 			const instance = this.makeSuperInstance();
 
-			// TODO: How do we figure out if the data is present when reading???
+			// TODO: How do we figure out if the data is present when reading??? Maybe some kind of callback?
 
 			if (instance instanceof FixedLengthProtocolType) {
 				return {

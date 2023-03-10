@@ -1,7 +1,6 @@
 import { MinecraftClient } from "../lib/MinecraftClient.js";
 import { ProtocolVersion } from "../lib/ProtocolVersion.js";
 
-import { waitForPacket } from "../lib/protocol/packets/util.js";
 import { attachDisplayHandlers } from "./util.js";
 
 import * as packets from "../lib/protocol/packets/v761/index.js";
