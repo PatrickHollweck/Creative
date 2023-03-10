@@ -14,3 +14,5 @@ export * from "./Double.js";
 // Variable length types
 export * from "./VarInt.js";
 export * from "./VarString.js";
+// Special Types
+export * from "./UUID.js";
