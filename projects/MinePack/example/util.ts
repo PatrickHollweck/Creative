@@ -8,6 +8,11 @@ function displayHeader(text: string, color: (text: string) => string) {
 }
 
 export function attachDisplayHandlers(client: MinecraftClient) {
+	client.context.events.on("change", (key, oldValue, newValue) => {
+		displayHeader("PROTOCOL CONTEXT CHANGED", c.bgGray.black.bold);
+		console.log(c.gray(`## ${key}: ${oldValue} => ${newValue}`));
+	});
+
 	client.reader.events.on("packet", (packet, type) => {
 		displayHeader(
 			`RECEIVED PACKET (${type.name})`,
@@ -42,6 +47,10 @@ export function attachDisplayHandlers(client: MinecraftClient) {
 		displayHeader("SOCKET CONNECTED", c.bgYellow.black);
 	});
 
+	client.socket.on("ready", () => {
+		displayHeader("SOCKET READY", c.bgYellow.black);
+	});
+
 	client.socket.on("data", (chunk: Buffer) => {
 		displayHeader("SOCKET DATA RECEIVED", c.bgGray.black.bold);
 		console.log(c.gray("## AS HEX:", chunk.toString("hex")));
@@ -55,7 +64,7 @@ export function attachDisplayHandlers(client: MinecraftClient) {
 
 	client.socket.on("end", (reason: unknown) => {
 		displayHeader("SOCKET END", c.bgYellow.black);
-		console.log(c.yellow("Reason:", JSON.stringify(reason)));
+		console.log(c.yellow("Reason:", JSON.stringify(reason) || "-"));
 
 		client.disconnect();
 	});

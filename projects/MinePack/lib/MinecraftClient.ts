@@ -17,7 +17,7 @@ export class MinecraftClient {
 		this.context = new ProtocolContext(minecraftVersion);
 
 		this.socket = new net.Socket();
-		this.writer = new StreamPacketWriter();
+		this.writer = new StreamPacketWriter(this.context);
 		this.reader = new StreamPacketReader(this.context);
 	}
 

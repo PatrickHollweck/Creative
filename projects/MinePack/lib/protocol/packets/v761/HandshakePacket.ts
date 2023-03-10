@@ -1,5 +1,6 @@
 import { Packet } from "../Packet.js";
 import { PacketProperty } from "../PacketProperty.js";
+import { ProtocolContext } from "../../ProtocolContext.js";
 
 import {
 	ProtocolState,
@@ -24,4 +25,12 @@ export class HandshakePacket extends Packet {
 
 	@PacketProperty(4, types.VarInt)
 	public nextState!: number;
+
+	public updateProtocolContext(context: ProtocolContext) {
+		super.updateProtocolContext(context);
+
+		context.state.update(
+			this.nextState === 1 ? ProtocolState.Status : ProtocolState.Login
+		);
+	}
 }

@@ -1,6 +1,6 @@
 export enum ProtocolState {
-	Play,
-	Login,
-	Status,
-	Handshake,
+	Play = "Play",
+	Login = "Login",
+	Status = "Status",
+	Handshake = "Handshake",
 }

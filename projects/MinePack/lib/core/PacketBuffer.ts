@@ -27,9 +27,6 @@ export class PacketBuffer {
 	public readonly byte = new types.SignedByte(this);
 	public readonly short = new types.SignedShort(this);
 
-	// TODO: Implement PacketBuffer.bytes
-	// public readonly bytes = new types.SignedBytes(this);
-
 	// Floating Point types
 	public readonly float = new types.Float(this);
 	public readonly double = new types.Double(this);

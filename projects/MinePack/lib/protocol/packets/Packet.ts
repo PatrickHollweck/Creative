@@ -1,3 +1,5 @@
+import { ProtocolContext } from "../ProtocolContext.js";
+
 export abstract class Packet {
 	public abstract get packetId(): number;
 
@@ -5,6 +7,8 @@ export abstract class Packet {
 	constructor() {
 		// Force empty!
 	}
+
+	public updateProtocolContext(context: ProtocolContext) {}
 }
 
 export type PacketConstructor = new () => Packet;

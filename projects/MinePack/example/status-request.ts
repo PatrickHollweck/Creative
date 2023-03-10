@@ -1,6 +1,5 @@
 import { MinecraftClient } from "../lib/MinecraftClient.js";
 
-import { ProtocolState } from "../lib/protocol/ProtocolState.js";
 import { ProtocolVersion } from "../lib/ProtocolVersion.js";
 
 import { waitForPacket } from "../lib/protocol/packets/util.js";
@@ -25,9 +24,6 @@ handshakePacket.protocolVersion = 761;
 
 await client.writer.sendPacket(handshakePacket);
 await client.writer.sendPacket(new packets.StatusRequestPacket());
-
-// TODO: Some packets should automatically update the state!
-client.context.state.update(ProtocolState.Status);
 
 await waitForPacket(client.reader, packets.StatusResponsePacket);
 
