@@ -11,6 +11,8 @@ export class PacketBuffer {
 		}
 	}
 
+	public static readonly empty = new PacketBuffer();
+
 	// Primitives
 	public readonly string = new types.VarString(this);
 	public readonly boolean = new types.Boolean(this);
