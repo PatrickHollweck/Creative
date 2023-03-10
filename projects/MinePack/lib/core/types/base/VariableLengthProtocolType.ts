@@ -5,7 +5,7 @@ export abstract class VariableLengthProtocolType<
 	TWriteResult = void
 > extends ReadWriteProtocolType<
 	T,
-	{ value: T; bytesRead: number },
+	{ value: T; bytesUsed: number },
 	TWriteResult
 > {
 	/**

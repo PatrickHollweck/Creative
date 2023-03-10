@@ -67,7 +67,7 @@ export class StreamPacketReader {
 				// therefore we need to keep the "rest" of the received bytes in the
 				// buffer for the next parse step since these bytes may already be
 				// part of the packetID and/or content
-				this.futureChunks = [currentBytes.subarray(result.bytesRead)];
+				this.futureChunks = [currentBytes.subarray(result.bytesUsed)];
 
 				// The read value of the VarInt is the total length of the rest
 				// of the packet. It does not include length field itself!

@@ -10,12 +10,12 @@ export abstract class CombiningSizePrefixedProtocolType<
 
 	protected abstract combineChunks(chunks: TComponent[]): TCombined;
 
-	public read(offset: number): { value: TCombined; bytesRead: number } {
-		const { value, bytesRead } = this.getImplementation().read(offset);
+	public read(offset: number): { value: TCombined; bytesUsed: number } {
+		const { value, bytesUsed } = this.getImplementation().read(offset);
 
 		return {
 			value: this.combineChunks(value),
-			bytesRead,
+			bytesUsed,
 		};
 	}
 

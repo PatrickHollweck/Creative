@@ -39,15 +39,15 @@ export class PacketSerializer {
 		const packetLength = inBuffer.varInt.read(0);
 
 		// Quick sanity check :)
-		if (inBuffer.length - packetLength.bytesRead !== packetLength.value) {
+		if (inBuffer.length - packetLength.bytesUsed !== packetLength.value) {
 			throw new Error(
 				"The received packet length does not match the length set by the packets content"
 			);
 		}
 
-		const packetId = inBuffer.varInt.read(packetLength.bytesRead);
+		const packetId = inBuffer.varInt.read(packetLength.bytesUsed);
 		// Specifies the offset of the "first content byte". Bytes before that are only metadata.
-		const contentOffset = packetLength.bytesRead + packetId.bytesRead;
+		const contentOffset = packetLength.bytesUsed + packetId.bytesUsed;
 
 		const packet = new type();
 		const fields = this.getProtocolFields(type);
@@ -57,16 +57,16 @@ export class PacketSerializer {
 			const protocolType = new field.metadata.type(inBuffer);
 			const offset = contentOffset + relativeContentOffset;
 
-			let value: unknown, bytesRead: number;
+			let value: unknown, bytesUsed: number;
 
 			if (protocolType instanceof VariableLengthProtocolType) {
 				const result = protocolType.read(offset);
 
 				value = result.value;
-				bytesRead = result.bytesRead;
+				bytesUsed = result.bytesUsed;
 			} else if (protocolType instanceof FixedLengthProtocolType) {
 				value = protocolType.read(offset);
-				bytesRead = protocolType.byteLength;
+				bytesUsed = protocolType.byteLength;
 			} else {
 				throw new Error(
 					"Cannot determine length of unknown ProtocolType!"
@@ -76,7 +76,7 @@ export class PacketSerializer {
 			// @ts-expect-error # Typescript i know better here :)
 			packet[field.key] = value;
 
-			relativeContentOffset += bytesRead;
+			relativeContentOffset += bytesUsed;
 		}
 
 		return packet;

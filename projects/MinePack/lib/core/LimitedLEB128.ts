@@ -23,17 +23,17 @@ export class LimitedLEB128 {
 
 	public static toNumber(nextByte: (offset: number) => number): {
 		value: number;
-		bytesRead: number;
+		bytesUsed: number;
 	} {
 		let value = 0;
 		let position = 0;
-		let bytesRead = 0;
+		let bytesUsed = 0;
 		let currentByte;
 
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, no-constant-condition
 		while (true) {
-			currentByte = nextByte(bytesRead);
-			bytesRead++;
+			currentByte = nextByte(bytesUsed);
+			bytesUsed++;
 
 			value |= (currentByte & this.SEGMENT_BITS) << position;
 
@@ -48,6 +48,6 @@ export class LimitedLEB128 {
 			}
 		}
 
-		return { value, bytesRead };
+		return { value, bytesUsed };
 	}
 }

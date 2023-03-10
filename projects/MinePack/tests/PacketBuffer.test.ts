@@ -28,7 +28,7 @@ describe("PacketBuffer", () => {
 
 			expect(readNumber).toEqual({
 				value: testCase.decimal,
-				bytesRead: testCase.buffer.length,
+				bytesUsed: testCase.buffer.length,
 			});
 		}
 	});

@@ -7,14 +7,14 @@ export abstract class SizePrefixedProtocolType<T> extends MetaProtocolType<
 > {
 	protected abstract getShadowedType(): FixedLengthProtocolType<T>;
 
-	public read(offset: number): { value: T[]; bytesRead: number } {
+	public read(offset: number): { value: T[]; bytesUsed: number } {
 		// Read the "count" prefix, so that we know how many items of "shadowedType" we need to expect
 		const typeCount = this.buffer.varInt.read(offset);
 
 		const contents = [];
 		const shadowedType = this.getShadowedType();
 
-		const firstItemOffset = offset + typeCount.bytesRead;
+		const firstItemOffset = offset + typeCount.bytesUsed;
 		const contentByteLength = typeCount.value * shadowedType.byteLength;
 
 		// Read the contents
@@ -32,7 +32,7 @@ export abstract class SizePrefixedProtocolType<T> extends MetaProtocolType<
 
 		return {
 			value: contents,
-			bytesRead: contentByteLength + typeCount.bytesRead,
+			bytesUsed: contentByteLength + typeCount.bytesUsed,
 		};
 	}
 
