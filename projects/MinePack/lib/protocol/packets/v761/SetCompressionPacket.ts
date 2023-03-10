@@ -8,6 +8,7 @@ import {
 } from "../VersionedPacket.js";
 
 import * as types from "../../../core/types/index.js";
+import { ProtocolContext } from "../../ProtocolContext.js";
 
 @ReceivablePacket(ProtocolVersion.v761, ProtocolState.Login)
 export class SetCompressionPacket extends Packet {
@@ -15,4 +16,11 @@ export class SetCompressionPacket extends Packet {
 
 	@PacketProperty(1, types.VarInt)
 	public threshold!: number;
+
+	public updateProtocolContext(context: ProtocolContext): void {
+		super.updateProtocolContext(context);
+
+		context.compression.setEnabled(true);
+		context.compression.setThreshold(this.threshold);
+	}
 }
