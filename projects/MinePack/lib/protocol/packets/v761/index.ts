@@ -7,3 +7,4 @@ export * from "./StatusRequestPacket.js";
 export * from "./StatusResponsePacket.js";
 
 export * from "./LoginStartPacket.js";
+export * from "./SetCompressionPacket.js";

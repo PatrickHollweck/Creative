@@ -2,13 +2,13 @@ import EventEmitter from "node:events";
 import { TypedEmitter } from "../types/TypeEmitter.js";
 
 import { PacketBuffer } from "../core/PacketBuffer.js";
-import { ProtocolVersion } from "../ProtocolVersion.js";
+import { ProtocolContext } from "./ProtocolContext.js";
 import { PacketSerializer } from "./PacketSerializer.js";
 import { Packet, PacketConstructor } from "./packets/Packet.js";
 
 import {
-	VersionedPacketRegistry,
 	PacketRegistryEntry,
+	VersionedPacketRegistry,
 } from "./packets/VersionedPacketRegistry.js";
 
 enum ParseState {
@@ -22,31 +22,31 @@ type Events = {
 
 export class StreamPacketReader {
 	private state: ParseState;
-	private minecraftVersion: ProtocolVersion;
+	private context: ProtocolContext;
 
 	private packetChunks: Buffer[];
-	private futureChunks: Buffer[];
+	private unparsedChunks: Buffer[];
 	private currentPacketLength: number | null = null;
 
 	public events: TypedEmitter<Events>;
 
-	constructor(version: ProtocolVersion) {
-		this.minecraftVersion = version;
+	constructor(context: ProtocolContext) {
+		this.context = context;
 
 		this.state = ParseState.RECEIVE_META_LENGTH;
 		this.events = new EventEmitter() as TypedEmitter<Events>;
 
 		this.packetChunks = [];
-		this.futureChunks = [];
+		this.unparsedChunks = [];
 	}
 
 	public processBytes(chunk: Buffer): void {
 		// Keep track of the the chunks we got so far.
 		this.packetChunks.push(chunk);
-		this.futureChunks.push(chunk);
+		this.unparsedChunks.push(chunk);
 
 		// All the bytes we have received so far combined.
-		const currentBytes = this.getFutureBytes();
+		const currentBytes = this.getUnparsedBytes();
 		// Reader utility for looking at minecraft's data types.
 		const reader = new PacketBuffer(currentBytes);
 
@@ -67,7 +67,7 @@ export class StreamPacketReader {
 				// therefore we need to keep the "rest" of the received bytes in the
 				// buffer for the next parse step since these bytes may already be
 				// part of the packetID and/or content
-				this.futureChunks = [currentBytes.subarray(result.bytesUsed)];
+				this.unparsedChunks = [currentBytes.subarray(result.bytesUsed)];
 
 				// The read value of the VarInt is the total length of the rest
 				// of the packet. It does not include length field itself!
@@ -78,7 +78,7 @@ export class StreamPacketReader {
 
 				// We may receive a whole packet at once so we need to start the
 				// whole process again in the next parse state.
-				if (this.getFutureBytes().length > 0) {
+				if (this.getUnparsedBytes().length > 0) {
 					this.processBytes(Buffer.alloc(0));
 				}
 
@@ -104,14 +104,14 @@ export class StreamPacketReader {
 				// Get the packet class from the registry based on the minecraft
 				// version and the id read from the packet
 				const registeredPackets = VersionedPacketRegistry.getPacket(
-					this.minecraftVersion,
+					this.context.version,
 					packetId
 				);
 
 				// If the packet is not in the registry, we have an invalid packet.
 				if (registeredPackets == null) {
 					throw new Error(
-						`Invalid packet-id "${packetId}" for minecraft version "${this.minecraftVersion}"!`
+						`Invalid packet-id "${packetId}" for minecraft protocol version "${this.context.version}"!`
 					);
 				}
 
@@ -120,88 +120,61 @@ export class StreamPacketReader {
 
 				// When we get here we have received a full packet.
 				// Finally, time to interpret it's content!
-				const packet = PacketSerializer.unpack(packetBytes, packetType);
+				const { packet, bytesUsed } = PacketSerializer.unpack(
+					packetBytes,
+					packetType
+				);
 
 				// Emit the packet to the end-user
 				this.events.emit("packet", packet, packetType, packetBytes);
 
 				// Reset state variables.
-				this.futureChunks = [];
 				this.packetChunks = [];
+				this.unparsedChunks = [];
 				this.currentPacketLength = null;
 
 				// Reset to the original state. Ready for the next packet!
 				this.state = ParseState.RECEIVE_META_LENGTH;
+
+				// It is possible that we receive multiple packets in one go
+				// therefore, if we still have "unused" bytes after parsing the current
+				// packet then we have another packet already in the pipeline.
+				if (bytesUsed < packetBytes.length) {
+					this.processBytes(packetBytes.subarray(bytesUsed));
+				}
 
 				break;
 			}
 		}
 	}
 
-	private getFutureBytes() {
-		return Buffer.concat(this.futureChunks);
+	private getUnparsedBytes() {
+		return Buffer.concat(this.unparsedChunks);
 	}
 
 	private findMostVexingPacket(
 		source: PacketRegistryEntry
 	): PacketConstructor {
-		if (source.length === 1 && source[0].metadata.receivable) {
-			return source[0].type;
+		const matchingPackets = source
+			// Minecraft sometimes uses the same packet-id for some packets
+			// mostly when one these packets can only be sent and one can only
+			// be received. Since both are registered, we need to find the one
+			// that is receivable.
+			.filter((packet) => packet.metadata.receivable)
+			// The protocol can be in several different "states"
+			// Based on the current state some packets may be valid/invalid
+			// We need to filter the candidates based on them.
+			.filter(
+				(packet) => packet.metadata.state === this.context.state.current
+			);
+
+		if (matchingPackets.length === 1) {
+			return matchingPackets[0].type;
 		}
 
-		// Minecraft sometimes uses the same packet-id for some packets
-		// mostly when one these packets can only be sent and one can only
-		// be received. Since both are registered, we need to find the one
-		// that is receivable.
-		const receivablePackets = source.filter(
-			(packet) => packet.metadata.receivable
-		);
-
-		if (receivablePackets.length === 1) {
-			return receivablePackets[0].type;
-		}
-
-		// In some cases the filtration by sendable/receivable is not enough!
-		// The minecraft protocol still leaves some cases where the
-		// packet-id is ambiguous (sigh...). This may be "fine" in the context
-		// of a "regular" client since the game can differentiate the packets based
-		// on the current protocol and game state. But this library is supposed to be
-		// a standalone, therefore we do not have such information.
-		// Therefore we use the expected packet length to try and differentiate the
-		// packets. This may fail when we get a bogus packet though!!!
-		// ------------------
-		// We know which fields a packet is supposed to have, using this information we can calculate
-		// the expected content length. In most cases the length of the packet we are currently expecting
-		// is going to match only one of the available packets. Therefore we see which expected length
-		// of the current candidates matches the length of the currently expected packet the closest.
-		const candidatesWithMatchingByteLength = receivablePackets.filter(
-			(packet) => {
-				// Typescript wants this check here because it is stupid sometimes :)
-				if (this.currentPacketLength == null) {
-					throw new Error(
-						"Cannot determine which packet is supposed to be received!"
-					);
-				}
-
-				const byteLength =
-					PacketSerializer.calculatePacketContentLength(packet.type);
-
-				return (
-					this.currentPacketLength > byteLength[0] &&
-					this.currentPacketLength < byteLength[1]
-				);
-			}
-		);
-
-		if (candidatesWithMatchingByteLength.length === 1) {
-			return candidatesWithMatchingByteLength[0].type;
-		}
-
-		// TODO: Maybe implement a "context/state/intent" system (as metadata) into the library
-		//       which may then be used to differentiate packets. (Handshake phase/Game phase)
-
-		// By this point we did all we could to differentiate the candidates.
-		// We can do no more than throw in this case.
+		// If there is not exactly one matching packet then there is some kind of error
+		// either we were sent an invalid packet, or this package does not support it
+		// Either way, we can do nothing except throw.
 		throw new Error(
 			"Cannot determine which packet is supposed to be received!"
 		);

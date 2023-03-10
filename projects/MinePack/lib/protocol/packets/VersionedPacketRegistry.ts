@@ -1,8 +1,14 @@
+import { ProtocolState } from "../ProtocolState.js";
 import { ProtocolVersion } from "../../ProtocolVersion.js";
+
 import { PacketConstructor } from "./Packet.js";
 
 export interface PacketMetadata {
+	// The protocol-state in which the packet is valid
+	state: ProtocolState;
+	// If the packet can be sent by the client
 	sendable: boolean;
+	// If the packet can be received by the client
 	receivable: boolean;
 }
 
@@ -22,7 +28,7 @@ export class VersionedPacketRegistry {
 	public static registerPacket(
 		version: ProtocolVersion,
 		packet: PacketConstructor,
-		metadata: PacketMetadata = { sendable: false, receivable: false }
+		metadata: PacketMetadata
 	) {
 		if (!this.versions.has(version)) {
 			this.versions.set(version, new Map());

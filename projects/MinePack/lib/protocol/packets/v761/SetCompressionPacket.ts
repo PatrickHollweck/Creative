@@ -9,10 +9,10 @@ import {
 
 import * as types from "../../../core/types/index.js";
 
-@ReceivablePacket(ProtocolVersion.v761, ProtocolState.Status)
-export class StatusResponsePacket extends Packet {
-	public readonly packetId = 0x00;
+@ReceivablePacket(ProtocolVersion.v761, ProtocolState.Login)
+export class SetCompressionPacket extends Packet {
+	public readonly packetId = 0x03;
 
-	@PacketProperty(1, types.VarString)
-	public response!: string;
+	@PacketProperty(1, types.VarInt)
+	public threshold!: number;
 }

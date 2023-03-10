@@ -1,20 +1,24 @@
 import { Packet } from "../Packet.js";
-import { SendablePacket } from "../VersionedPacket.js";
-import { ProtocolVersion } from "../../../ProtocolVersion.js";
-import { ProtocolProperty } from "../ProtocolProperty.js";
+import { PacketProperty } from "../PacketProperty.js";
+
+import {
+	ProtocolVersion,
+	ProtocolState,
+	SendablePacket,
+} from "../VersionedPacket.js";
 
 import * as types from "../../../core/types/index.js";
 
-@SendablePacket(ProtocolVersion.v761)
+@SendablePacket(ProtocolVersion.v761, ProtocolState.Login)
 export class LoginStartPacket extends Packet {
 	public readonly packetId = 0x00;
 
-	@ProtocolProperty(1, types.VarString)
+	@PacketProperty(1, types.VarString)
 	public name!: string;
 
-	@ProtocolProperty(2, types.Boolean)
+	@PacketProperty(2, types.Boolean)
 	public hasPlayerUUID!: boolean;
 
-	@ProtocolProperty(3, types.UUID)
+	@PacketProperty(3, types.makeOptional(types.UUID))
 	public playerUUID!: string;
 }

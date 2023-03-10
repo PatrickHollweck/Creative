@@ -1,8 +1,7 @@
-import { VarInt } from "../core/types/index.js";
 import { PacketBuffer } from "../core/PacketBuffer.js";
 import { Packet, PacketConstructor } from "./packets/Packet.js";
 
-import { getProtocolProperties } from "./packets/ProtocolProperty.js";
+import { getPacketFields } from "./packets/PacketProperty.js";
 
 import { FixedLengthProtocolType } from "../core/types/base/FixedLengthProtocolType.js";
 import { VariableLengthProtocolType } from "../core/types/base/VariableLengthProtocolType.js";
@@ -10,16 +9,26 @@ import { VariableLengthProtocolType } from "../core/types/base/VariableLengthPro
 export class PacketSerializer {
 	public static pack(packet: Packet): Buffer {
 		const buffer = new PacketBuffer();
-		const fields = this.getProtocolFields(this.getPacketType(packet));
+		const fields = getPacketFields(this.getPacketType(packet));
 
 		// Write the class defined protocol properties
 		for (const field of fields) {
 			const protocolType = new field.metadata.type(buffer);
+			// @ts-expect-error # We know this field exists because of reflection!
+			const value = packet[field.key];
+
+			if (value == null && !field.metadata.isOptional) {
+				const typeName = this.getPacketType(packet).name;
+
+				throw new Error(
+					`Cannot write null-ish value to packet! (Tried to write field: "${field.key}" on packet "${typeName}")`
+				);
+			}
 
 			// This any here is needed, we know for sure that the key exists
 			// because of reflection. Typescript cant know that though.
 			// Therefore we need the any to allow the index
-			protocolType.write((packet as any)[field.key], null);
+			protocolType.write(value, null);
 		}
 
 		// Prepend the packet-id
@@ -34,23 +43,16 @@ export class PacketSerializer {
 	public static unpack<TPacket extends Packet>(
 		bytes: Uint8Array,
 		type: new () => TPacket
-	): TPacket {
+	): { packet: TPacket; bytesUsed: number } {
 		const inBuffer = new PacketBuffer(Buffer.from(bytes));
 		const packetLength = inBuffer.varInt.read(0);
-
-		// Quick sanity check :)
-		if (inBuffer.length - packetLength.bytesUsed !== packetLength.value) {
-			throw new Error(
-				"The received packet length does not match the length set by the packets content"
-			);
-		}
 
 		const packetId = inBuffer.varInt.read(packetLength.bytesUsed);
 		// Specifies the offset of the "first content byte". Bytes before that are only metadata.
 		const contentOffset = packetLength.bytesUsed + packetId.bytesUsed;
 
 		const packet = new type();
-		const fields = this.getProtocolFields(type);
+		const fields = getPacketFields(type);
 
 		let relativeContentOffset = 0;
 		for (const field of fields) {
@@ -73,13 +75,16 @@ export class PacketSerializer {
 				);
 			}
 
-			// @ts-expect-error # Typescript i know better here :)
+			// @ts-expect-error # We know this field exists because of reflection!
 			packet[field.key] = value;
 
 			relativeContentOffset += bytesUsed;
 		}
 
-		return packet;
+		return {
+			packet,
+			bytesUsed: contentOffset + relativeContentOffset,
+		};
 	}
 
 	/**
@@ -89,55 +94,5 @@ export class PacketSerializer {
 	 */
 	public static getPacketType(packet: Packet): PacketConstructor {
 		return packet.constructor as PacketConstructor;
-	}
-
-	/**
-	 * Calculates the byte length of a packet.
-	 * Since some packets are variable in length it returns an lower and upper bound
-	 * @param packet The packet to calculate the length of
-	 * @returns [number, number]
-	 */
-	public static calculatePacketContentLength(packet: PacketConstructor) {
-		const fields = this.getProtocolFields(packet);
-		const dummyBuffer = new PacketBuffer();
-
-		return fields
-			.map((field) => {
-				const type = new field.metadata.type(dummyBuffer);
-
-				if (type instanceof FixedLengthProtocolType) {
-					return [type.byteLength, type.byteLength];
-				}
-
-				if (type instanceof VariableLengthProtocolType) {
-					return [type.minimumByteLength, type.maximumByteLength];
-				}
-
-				throw new Error("Unknown protocol type!");
-			})
-			.reduce(
-				(total, current) => [
-					total[0] + current[0],
-					total[1] + current[1],
-				],
-				// The packet-id (a VarInt) is also technically part of the content
-				[
-					new VarInt(dummyBuffer).minimumByteLength,
-					new VarInt(dummyBuffer).maximumByteLength,
-				]
-			);
-	}
-
-	private static getProtocolFields(type: PacketConstructor) {
-		const result = [];
-
-		for (const property of getProtocolProperties(type)) {
-			result.push({
-				key: property.key,
-				metadata: property.metadata,
-			});
-		}
-
-		return result.sort((a, b) => a.metadata.position - b.metadata.position);
 	}
 }

@@ -3,24 +3,26 @@
 
 import "reflect-metadata";
 
+import { PacketBuffer } from "../../core/PacketBuffer.js";
 import { PacketConstructor } from "./Packet.js";
 import { ProtocolTypeConstructor } from "../../core/types/base/ProtocolType.js";
 
-export interface ProtocolPropertyMetadata {
+export interface PacketPropertyMetadata {
 	position: number;
 	type: ProtocolTypeConstructor;
+	isOptional: boolean;
 }
 
-export interface KeyedProtocolPropertyMetadata {
+export interface KeyedPacketPropertyMetadata {
 	key: string;
-	metadata: ProtocolPropertyMetadata;
+	metadata: PacketPropertyMetadata;
 }
 
 interface PacketPrototype {
-	__protocolProperties__: KeyedProtocolPropertyMetadata[];
+	__protocolProperties__: KeyedPacketPropertyMetadata[];
 }
 
-export function ProtocolProperty<T extends ProtocolTypeConstructor>(
+export function PacketProperty<T extends ProtocolTypeConstructor>(
 	position: number,
 	type: T
 ): PropertyDecorator {
@@ -29,7 +31,7 @@ export function ProtocolProperty<T extends ProtocolTypeConstructor>(
 			throw new Error("Decorator must be applied to an object!");
 		}
 
-		let props: KeyedProtocolPropertyMetadata[];
+		let props: KeyedPacketPropertyMetadata[];
 
 		if (
 			(target as PacketPrototype).hasOwnProperty("__protocolProperties__")
@@ -45,14 +47,27 @@ export function ProtocolProperty<T extends ProtocolTypeConstructor>(
 			);
 		}
 
-		props.push({ key: propertyKey, metadata: { position, type } });
+		const instance = new type(PacketBuffer.empty);
+
+		props.push({
+			key: propertyKey,
+			metadata: {
+				// Default overridable properties
+				isOptional: false,
+				// Type level override
+				...instance.provideMetadata(),
+				// Non-Overridable properties
+				position,
+				type,
+			},
+		});
 	};
 }
 
-export function getProtocolProperties(
+export function getPacketFields(
 	classConstructor: PacketConstructor
-): KeyedProtocolPropertyMetadata[] {
-	const result = [] as KeyedProtocolPropertyMetadata[];
+): KeyedPacketPropertyMetadata[] {
+	const result = [] as KeyedPacketPropertyMetadata[];
 
 	let prototype = classConstructor.prototype as PacketPrototype | null;
 
@@ -66,5 +81,5 @@ export function getProtocolProperties(
 		prototype = Object.getPrototypeOf(prototype) as PacketPrototype | null;
 	}
 
-	return result;
+	return result.sort((a, b) => a.metadata.position - b.metadata.position);
 }

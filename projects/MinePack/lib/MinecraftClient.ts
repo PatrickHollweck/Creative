@@ -1,21 +1,24 @@
 import * as net from "node:net";
 
 import { ProtocolVersion } from "./ProtocolVersion.js";
+import { ProtocolContext } from "./protocol/ProtocolContext.js";
 
 import { StreamPacketWriter } from "./protocol/StreamPacketWriter.js";
 import { StreamPacketReader } from "./protocol/StreamPacketReader.js";
 
 export class MinecraftClient {
+	public readonly socket: net.Socket;
 	public readonly reader: StreamPacketReader;
 	public readonly writer: StreamPacketWriter;
 
-	public readonly socket: net.Socket;
+	public readonly context: ProtocolContext;
 
 	constructor(minecraftVersion: ProtocolVersion) {
-		this.writer = new StreamPacketWriter();
-		this.reader = new StreamPacketReader(minecraftVersion);
+		this.context = new ProtocolContext(minecraftVersion);
 
 		this.socket = new net.Socket();
+		this.writer = new StreamPacketWriter();
+		this.reader = new StreamPacketReader(this.context);
 	}
 
 	connect(address: string, port = 25565): Promise<void> {

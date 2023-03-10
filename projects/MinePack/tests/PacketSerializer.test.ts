@@ -14,7 +14,7 @@ describe("PacketSerializer", () => {
 		const reversed = PacketSerializer.unpack(
 			Uint8Array.from(bytes),
 			HandshakePacket
-		);
+		).packet;
 
 		// Field 1
 		expect(reversed.protocolVersion).toEqual(
