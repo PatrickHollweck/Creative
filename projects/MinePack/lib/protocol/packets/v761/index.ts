@@ -5,3 +5,5 @@ export * from "./PingResponsePacket.js";
 
 export * from "./StatusRequestPacket.js";
 export * from "./StatusResponsePacket.js";
+
+export * from "./LoginStartPacket.js";
