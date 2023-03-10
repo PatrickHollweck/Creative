@@ -1,5 +1,7 @@
 // See: https://wiki.vg/Protocol#VarInt_and_VarLong
 
+export class NotEnoughBytesError extends Error {}
+
 export class LimitedLEB128 {
 	private static SEGMENT_BITS = 0x7f;
 	private static CONTINUE_BIT = 0x80;
@@ -21,7 +23,7 @@ export class LimitedLEB128 {
 		}
 	}
 
-	public static toNumber(nextByte: (offset: number) => number): {
+	public static toNumber(nextByte: (offset: number) => number | null): {
 		value: number;
 		bytesUsed: number;
 	} {
@@ -33,6 +35,11 @@ export class LimitedLEB128 {
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, no-constant-condition
 		while (true) {
 			currentByte = nextByte(bytesUsed);
+
+			if (currentByte == null) {
+				throw new NotEnoughBytesError();
+			}
+
 			bytesUsed++;
 
 			value |= (currentByte & this.SEGMENT_BITS) << position;

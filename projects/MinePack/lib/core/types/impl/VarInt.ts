@@ -10,9 +10,15 @@ export class VarInt extends VariableLengthProtocolType<number, number> {
 	public readonly maximumByteLength = 10;
 
 	public read(offset: number) {
-		return LimitedLEB128.toNumber((relativeOffset) =>
-			this.buffer.ubyte.read(offset + relativeOffset)
-		);
+		return LimitedLEB128.toNumber((relativeOffset) => {
+			const absoluteOffset = offset + relativeOffset;
+
+			if (this.buffer.length < absoluteOffset) {
+				return null;
+			}
+
+			return this.buffer.ubyte.read(absoluteOffset);
+		});
 	}
 
 	public write(value: number, offset: number | null = null): number {

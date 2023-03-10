@@ -43,7 +43,7 @@ export class VersionedPacketRegistry {
 		]);
 	}
 
-	public static getPacket(
+	public static getPackets(
 		version: ProtocolVersion,
 		packetID: number
 	): PacketRegistryEntry | null {

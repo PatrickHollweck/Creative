@@ -7,10 +7,10 @@ import * as packets from "../lib/protocol/packets/v761/index.js";
 
 const client = new MinecraftClient(ProtocolVersion.v761);
 
+attachDisplayHandlers(client);
+
 const host = "minecraft.patrickhollweck.de";
 const port = 25565;
-
-attachDisplayHandlers(client);
 
 await client.connect(host, port);
 
