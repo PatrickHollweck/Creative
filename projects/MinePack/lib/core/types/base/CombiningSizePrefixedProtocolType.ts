@@ -30,14 +30,6 @@ export abstract class CombiningSizePrefixedProtocolType<
 		const self = this;
 
 		const implementation = class extends SizePrefixedProtocolType<TComponent> {
-			public get minimumByteLength(): number {
-				return this.getShadowedType().byteLength;
-			}
-
-			public get maximumByteLength(): number {
-				return this.getShadowedType().byteLength;
-			}
-
 			protected getShadowedType(): FixedLengthProtocolType<TComponent> {
 				return self.getShadowedType();
 			}

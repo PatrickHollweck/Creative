@@ -19,6 +19,9 @@ export class LoginStartPacket extends Packet {
 	@PacketProperty(2, types.Boolean)
 	public hasPlayerUUID!: boolean;
 
-	@PacketProperty(3, types.makeOptional(types.UUID))
-	public playerUUID!: string;
+	@PacketProperty(
+		3,
+		types.makeOptional<LoginStartPacket>(types.UUID, (p) => p.hasPlayerUUID)
+	)
+	public playerUUID?: string;
 }

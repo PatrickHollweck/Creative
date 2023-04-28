@@ -10,24 +10,20 @@ describe("PacketSerializer", () => {
 
 	test("Packing / Unpacking", () => {
 		const bytes = PacketSerializer.pack(handshakePacket);
-
-		const reversed = PacketSerializer.unpack(
-			Uint8Array.from(bytes),
-			HandshakePacket
-		).packet;
+		const unpacked = PacketSerializer.unpack(bytes, HandshakePacket).packet;
 
 		// Field 1
-		expect(reversed.protocolVersion).toEqual(
+		expect(unpacked.protocolVersion).toEqual(
 			handshakePacket.protocolVersion
 		);
 
 		// Field 2
-		expect(reversed.serverAddress).toEqual(handshakePacket.serverAddress);
+		expect(unpacked.serverAddress).toEqual(handshakePacket.serverAddress);
 
 		// Field 3
-		expect(reversed.serverPort).toEqual(handshakePacket.serverPort);
+		expect(unpacked.serverPort).toEqual(handshakePacket.serverPort);
 
 		// Field 4
-		expect(reversed.nextState).toEqual(handshakePacket.nextState);
+		expect(unpacked.nextState).toEqual(handshakePacket.nextState);
 	});
 });

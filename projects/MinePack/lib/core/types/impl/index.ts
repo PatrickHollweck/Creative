@@ -17,4 +17,6 @@ export * from "./VarString.js";
 // Compound Types
 export * from "./UUID.js";
 // Meta Types
+export * from "./Array.js";
+export * from "./Object.js";
 export * from "./Optional.js";

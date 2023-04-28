@@ -11,9 +11,9 @@ import { VersionedPacketRegistry } from "./packets/VersionedPacketRegistry.js";
 import { Packet, PacketConstructor } from "./packets/Packet.js";
 
 enum ParseState {
-	RECEIVE_CONTENT = "RECEIVE_CONTENT",
-	RECEIVE_COMPRESSED_HEADER = "RECEIVE_COMPRESSED_HEADER",
-	RECEIVE_UNCOMPRESSED_HEADER = "RECEIVE_UNCOMPRESSED_HEADER",
+	CONTENT = "CONTENT",
+	COMPRESSED_HEADER = "COMPRESSED_HEADER",
+	UNCOMPRESSED_HEADER = "UNCOMPRESSED_HEADER",
 }
 
 type Events = {
@@ -55,7 +55,7 @@ export class StreamPacketReader {
 			// Uncompressed | Data Length   | VarInt | Length of uncompressed (Packet ID + Data) or 0
 			// Compressed   | Packet-ID     | VarInt | zlib compressed packet ID
 			// Compressed   | Content       | Buffer | zlib compressed packet content
-			case ParseState.RECEIVE_COMPRESSED_HEADER: {
+			case ParseState.COMPRESSED_HEADER: {
 				const reader = new PacketBuffer(unparsedBytes);
 
 				let packetLength;
@@ -95,7 +95,7 @@ export class StreamPacketReader {
 					: dataLength.value;
 
 				// The next state is to receive the actual packet content
-				this.state = ParseState.RECEIVE_CONTENT;
+				this.state = ParseState.CONTENT;
 
 				// We may receive a whole packet at once so we need to start the
 				// whole process again in the next parse state.
@@ -107,9 +107,9 @@ export class StreamPacketReader {
 			}
 			// ## Format of uncompressed packets ##
 			// Uncompressed | Packet Length | VarInt | Compressed length of (Packet ID + Data)
-			// Uncompressed   | Packet-ID     | VarInt | Unique identifier of the packet
-			// Uncompressed   | Content       | Buffer | Content, depends on the connection state and packet ID
-			case ParseState.RECEIVE_UNCOMPRESSED_HEADER: {
+			// Uncompressed | Packet-ID     | VarInt | Unique identifier of the packet
+			// Uncompressed | Content       | Buffer | Content, depends on the connection state and packet ID
+			case ParseState.UNCOMPRESSED_HEADER: {
 				const reader = new PacketBuffer(unparsedBytes);
 
 				let packetLength;
@@ -139,9 +139,10 @@ export class StreamPacketReader {
 				// The read value of the VarInt is the total length of the rest
 				// of the packet. It does not include length field itself!
 				this.currentPacketLength = packetLength.value;
+				this.currentPacketIsCompressed = false;
 
 				// The next state is to receive the actual packet content
-				this.state = ParseState.RECEIVE_CONTENT;
+				this.state = ParseState.CONTENT;
 
 				// We may receive a whole packet at once so we need to start the
 				// whole process again in the next parse state.
@@ -151,7 +152,7 @@ export class StreamPacketReader {
 
 				break;
 			}
-			case ParseState.RECEIVE_CONTENT: {
+			case ParseState.CONTENT: {
 				// Sanity check.
 				if (this.currentPacketLength == null) {
 					throw new Error("Invalid parser state!");
@@ -167,14 +168,13 @@ export class StreamPacketReader {
 				let contentBytes;
 
 				if (this.currentPacketIsCompressed) {
-					const unparsedContentBytes =
-						this.getUnparsedBytes().subarray(
-							0,
-							this.currentPacketLength
-						);
+					const compressedContent = this.getUnparsedBytes().subarray(
+						0,
+						this.currentPacketLength
+					);
 
 					// If the packet is compressed we first need to decompress the content
-					contentBytes = zlib.unzipSync(unparsedContentBytes);
+					contentBytes = zlib.unzipSync(compressedContent);
 				} else {
 					contentBytes = unparsedBytes;
 				}
@@ -183,18 +183,13 @@ export class StreamPacketReader {
 
 				// Read the packet-id from the packet metadata.
 				// This is needed to determine the type and order of the rest of the packets fields.
-				const packetId = reader.varInt.read(0).value;
-				const packetType = this.findMatchingPacket(packetId);
-
-				// The parsing of the header removed the length we need to write it to the packet again
-				// since the PacketSerializer expects a packet with a uncompressed header
-				// TODO: Maybe it would be better to give the PacketSerializer a "length" argument and give it only the "content" bytes
-				reader.varInt.write(this.currentPacketLength, 0);
+				const packetId = reader.varInt.read(0);
+				const packetType = this.findMatchingPacket(packetId.value);
 
 				// When we get here we have received a full packet.
 				// Finally, time to interpret it's content!
-				const { packet, bytesUsed } = PacketSerializer.unpack(
-					reader.toBytes(),
+				const { packet, bytesUsed } = PacketSerializer.unpackContent(
+					reader.toBytes().subarray(packetId.bytesUsed),
 					packetType
 				);
 
@@ -233,8 +228,8 @@ export class StreamPacketReader {
 
 	private getDefaultParserState() {
 		return this.context.compression.enabled
-			? ParseState.RECEIVE_COMPRESSED_HEADER
-			: ParseState.RECEIVE_UNCOMPRESSED_HEADER;
+			? ParseState.COMPRESSED_HEADER
+			: ParseState.UNCOMPRESSED_HEADER;
 	}
 
 	private findMatchingPacket(packetId: number): PacketConstructor {

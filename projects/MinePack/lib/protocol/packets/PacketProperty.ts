@@ -65,7 +65,7 @@ export function PacketProperty<T extends ProtocolTypeConstructor>(
 }
 
 export function getPacketFields(
-	classConstructor: PacketConstructor
+	classConstructor: new (...args: any[]) => object
 ): KeyedPacketPropertyMetadata[] {
 	const result = [] as KeyedPacketPropertyMetadata[];
 

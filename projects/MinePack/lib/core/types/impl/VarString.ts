@@ -23,11 +23,6 @@ export class VarString extends CombiningSizePrefixedProtocolType<
 	string,
 	string
 > {
-	public minimumByteLength = 1;
-	// UTF-8 String with VarInt in front. n*4+3 (LIM n: 32767)
-	// See https://wiki.vg/Protocol#Data_types
-	public maximumByteLength = 131071;
-
 	protected combineChunks(chunks: string[]): string {
 		return chunks.join("");
 	}

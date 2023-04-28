@@ -7,14 +7,4 @@ export abstract class VariableLengthProtocolType<
 	T,
 	{ value: T; bytesUsed: number },
 	TWriteResult
-> {
-	/**
-	 * Minimum amount of bytes this type is using
-	 */
-	public abstract get minimumByteLength(): number;
-
-	/**
-	 * How many bytes this type can use at max.
-	 */
-	public abstract get maximumByteLength(): number;
-}
+> {}

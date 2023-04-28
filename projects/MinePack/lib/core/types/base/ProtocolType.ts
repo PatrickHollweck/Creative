@@ -6,6 +6,5 @@ export type UnsizedReadWriteProtocolType<T> =
 	| FixedLengthProtocolType<T>
 	| VariableLengthProtocolType<T>;
 
-export type ProtocolTypeConstructor = new (
-	buffer: PacketBuffer
-) => UnsizedReadWriteProtocolType<unknown>;
+export type ProtocolTypeConstructor<T = UnsizedReadWriteProtocolType<unknown>> =
+	new (buffer: PacketBuffer) => T;

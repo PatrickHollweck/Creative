@@ -1,35 +1,25 @@
-import { ProtocolTypeConstructor } from "../base/ProtocolType.js";
-
-import { FixedLengthProtocolType } from "../base/FixedLengthProtocolType.js";
-import { VariableLengthProtocolType } from "../base/VariableLengthProtocolType.js";
 import { PacketPropertyMetadata } from "../../../protocol/packets/PacketProperty.js";
 
-export function makeOptional(
-	type: ProtocolTypeConstructor
+import {
+	ProtocolTypeConstructor,
+	FixedLengthProtocolType,
+	VariableLengthProtocolType,
+} from "../base/index.js";
+
+export function makeOptional<TPacket extends object>(
+	type: ProtocolTypeConstructor,
+	readPredicate: (packet: TPacket) => boolean
 ): ProtocolTypeConstructor {
 	return class Optional extends VariableLengthProtocolType<unknown, unknown> {
-		public get minimumByteLength(): number {
-			return 0;
-		}
-
-		public get maximumByteLength(): number {
-			const instance = this.makeSuperInstance();
-
-			if (instance instanceof FixedLengthProtocolType) {
-				return instance.byteLength;
-			}
-
-			if (instance instanceof VariableLengthProtocolType) {
-				return instance.maximumByteLength;
-			}
-
-			throw new Error("Unknown sized protocol type");
-		}
-
 		public read(offset: number): { value: unknown; bytesUsed: number } {
 			const instance = this.makeSuperInstance();
 
-			// TODO: How do we figure out if the data is present when reading??? Maybe some kind of callback?
+			if (!readPredicate(instance.getContextObject() as unknown as any)) {
+				return {
+					value: null,
+					bytesUsed: 0,
+				};
+			}
 
 			if (instance instanceof FixedLengthProtocolType) {
 				return {

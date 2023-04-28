@@ -5,15 +5,14 @@ import { VariableLengthProtocolType } from "../base/VariableLengthProtocolType.j
  * This is a implementation of VarInt and VarLong!
  */
 export class VarInt extends VariableLengthProtocolType<number, number> {
-	public readonly minimumByteLength = 0;
-	// Technically VarInt is 5 bytes max and VarLong is 10 bytes max!
-	public readonly maximumByteLength = 10;
-
 	public read(offset: number) {
 		return LimitedLEB128.toNumber((relativeOffset) => {
 			const absoluteOffset = offset + relativeOffset;
 
-			if (this.buffer.length < absoluteOffset) {
+			if (
+				this.buffer.length <
+				absoluteOffset + this.buffer.ubyte.byteLength
+			) {
 				return null;
 			}
 

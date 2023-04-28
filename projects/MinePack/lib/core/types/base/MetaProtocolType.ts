@@ -5,7 +5,9 @@ export abstract class MetaProtocolType<
 	// Type of content of the shadowed protocol type
 	TShadowContent,
 	// Type of the read/write protocol functions
-	TProtocolContent
+	TProtocolContent,
+	// Type of the shadowed protocol type
+	TShadowedType = FixedLengthProtocolType<TShadowContent>
 > extends VariableLengthProtocolType<TProtocolContent> {
-	protected abstract getShadowedType(): FixedLengthProtocolType<TShadowContent>;
+	protected abstract getShadowedType(): TShadowedType;
 }
