@@ -1,14 +1,15 @@
-import { Json } from "../src/Json";
+import { Json } from "../../src/Json";
 import { createInterface } from "readline";
 
 async function main() {
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     await processInput();
   }
 }
 
 async function processInput() {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const inputInterface = createInterface({
       input: process.stdin,
       output: process.stdout,

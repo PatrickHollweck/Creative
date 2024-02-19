@@ -49,11 +49,6 @@ export function parseSingle(tokens: Token[]): Node {
 
 function parseScalar(tokens: Token[]): AnyScalarNode {
   const { type, value } = tokens[0];
-
-  if (type === "string") {
-    validateString(value, tokens);
-  }
-
   let scalar = null;
 
   switch (type) {
@@ -64,7 +59,7 @@ function parseScalar(tokens: Token[]): AnyScalarNode {
       scalar = NumberScalarNode.fromString(value);
       break;
     case "string":
-      scalar = new StringScalarNode(value);
+      scalar = new StringScalarNode(parseString(value, tokens));
       break;
     case "boolean":
       scalar = BooleanScalarNode.fromString(value);
@@ -184,66 +179,93 @@ function parseObjectEntry(tokens: Token[]) {
   tokens.splice(0, 2);
 
   return {
-    key: keyToken.value,
+    key: parseString(keyToken.value, tokens),
     value: parseSingle(tokens),
   };
 }
 
-function validateString(value: string, tokens: Token[]) {
+function parseString(value: string, tokens: Token[]) {
   const chars = value.split("");
 
   for (let index = 0; index < chars.length; index++) {
     const element = chars[index];
 
-    if (
-      element === "\t" ||
-      element === "\n" ||
-      element === "\b" ||
-      element === "\f" ||
-      element === "\r"
-    ) {
+    if (["\t", "\n", "\b", "\f", "\r"].includes(element)) {
       throw new JsonError(
         "Invalid characters in string. Control characters must be escaped!",
         tokens,
       );
     }
 
+    // If this character is not the start of an escape sequence continue straight away...
     if (element !== "\\") {
       continue;
     }
 
+    // Escape sequences have a minimum length of one. Example: \n
     if (chars.length <= index + 1) {
       throw new JsonError("Unexpected end of escape-sequence", tokens);
     }
 
+    // This specifies which escape sequence is used.
     const escapeCharacter = chars[index + 1];
 
-    if (escapeCharacter === "\\" || escapeCharacter === "/") {
-      index++;
+    // The backslash that initiates the escape sequence is always removed...
+    chars[index] = "";
+    index++;
+
+    if (["\\", '"', "/", "b", "f", "n", "r", "t", '"'].includes(escapeCharacter)) {
+      const simpleEscapeSequences = {
+        '"': '"',
+        "\\": "\\",
+        // Yeah the JSON spec does this... It is called the "solidus" escape sequence
+        "/": "/",
+        b: "\b",
+        f: "\f",
+        n: "\n",
+        r: "\r",
+        t: "\t",
+      };
+
+      chars[index] =
+        simpleEscapeSequences[
+          // Ugly type cast needed here because typescript does not narrow the type the key because of the if above...
+          escapeCharacter as keyof typeof simpleEscapeSequences
+        ];
 
       continue;
     }
 
-    if (["b", "f", "n", "r", "t", '"'].includes(escapeCharacter)) {
-      continue;
-    }
-
+    // The escape sequence \u is special it encodes a specific character by its unicode id
+    // Example: "\u1234" means unicode codepoint with id 1234 which translates to a specific character
     if (escapeCharacter === "u") {
-      if (chars.length >= index + 6) {
-        const unicodeEscapeSequence = chars.slice(index + 2, index + 6).join("");
-
-        if (/^[0-9A-Fa-f]{4}$/.test(unicodeEscapeSequence)) {
-          index += 5;
-
-          continue;
-        } else {
-          throw new JsonError("Invalid unicode escape sequence", tokens);
-        }
-      } else {
+      if (chars.length < index + 5) {
         throw new JsonError("Unexpected end of escape-sequence", tokens);
       }
+
+      const unicodeEscapeSequence = chars.slice(index + 1, index + 5).join("");
+
+      // Check validity of escape sequence only hex characters are allowed.
+      if (!/^[0-9A-Fa-f]{4}$/.test(unicodeEscapeSequence)) {
+        throw new JsonError("Invalid unicode escape sequence", tokens);
+      }
+
+      // Construct the unicode character from its numbers
+      chars[index] = String.fromCodePoint(Number(`0x${unicodeEscapeSequence}`));
+
+      // Delete the original escape sequence
+      chars[index + 1] = "";
+      chars[index + 2] = "";
+      chars[index + 3] = "";
+      chars[index + 4] = "";
+
+      index += 4;
+
+      continue;
     }
 
     throw new JsonError("Unrecognized escape sequence", tokens);
   }
+
+  return chars.join("");
 }

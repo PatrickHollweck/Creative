@@ -111,15 +111,16 @@ function tokenizeString(source: string, cursor: number): TokenizerResult {
     let value = result.value;
 
     if (
-      // Check if we even have a value, dont run the following check if we dont
+      // Ensure we even have a value, if not - short-circuit
       value != null &&
-      value.length > 0 &&
+      // Ensure the string is not a empty string
+      value.length > 2 &&
       // Check if the first or last character is a quotation mark, in which case we would need to remove them
-      (value[0] === '"' || value[value.length - 1] === '"') &&
-      // Ensure we do not remove quotation marks on a string with no content ("")
-      !(value.length === 2 && value[0] === '"' && value[value.length - 1] === '"')
+      (value[0] === '"' || value[value.length - 1] === '"')
     ) {
-      value = value.replace(/^"/, "").replace(/"$/, "");
+      value = value.substring(1, value.length - 1);
+    } else {
+      value = "";
     }
 
     return {
