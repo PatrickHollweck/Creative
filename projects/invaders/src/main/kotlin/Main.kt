@@ -1,20 +1,32 @@
+import de.patrickhollweck.entities.Entity
+import de.patrickhollweck.entities.Invader
 import processing.core.PApplet
 import processing.core.PConstants
 
 fun main() {
-    PApplet.main(App::class.java)
+	PApplet.main(App::class.java)
 }
 
 class App : PApplet() {
-    override fun settings() {
-        size(640, 360, PConstants.JAVA2D)
-    }
+	private val entities: ArrayList<Entity> = ArrayList()
 
-    override fun setup() {}
+	override fun setup() {
+		entities.add(Invader())
+	}
 
-    override fun draw() {
-        println(mouseX)
+	override fun settings() {
+		size(640, 360, PConstants.JAVA2D)
+	}
 
-        circle(mouseX.toFloat(), mouseY.toFloat(), 10.toFloat())
-    }
+	override fun draw() {
+		background(0)
+
+		for (entity in entities) {
+			entity.update()
+		}
+
+		for (entity in entities) {
+			entity.draw(this.graphics)
+		}
+	}
 }
