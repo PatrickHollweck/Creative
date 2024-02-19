@@ -6,5 +6,5 @@ import { JsonValue } from "../types";
  * This class mainly exists to make typing a little easier.
  */
 export abstract class Node {
-  public abstract toJsValue(root: Node): JsonValue;
+  public abstract toJsValue(): JsonValue;
 }

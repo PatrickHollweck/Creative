@@ -10,7 +10,7 @@ describe("JSON Test Suite", () => {
   // but in the future we may choose to test for these cases as well.
 
   // This test runs all files in the "suite/spec" sub-directory.
-  // These files and their names are in a sepcial format, which we process.
+  // These files and their names are in a special format, which we process.
   describe("Spec", () => {
     const suiteFolderPath = path.join(__dirname, "suite/spec");
     const files = fs.readdirSync(suiteFolderPath);
@@ -29,7 +29,7 @@ describe("JSON Test Suite", () => {
 
       test(testFilePath, () => {
         const content = fs.readFileSync(filePath).toString("utf8");
-        const testFunction = () => Json.parse(content);
+        const testFunction = () => Json.deserialize(content);
 
         // Files that start with y_ must parse.
         if (testFilePath.startsWith("y_")) {

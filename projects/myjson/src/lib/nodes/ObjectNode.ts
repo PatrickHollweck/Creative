@@ -14,13 +14,17 @@ export class ObjectNode extends Node {
     this.entries.set(entry.key, entry.value);
   }
 
-  public toJsValue(root: ObjectNode): JsonValue {
+  public toJsValue(): JsonValue {
     const result: JsonObject = {};
 
-    for (const [key, value] of root.entries) {
-      result[key] = value.toJsValue(value);
+    for (const [key, value] of this.entries) {
+      result[key] = value.toJsValue();
     }
 
     return result;
+  }
+
+  toJSON() {
+    return this.toJsValue();
   }
 }

@@ -14,11 +14,11 @@ export class ArrayNode extends Node {
     this.children.push(value);
   }
 
-  public toJsValue(root: ArrayNode): JsonValue {
+  public toJsValue(): JsonValue {
     const result: JsonArray = [];
 
-    for (const value of root.children) {
-      result.push(value.toJsValue(value));
+    for (const value of this.children) {
+      result.push(value.toJsValue());
     }
 
     return result;

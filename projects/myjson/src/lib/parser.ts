@@ -105,7 +105,7 @@ function parseArray(tokens: Token[]): ArrayNode {
     const nextToken = tokens.shift();
 
     // If the next token "after" the value is not a comma, we do not expect
-    // any more values. Technically we dont even need the comma, but we are stick
+    // any more values. Technically we don't even need the comma, but we stick
     // to the standard strictly.
     if (nextToken && nextToken.isComma) {
       continue;
@@ -143,14 +143,14 @@ function parseObject(tokens: Token[]) {
 
     const nextToken = tokens.shift();
 
-    // If there is a comma, the json specifies that there *must*
+    // If there is a comma, the json spec specifies that there *must*
     // be another entry on the object
     if (nextToken && nextToken.isComma) {
       continue;
     }
 
     // If the next token is not a comma, there are no more entries
-    // which means that the next token *must* be a "}
+    // which means that the next token *must* be a "}"
     if (nextToken && nextToken.isObjectClose) {
       return objectNode;
     }
@@ -165,7 +165,7 @@ function parseObject(tokens: Token[]) {
 }
 
 function parseObjectEntry(tokens: Token[]) {
-  const [keyToken, seperatorToken] = tokens;
+  const [keyToken, separatorToken] = tokens;
 
   if (!keyToken || !keyToken.isString) {
     throw new JsonError(
@@ -174,9 +174,9 @@ function parseObjectEntry(tokens: Token[]) {
     );
   }
 
-  if (!seperatorToken || !seperatorToken.isColon) {
+  if (!separatorToken || !separatorToken.isColon) {
     throw new JsonError(
-      `Unexpected token of type "${seperatorToken.type}" ("${seperatorToken.value}") as object key-value seperator`,
+      `Unexpected token of type "${separatorToken.type}" ("${separatorToken.value}") as object key-value separator`,
       tokens,
     );
   }
