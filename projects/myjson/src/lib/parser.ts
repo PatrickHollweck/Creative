@@ -185,6 +185,12 @@ function parseObjectEntry(tokens: Token[]) {
 }
 
 function parseString(value: string, tokens: Token[]) {
+  // Short-circuit optimization - If the string contains no backslash
+  // then it cannot include escape sequences that would need to be parsed.
+  if (!value.includes("\\") && !value.includes("	")) {
+    return value;
+  }
+
   const chars = value.split("");
 
   for (let index = 0; index < chars.length; index++) {

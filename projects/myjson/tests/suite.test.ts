@@ -41,7 +41,6 @@ describe("JSON Test Suite", () => {
 
           // It's fairly save to assume that the underlying v8 implementation is correct.
           // So we check our result against the official JSON.parse function.
-          // TODO: Fix current issues and then uncomment again!
           expect(result).toEqual(JSON.parse(content));
         }
 
