@@ -9,6 +9,7 @@
   "author": "Patrick Hollweck",
   "scripts": {
     "build": "tsc",
+    "profile": "tsx tests/perf/run-profiler.ts",
     "test": "jest --testPathIgnorePatterns perf.test.ts",
     "test:watch": "yarn test --watch",
     "test:perf": "jest tests/perf.test.ts",
@@ -31,7 +32,8 @@
     "prettier": "^3.2.5",
     "ts-jest": "^29.1.2",
     "tsx": "^4.7.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "v8-profiler-next": "^1.10.0"
   },
   "jest": {
     "preset": "ts-jest",

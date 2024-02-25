@@ -48,32 +48,27 @@ export function parseSingle(tokens: Token[]): Node {
 }
 
 function parseScalar(tokens: Token[]): AnyScalarNode {
-  const { type, value } = tokens[0];
-  let scalar = null;
+  const token = tokens.shift();
 
-  switch (type) {
+  if (token == null) {
+    throw new JsonError("Unexpected end of file!", tokens);
+  }
+
+  switch (token.type) {
     case "null":
-      scalar = new NullScalarNode();
-      break;
+      return new NullScalarNode();
     case "number":
-      scalar = NumberScalarNode.fromString(value);
-      break;
+      return NumberScalarNode.fromString(token.value);
     case "string":
-      scalar = new StringScalarNode(parseString(value, tokens));
-      break;
+      return new StringScalarNode(parseString(token.value, tokens));
     case "boolean":
-      scalar = BooleanScalarNode.fromString(value);
-      break;
+      return BooleanScalarNode.fromString(token.value);
     default:
       throw new JsonError(
-        `Could not parse scalar "${value}" (Unknown type "${type}")`,
+        `Could not parse scalar "${token.value}" (Unknown type "${token.type}")`,
         tokens,
       );
   }
-
-  tokens.shift();
-
-  return scalar;
 }
 
 function parseArray(tokens: Token[]): ArrayNode {
@@ -164,14 +159,14 @@ function parseObjectEntry(tokens: Token[]) {
 
   if (!keyToken || !keyToken.isString) {
     throw new JsonError(
-      `Unexpected token of type "${keyToken.type}" ("${keyToken.value}") on object key`,
+      `Unexpected token of type "${keyToken.type}" ("${keyToken.value}") used as object key`,
       tokens,
     );
   }
 
   if (!separatorToken || !separatorToken.isColon) {
     throw new JsonError(
-      `Unexpected token of type "${separatorToken.type}" ("${separatorToken.value}") as object key-value separator`,
+      `Unexpected token of type "${separatorToken.type}" ("${separatorToken.value}") used as object key-value separator`,
       tokens,
     );
   }
