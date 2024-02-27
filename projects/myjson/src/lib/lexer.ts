@@ -1,3 +1,4 @@
+import { TokenList } from "./util/TokenList";
 import { PUNCTUATION_TOKENS, Token } from "./Token";
 
 type Tokenizer = (source: string, cursor: number) => TokenizerResult;
@@ -6,7 +7,7 @@ type TokenizerResult =
   | { matched: false }
   | { matched: true; token: Token; cursor: number };
 
-export function tokenize(source: string): Token[] {
+export function tokenize(source: string): TokenList {
   let cursor = 0;
   const tokens: Token[] = [];
 
@@ -45,7 +46,7 @@ export function tokenize(source: string): Token[] {
     }
   }
 
-  return tokens;
+  return new TokenList(tokens);
 }
 
 function tokenizeWhitespace(source: string, cursor: number): TokenizerResult {

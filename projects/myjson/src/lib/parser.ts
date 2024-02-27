@@ -1,5 +1,5 @@
-import { Token } from "./Token";
 import { JsonError } from "./util/JsonError";
+import { TokenList } from "./util/TokenList";
 
 import {
   Node,
@@ -12,7 +12,7 @@ import {
   BooleanScalarNode,
 } from "./nodes";
 
-export function parse(tokens: Token[]): Node {
+export function parse(tokens: TokenList): Node {
   const rootNode = parseSingle(tokens);
 
   if (tokens.length > 0) {
@@ -22,12 +22,12 @@ export function parse(tokens: Token[]): Node {
   return rootNode;
 }
 
-export function parseSingle(tokens: Token[]): Node {
+export function parseSingle(tokens: TokenList): Node {
   if (tokens.length === 0) {
     throw new JsonError("Unexpected end of source!", tokens);
   }
 
-  const initialToken = tokens[0];
+  const initialToken = tokens.get(0);
 
   if (initialToken.isScalar) {
     return parseScalar(tokens);
@@ -47,8 +47,8 @@ export function parseSingle(tokens: Token[]): Node {
   );
 }
 
-function parseScalar(tokens: Token[]): AnyScalarNode {
-  const token = tokens.shift();
+function parseScalar(tokens: TokenList): AnyScalarNode {
+  const token = tokens.next();
 
   if (token == null) {
     throw new JsonError("Unexpected end of file!", tokens);
@@ -71,17 +71,17 @@ function parseScalar(tokens: Token[]): AnyScalarNode {
   }
 }
 
-function parseArray(tokens: Token[]): ArrayNode {
+function parseArray(tokens: TokenList): ArrayNode {
   const arrayNode = new ArrayNode();
 
   // Removes the opening "[" token.
-  tokens.shift();
+  tokens.next();
 
-  const firstToken = tokens[0];
+  const firstToken = tokens.get(0);
 
   // Empty Array, exit early.
   if (firstToken && firstToken.isArrayClose) {
-    tokens.shift();
+    tokens.next();
 
     return arrayNode;
   }
@@ -92,7 +92,7 @@ function parseArray(tokens: Token[]): ArrayNode {
     // The next token is either a comma or it is the closing bracket.
     // In both cases the token needs to be removed. We just need to keep it around
     // to check if it is a comma.
-    const nextToken = tokens.shift();
+    const nextToken = tokens.next();
 
     // If the next token "after" the value is not a comma, we do not expect
     // any more values. Technically we don't even need the comma, but we stick
@@ -114,16 +114,16 @@ function parseArray(tokens: Token[]): ArrayNode {
   );
 }
 
-function parseObject(tokens: Token[]) {
+function parseObject(tokens: TokenList) {
   const objectNode = new ObjectNode();
 
-  tokens.shift();
+  tokens.next();
 
-  const firstToken = tokens[0];
+  const firstToken = tokens.get(0);
 
   // Empty Object, exit early
   if (firstToken && firstToken.isObjectClose) {
-    tokens.shift();
+    tokens.next();
 
     return objectNode;
   }
@@ -131,7 +131,7 @@ function parseObject(tokens: Token[]) {
   while (tokens.length > 0) {
     objectNode.addEntry(parseObjectEntry(tokens));
 
-    const nextToken = tokens.shift();
+    const nextToken = tokens.next();
 
     // If there is a comma, the json spec specifies that there *must*
     // be another entry on the object
@@ -154,8 +154,9 @@ function parseObject(tokens: Token[]) {
   throw new JsonError("Unexpected end of source, while parsing object", tokens);
 }
 
-function parseObjectEntry(tokens: Token[]) {
-  const [keyToken, separatorToken] = tokens;
+function parseObjectEntry(tokens: TokenList) {
+  const keyToken = tokens.next();
+  const separatorToken = tokens.next();
 
   if (!keyToken || !keyToken.isString) {
     throw new JsonError(
@@ -171,15 +172,13 @@ function parseObjectEntry(tokens: Token[]) {
     );
   }
 
-  tokens.splice(0, 2);
-
   return {
     key: parseString(keyToken.value, tokens),
     value: parseSingle(tokens),
   };
 }
 
-function parseString(value: string, tokens: Token[]) {
+function parseString(value: string, tokens: TokenList) {
   // Short-circuit optimization - If the string contains no backslash
   // then it cannot include escape sequences that would need to be parsed.
   if (!value.includes("\\") && !value.includes("	")) {

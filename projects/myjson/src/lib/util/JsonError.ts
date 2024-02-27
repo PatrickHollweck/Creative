@@ -1,7 +1,14 @@
-import { Token } from "../Token";
+import { TokenList } from "./TokenList";
 
-function serializeTokens(tokens: Token[]) {
+export class JsonError extends Error {
+  constructor(message: string, tokens: TokenList) {
+    super(formatMessage(message, tokens));
+  }
+}
+
+function serializeTokens(tokens: TokenList) {
   return tokens
+    .asArray()
     .map(token => {
       if (token.isString) {
         return `"${token.value}"`;
@@ -12,14 +19,8 @@ function serializeTokens(tokens: Token[]) {
     .join("");
 }
 
-function formatMessage(message: string, tokens: Token[]): string {
+function formatMessage(message: string, tokens: TokenList): string {
   const source = serializeTokens(tokens);
 
   return `${message}\n\nSource at the point of the Error:\n${source}\n^`;
-}
-
-export class JsonError extends Error {
-  constructor(message: string, tokens: Token[]) {
-    super(formatMessage(message, tokens));
-  }
 }

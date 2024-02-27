@@ -1,10 +1,8 @@
-import { JsonValue } from "./lib/types";
-
 import { Node } from "./lib/nodes/Node";
-import { Token } from "./lib/Token";
-
 import { parse } from "./lib/parser";
 import { tokenize } from "./lib/lexer";
+import { JsonValue } from "./lib/types";
+import { TokenList } from "./lib/util/TokenList";
 
 export class Json {
   static deserialize(source: string): JsonValue {
@@ -13,7 +11,7 @@ export class Json {
     return root.toJsValue();
   }
 
-  static tokenize(source: string): Token[] {
+  static tokenize(source: string): TokenList {
     return tokenize(source);
   }
 
