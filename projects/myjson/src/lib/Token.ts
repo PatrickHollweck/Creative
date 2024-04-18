@@ -1,4 +1,4 @@
-type TokenType = "punctuation" | "boolean" | "string" | "number" | "null" | "whitespace";
+type TokenType = "punctuation" | "boolean" | "string" | "number" | "null";
 
 export class Token {
   public readonly type: TokenType;
@@ -27,10 +27,6 @@ export class Token {
 
   public get isScalar(): boolean {
     return this.isNull || this.isString || this.isNumber || this.isBoolean;
-  }
-
-  public get isWhitespace(): boolean {
-    return this.type === "whitespace";
   }
 
   public get isPunctuation(): boolean {

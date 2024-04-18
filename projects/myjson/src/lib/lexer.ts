@@ -12,7 +12,6 @@ export function tokenize(source: string): TokenList {
   const tokens: Token[] = [];
 
   const tokenizers: Tokenizer[] = [
-    tokenizeWhitespace,
     tokenizePunctuation,
     tokenizeNull,
     tokenizeNumber,
@@ -20,7 +19,20 @@ export function tokenize(source: string): TokenList {
     tokenizeBoolean,
   ];
 
-  while (cursor < source.length) {
+  tokenLoop: while (cursor < source.length) {
+    // Skip whitespace tokens
+    if (
+      source[cursor] === " " ||
+      source[cursor] === "\n" ||
+      source[cursor] === "\t" ||
+      source[cursor] === "\r" ||
+      source[cursor] === "\v"
+    ) {
+      cursor++;
+
+      continue tokenLoop;
+    }
+
     let didMatch = false;
 
     for (const tokenizer of tokenizers) {
@@ -33,10 +45,7 @@ export function tokenize(source: string): TokenList {
       didMatch = true;
       cursor = result.cursor;
 
-      // Ignore all whitespace tokens, they are not relevant to parsing
-      if (!result.token.isWhitespace) {
-        tokens.push(result.token);
-      }
+      tokens.push(result.token);
 
       break;
     }
@@ -47,22 +56,6 @@ export function tokenize(source: string): TokenList {
   }
 
   return new TokenList(tokens);
-}
-
-function tokenizeWhitespace(source: string, cursor: number): TokenizerResult {
-  const result = matchRegex(source, cursor, /^(?!\f)\s/);
-
-  if (result.matched) {
-    return {
-      matched: true,
-      cursor: result.cursor,
-      token: new Token("whitespace", result.value),
-    };
-  }
-
-  return {
-    matched: false,
-  };
 }
 
 function tokenizeNull(source: string, cursor: number): TokenizerResult {
@@ -86,18 +79,126 @@ function tokenizeBoolean(source: string, cursor: number): TokenizerResult {
 }
 
 function tokenizeNumber(source: string, cursor: number): TokenizerResult {
-  const result = matchRegex(
-    source,
-    cursor,
-    /^(?:(?!0\d)(?!-0\d)-?(?:0(?:\.\d+)|\d+(?:\d+)?(?:\.\d+)?)(?:(?:e|E)(?:-?|\+?)\d+)?)/,
-  );
+  let state = "sign";
+  let previousState: string | null = null;
 
-  if (result.matched) {
-    return {
-      matched: true,
-      cursor: result.cursor,
-      token: new Token("number", result.value),
-    };
+  let wholeState;
+  let internalCursor = cursor;
+
+  function isDigit(c: number) {
+    return (
+      source[c] === "0" ||
+      source[c] === "1" ||
+      source[c] === "2" ||
+      source[c] === "3" ||
+      source[c] === "4" ||
+      source[c] === "5" ||
+      source[c] === "6" ||
+      source[c] === "7" ||
+      source[c] === "8" ||
+      source[c] === "9"
+    );
+  }
+
+  function skipDigits() {
+    let matched = false;
+    let hasLeadingZero = false;
+    let totalDigitsMatched = 0;
+
+    if (source[internalCursor] === "0") {
+      hasLeadingZero = true;
+    }
+
+    while (internalCursor < source.length) {
+      if (isDigit(internalCursor)) {
+        matched = true;
+        internalCursor++;
+        totalDigitsMatched++;
+      } else {
+        if (!matched) {
+          throw new Error("Invalid number! (No digits!)");
+        }
+
+        break;
+      }
+    }
+
+    return { hasLeadingZero, totalDigitsMatched };
+  }
+
+  function setState(
+    newState: "sign" | "whole" | "fraction" | "exponent-sign" | "exponent" | "done",
+  ) {
+    previousState = state;
+    state = newState;
+
+    if (previousState === state) {
+      throw new Error("Invalid number! (Repeat state!)");
+    }
+  }
+
+  while (internalCursor < source.length) {
+    if (state === "sign") {
+      if (source[internalCursor] === "-") {
+        internalCursor++;
+      }
+
+      setState("whole");
+    }
+
+    if (state === "whole") {
+      if (!isDigit(internalCursor)) {
+        return {
+          matched: false,
+        };
+      }
+
+      wholeState = skipDigits();
+      setState("fraction");
+    }
+
+    if (state === "fraction") {
+      if (source[internalCursor] === ".") {
+        internalCursor++;
+        skipDigits();
+      }
+
+      if (wholeState!.hasLeadingZero && wholeState!.totalDigitsMatched > 1) {
+        throw new Error("Invalid number! (No leading zeroes on fractions allowed!)");
+      }
+
+      setState("exponent-sign");
+    }
+
+    if (state === "exponent-sign") {
+      if (source[internalCursor] === "e" || source[internalCursor] === "E") {
+        internalCursor++;
+
+        if (source[internalCursor] === "+" || source[internalCursor] === "-") {
+          internalCursor++;
+        }
+
+        setState("exponent");
+      } else {
+        setState("done");
+      }
+    }
+
+    if (state === "exponent") {
+      if (skipDigits().hasLeadingZero) {
+        throw new Error("Invalid Number! (No leading zeros on exponent allowed!)");
+      }
+
+      setState("done");
+    }
+
+    if (state === "done") {
+      return {
+        matched: true,
+        cursor: internalCursor,
+        token: new Token("number", source.substring(cursor, internalCursor)),
+      };
+    }
   }
 
   return {
@@ -106,29 +207,36 @@ function tokenizeNumber(source: string, cursor: number): TokenizerResult {
 }
 
 function tokenizeString(source: string, cursor: number): TokenizerResult {
-  const result = matchRegex(source, cursor, /^"(?:[^\n"\\]|\\.)*"/);
+  // Early return if the current char is not a " it cannot be a string therefore exit early
+  if (source[cursor] !== '"') {
+    return {
+      matched: false,
+    };
+  }
 
-  if (result.matched) {
-    let value = result.value;
+  let nextQuoteIndex = source.indexOf('"', cursor + 1);
 
-    if (
-      // Ensure we even have a value, if not - short-circuit
-      value != null &&
-      // Ensure the string is not a empty string
-      value.length > 2 &&
-      // Check if the first or last character is a quotation mark, in which case we would need to remove them
-      (value[0] === '"' || value[value.length - 1] === '"')
-    ) {
-      value = value.substring(1, value.length - 1);
-    } else {
-      value = "";
+  // While there are more characters to process collect them into the value variable.
+  while (nextQuoteIndex !== -1 && nextQuoteIndex + 1 <= source.length) {
+    // The second unescaped " closes the string
+    if (source[nextQuoteIndex - 1] !== "\\") {
+      const content = source.substring(cursor + 1, nextQuoteIndex);
+
+      // A json string cannot contain a new-line
+      if (content.indexOf("\n") !== -1) {
+        return {
+          matched: false,
+        };
+      }
+
+      return {
+        matched: true,
+        cursor: nextQuoteIndex + 1,
+        token: new Token("string", content),
+      };
     }
 
-    return {
-      matched: true,
-      cursor: result.cursor,
-      token: new Token("string", value),
-    };
+    nextQuoteIndex = source.indexOf('"', nextQuoteIndex + 1);
   }
 
   return {
@@ -157,36 +265,6 @@ function tokenizePunctuation(source: string, cursor: number): TokenizerResult {
 /*
  * Helper Functions
  */
-
-function matchRegex(
-  source: string,
-  cursor: number,
-  regex: RegExp,
-): { matched: false } | { matched: true; value: string; cursor: number } {
-  const currentSource = source.substr(cursor);
-  const match = currentSource.match(regex);
-
-  if (!match || match.length === 0) {
-    return {
-      matched: false,
-    };
-  }
-
-  if (match.length === 1) {
-    const value = match[0];
-
-    return {
-      value,
-      matched: true,
-      cursor: cursor + value.toString().length,
-    };
-  }
-
-  // We should not get here, regex passed in here should be designed
-  // as such that there is only one Group match. (Use non-capture groups!).
-  // Therefore it is most likely a programmer's error if we get here.
-  throw new Error("Invalid regex matches! (More than one group!)");
-}
 
 function matchLiteral(
   source: string,

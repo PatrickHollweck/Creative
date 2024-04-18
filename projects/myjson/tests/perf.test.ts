@@ -23,7 +23,7 @@ describe("The performance", () => {
       () => {
         return Json.deserialize(largeJsonContent);
       },
-      { iterations: 10, meanUnder: 200 },
+      { iterations: 50, meanUnder: 200 },
     );
 
     logMeasurement(measurement);
