@@ -1,11 +1,14 @@
 import { TokenList } from "./util/TokenList";
 import { PUNCTUATION_TOKENS, Token } from "./Token";
+import { JsonLexerError } from "./util/JsonLexerError";
 
 type Tokenizer = (source: string, cursor: number) => TokenizerResult;
 
 type TokenizerResult =
-  | { matched: false }
+  | { matched: false; token: null; cursor: null }
   | { matched: true; token: Token; cursor: number };
+
+const NO_MATCH = { matched: false, token: null, cursor: null } as const;
 
 export function tokenize(source: string): TokenList {
   let cursor = 0;
@@ -38,34 +41,36 @@ export function tokenize(source: string): TokenList {
     for (const tokenizer of tokenizers) {
       const result = tokenizer(source, cursor);
 
-      if (!result.matched) {
+      if (result === NO_MATCH) {
         continue;
       }
 
       didMatch = true;
-      cursor = result.cursor;
+      cursor = result.cursor!;
 
-      tokens.push(result.token);
+      tokens.push(result.token!);
 
       break;
     }
 
     if (!didMatch) {
-      throw new Error(`Unknown token at: "${source.substr(cursor, 100)}"`);
+      throw new JsonLexerError("Unknown token", source, cursor);
     }
   }
 
   return new TokenList(tokens);
 }
 
+const NULL_TOKEN = new Token("null", "null");
 function tokenizeNull(source: string, cursor: number): TokenizerResult {
-  return matchStaticToken(source, cursor, new Token("null", "null"));
+  return matchStaticToken(source, cursor, NULL_TOKEN);
 }
 
+const TRUE_TOKEN = new Token("boolean", "true");
+const FALSE_TOKEN = new Token("boolean", "false");
+const BOOLEAN_TOKENS = [TRUE_TOKEN, FALSE_TOKEN];
 function tokenizeBoolean(source: string, cursor: number): TokenizerResult {
-  const booleanTokens = [new Token("boolean", "true"), new Token("boolean", "false")];
-
-  for (const token of booleanTokens) {
+  for (const token of BOOLEAN_TOKENS) {
     const result = matchStaticToken(source, cursor, token);
 
     if (result.matched) {
@@ -73,35 +78,19 @@ function tokenizeBoolean(source: string, cursor: number): TokenizerResult {
     }
   }
 
-  return {
-    matched: false,
-  };
+  return NO_MATCH;
 }
 
 function tokenizeNumber(source: string, cursor: number): TokenizerResult {
-  let state = "sign";
-  let previousState: string | null = null;
-
-  let wholeState;
   let internalCursor = cursor;
 
-  function isDigit(c: number) {
-    return (
-      source[c] === "0" ||
-      source[c] === "1" ||
-      source[c] === "2" ||
-      source[c] === "3" ||
-      source[c] === "4" ||
-      source[c] === "5" ||
-      source[c] === "6" ||
-      source[c] === "7" ||
-      source[c] === "8" ||
-      source[c] === "9"
-    );
+  function isDigit(index: number) {
+    const value = source[index];
+
+    return value >= "0" && value <= "9";
   }
 
   function skipDigits() {
-    let matched = false;
     let hasLeadingZero = false;
     let totalDigitsMatched = 0;
 
@@ -111,107 +100,80 @@ function tokenizeNumber(source: string, cursor: number): TokenizerResult {
 
     while (internalCursor < source.length) {
       if (isDigit(internalCursor)) {
-        matched = true;
         internalCursor++;
         totalDigitsMatched++;
       } else {
-        if (!matched) {
-          throw new Error("Invalid number! (No digits!)");
-        }
-
         break;
       }
+    }
+
+    if (totalDigitsMatched === 0) {
+      throw new JsonLexerError(
+        "Invalid number! (Expected at least one digit at this location!)",
+        source,
+        internalCursor,
+      );
     }
 
     return { hasLeadingZero, totalDigitsMatched };
   }
 
-  function setState(
-    newState: "sign" | "whole" | "fraction" | "exponent-sign" | "exponent" | "done",
-  ) {
-    previousState = state;
-    state = newState;
+  // Parse optional sign of integer part
+  if (source[internalCursor] === "-") {
+    internalCursor++;
 
-    if (previousState === state) {
-      throw new Error("Invalid number! (Repeat state!)");
+    // Throw on lonely minus
+    if (!isDigit(internalCursor)) {
+      throw new JsonLexerError("Invalid lonely minus sign", source, cursor);
     }
   }
 
-  while (internalCursor < source.length) {
-    if (state === "sign") {
-      if (source[internalCursor] === "-") {
-        internalCursor++;
-      }
+  // Not a number if current cursor is not a digit - Return early
+  if (!isDigit(internalCursor)) {
+    return NO_MATCH;
+  }
 
-      setState("whole");
+  // Parse the integer part
+  const integerPart = skipDigits();
+
+  if (integerPart!.hasLeadingZero && integerPart!.totalDigitsMatched > 1) {
+    throw new JsonLexerError(
+      "Invalid number! (No leading zeroes on fractions allowed!)",
+      source,
+      cursor,
+    );
+  }
+
+  // Parse optional fraction part
+  if (source[internalCursor] === ".") {
+    internalCursor++;
+    skipDigits();
+  }
+
+  // Parse optional exponent part
+  if (source[internalCursor] === "e" || source[internalCursor] === "E") {
+    internalCursor++;
+
+    // Parse sign of exponent
+    if (source[internalCursor] === "+" || source[internalCursor] === "-") {
+      internalCursor++;
     }
 
-    if (state === "whole") {
-      if (!isDigit(internalCursor)) {
-        return {
-          matched: false,
-        };
-      }
-
-      wholeState = skipDigits();
-      setState("fraction");
-    }
-
-    if (state === "fraction") {
-      if (source[internalCursor] === ".") {
-        internalCursor++;
-        skipDigits();
-      }
-
-      if (wholeState!.hasLeadingZero && wholeState!.totalDigitsMatched > 1) {
-        throw new Error("Invalid number! (No leading zeroes on fractions allowed!)");
-      }
-
-      setState("exponent-sign");
-    }
-
-    if (state === "exponent-sign") {
-      if (source[internalCursor] === "e" || source[internalCursor] === "E") {
-        internalCursor++;
-
-        if (source[internalCursor] === "+" || source[internalCursor] === "-") {
-          internalCursor++;
-        }
-
-        setState("exponent");
-      } else {
-        setState("done");
-      }
-    }
-
-    if (state === "exponent") {
-      if (skipDigits().hasLeadingZero) {
-        throw new Error("Invalid Number! (No leading zeros on exponent allowed!)");
-      }
-
-      setState("done");
-    }
-
-    if (state === "done") {
-      return {
-        matched: true,
-        cursor: internalCursor,
-        token: new Token("number", source.substring(cursor, internalCursor)),
-      };
-    }
+    // Parse exponent number
+    skipDigits();
   }
 
   return {
-    matched: false,
+    matched: true,
+    cursor: internalCursor,
+    token: new Token("number", source.substring(cursor, internalCursor)),
   };
 }
 
 function tokenizeString(source: string, cursor: number): TokenizerResult {
   // Early return if the current char is not a " it cannot be a string therefore exit early
   if (source[cursor] !== '"') {
-    return {
-      matched: false,
-    };
+    return NO_MATCH;
   }
 
   let nextQuoteIndex = source.indexOf('"', cursor + 1);
@@ -224,9 +186,7 @@ function tokenizeString(source: string, cursor: number): TokenizerResult {
 
       // A json string cannot contain a new-line
       if (content.indexOf("\n") !== -1) {
-        return {
-          matched: false,
-        };
+        return NO_MATCH;
       }
 
       return {
@@ -239,13 +199,11 @@ function tokenizeString(source: string, cursor: number): TokenizerResult {
     nextQuoteIndex = source.indexOf('"', nextQuoteIndex + 1);
   }
 
-  return {
-    matched: false,
-  };
+  return NO_MATCH;
 }
-
+const PUNCTUATION_TOKEN_VALUES = Object.values(PUNCTUATION_TOKENS);
 function tokenizePunctuation(source: string, cursor: number): TokenizerResult {
-  for (const token of Object.values(PUNCTUATION_TOKENS)) {
+  for (const token of PUNCTUATION_TOKEN_VALUES) {
     const matchResult = matchLiteral(source, cursor, token.value);
 
     if (matchResult.matched) {
@@ -257,9 +215,7 @@ function tokenizePunctuation(source: string, cursor: number): TokenizerResult {
     }
   }
 
-  return {
-    matched: false,
-  };
+  return NO_MATCH;
 }
 
 /*
@@ -271,16 +227,14 @@ function matchLiteral(
   cursor: number,
   token: string,
 ): { matched: false } | { matched: true; cursor: number } {
-  if (source.substr(cursor, token.length) === token) {
+  if (source.substring(cursor, cursor + token.length) === token) {
     return {
       matched: true,
       cursor: cursor + token.length,
     };
   }
 
-  return {
-    matched: false,
-  };
+  return NO_MATCH;
 }
 
 function matchStaticToken(source: string, cursor: number, token: Token): TokenizerResult {
@@ -294,7 +248,5 @@ function matchStaticToken(source: string, cursor: number, token: Token): Tokeniz
     };
   }
 
-  return {
-    matched: false,
-  };
+  return NO_MATCH;
 }

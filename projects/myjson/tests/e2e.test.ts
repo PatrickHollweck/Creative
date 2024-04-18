@@ -44,9 +44,11 @@ describe("End2End", () => {
     expect(Json.deserialize("2e10")).toEqual(2e10);
     expect(Json.deserialize("2E10")).toEqual(2e10);
     expect(Json.deserialize("2E+10")).toEqual(2e10);
+    expect(Json.deserialize("10e001")).toEqual(100);
     expect(Json.deserialize("123.456e-789")).toEqual(123.456e-789);
 
     // Invalid Basic
+    expect(() => Json.deserialize("-")).toThrow();
     expect(() => Json.deserialize("+178")).toThrow();
 
     // Invalid Fractions
@@ -56,6 +58,8 @@ describe("End2End", () => {
     expect(() => Json.deserialize("-01.715")).toThrow();
 
     // Invalid Exponents
+    expect(() => Json.deserialize("10e")).toThrow();
+    expect(() => Json.deserialize("10e1.001")).toThrow();
     expect(() => Json.deserialize("10e0.41")).toThrow();
     expect(() => Json.deserialize("10e10e10")).toThrow();
 

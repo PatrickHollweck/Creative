@@ -1,6 +1,6 @@
 import { TokenList } from "./TokenList";
 
-export class JsonError extends Error {
+export class JsonParserError extends Error {
   constructor(message: string, tokens: TokenList) {
     super(formatMessage(message, tokens));
   }
@@ -22,5 +22,5 @@ function serializeTokens(tokens: TokenList) {
 function formatMessage(message: string, tokens: TokenList): string {
   const source = serializeTokens(tokens);
 
-  return `${message}\n\nSource at the point of the Error:\n${source}\n^`;
+  return `Could not parse JSON!\nReason: ${message}\nSource point: ${source}\n              ^`;
 }
