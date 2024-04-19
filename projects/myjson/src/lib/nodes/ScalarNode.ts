@@ -31,20 +31,23 @@ export class StringScalarNode extends ScalarNode<string> {}
 
 export class NumberScalarNode extends ScalarNode<number> {
   public static fromString(value: string): NumberScalarNode {
-    return new NumberScalarNode(Number(value));
+    return new NumberScalarNode(parseInt(value));
   }
 }
 
 export class BooleanScalarNode extends ScalarNode<boolean> {
   public static fromString(value: string): BooleanScalarNode {
     if (value === "true") {
-      return new BooleanScalarNode(true);
+      return BOOL_NODE_TRUE;
     }
 
     if (value === "false") {
-      return new BooleanScalarNode(false);
+      return BOOL_NODE_FALSE;
     }
 
     throw new Error(`Invalid boolean value "${value}" could not be parsed`);
   }
 }
+
+const BOOL_NODE_TRUE = new BooleanScalarNode(true);
+const BOOL_NODE_FALSE = new BooleanScalarNode(false);

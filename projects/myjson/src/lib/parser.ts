@@ -190,7 +190,13 @@ function parseString(value: string, tokens: TokenList) {
   for (let index = 0; index < chars.length; index++) {
     const element = chars[index];
 
-    if (["\t", "\n", "\b", "\f", "\r"].includes(element)) {
+    if (
+      element === "\t" ||
+      element === "\n" ||
+      element === "\b" ||
+      element === "\f" ||
+      element === "\r"
+    ) {
       throw new JsonParserError(
         "Invalid characters in string. Control characters must be escaped!",
         tokens,
@@ -214,7 +220,17 @@ function parseString(value: string, tokens: TokenList) {
     chars[index] = "";
     index++;
 
-    if (["\\", '"', "/", "b", "f", "n", "r", "t", '"'].includes(escapeCharacter)) {
+    if (
+      escapeCharacter === "\\" ||
+      escapeCharacter === '"' ||
+      escapeCharacter === "/" ||
+      escapeCharacter === "b" ||
+      escapeCharacter === "f" ||
+      escapeCharacter === "n" ||
+      escapeCharacter === "r" ||
+      escapeCharacter === "t" ||
+      escapeCharacter === '"'
+    ) {
       const simpleEscapeSequences = {
         '"': '"',
         "\\": "\\",
