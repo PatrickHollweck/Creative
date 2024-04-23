@@ -7,4 +7,13 @@ import { JsonValue } from "../types";
  */
 export abstract class Node {
   public abstract toJsValue(): JsonValue;
+
+  public toJSON() {
+    const name = this.constructor.name;
+
+    return {
+      name: name,
+      value: this.toJsValue(),
+    };
+  }
 }

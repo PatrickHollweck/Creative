@@ -9,11 +9,11 @@
   "author": "Patrick Hollweck",
   "scripts": {
     "build": "tsc",
+    "repl": "tsx ./tests/scripts/repl.ts",
     "profile": "tsx tests/scripts/run-profiler.ts",
     "test": "jest --testPathIgnorePatterns perf.test.ts",
     "test:watch": "yarn test --watch",
     "test:perf": "jest tests/perf.test.ts",
-    "test:manual": "tsx ./tests/runner/manual.ts",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write src/**/*.ts tests/**/*.ts",
     "review": "yarn build && yarn format && yarn lint && yarn test"

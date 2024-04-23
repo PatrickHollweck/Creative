@@ -21,14 +21,15 @@ const profilePath = path.join(
 
 console.log("Starting to profile...");
 
-v8Profiler.setGenerateType(1);
-v8Profiler.startProfiling(title, true);
-
-/// START # Code to profile
-
 const largeJsonContent = fs
   .readFileSync(path.join(__dirname, "../suite/test_data/large-file.json"))
   .toString("utf8");
+
+v8Profiler.setGenerateType(1);
+v8Profiler.setSamplingInterval(1);
+v8Profiler.startProfiling(title, true);
+
+/// START # Code to profile
 
 Json.deserialize(largeJsonContent);
 

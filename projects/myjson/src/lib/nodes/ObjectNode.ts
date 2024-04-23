@@ -25,6 +25,9 @@ export class ObjectNode extends Node {
   }
 
   toJSON() {
-    return this.toJsValue();
+    return {
+      name: this.constructor.name,
+      value: this.toJsValue(),
+    };
   }
 }
