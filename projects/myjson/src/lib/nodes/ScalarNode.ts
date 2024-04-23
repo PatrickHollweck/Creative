@@ -31,7 +31,7 @@ export class StringScalarNode extends ScalarNode<string> {}
 
 export class NumberScalarNode extends ScalarNode<number> {
   public static fromString(value: string): NumberScalarNode {
-    return new NumberScalarNode(parseInt(value));
+    return new NumberScalarNode(parseFloat(value));
   }
 }
 
