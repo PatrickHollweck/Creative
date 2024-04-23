@@ -14,12 +14,13 @@ export function tokenize(source: string): TokenList {
   let cursor = 0;
   const tokens: Token[] = [];
 
+  // TODO: Maybe we can short-circuit this logic
   const tokenizers: Tokenizer[] = [
     tokenizePunctuation,
-    tokenizeNull,
-    tokenizeNumber,
     tokenizeString,
     tokenizeBoolean,
+    tokenizeNumber,
+    tokenizeNull,
   ];
 
   tokenLoop: while (cursor < source.length) {
@@ -201,16 +202,17 @@ function tokenizeString(source: string, cursor: number): TokenizerResult {
 
   return NO_MATCH;
 }
+
 const PUNCTUATION_TOKEN_VALUES = Object.values(PUNCTUATION_TOKENS);
 function tokenizePunctuation(source: string, cursor: number): TokenizerResult {
-  for (const token of PUNCTUATION_TOKEN_VALUES) {
-    const matchResult = matchLiteral(source, cursor, token.value);
+  const nextChar = source.substring(cursor, cursor + 1);
 
-    if (matchResult.matched) {
+  for (const token of PUNCTUATION_TOKEN_VALUES) {
+    if (nextChar === token.value) {
       return {
         matched: true,
         token,
-        cursor: matchResult.cursor,
+        cursor: cursor + 1,
       };
     }
   }

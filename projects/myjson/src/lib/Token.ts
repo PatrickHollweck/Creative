@@ -59,8 +59,8 @@ export class Token {
 }
 
 export const PUNCTUATION_TOKENS = {
-  comma: new Token("punctuation", ","),
   colon: new Token("punctuation", ":"),
+  comma: new Token("punctuation", ","),
   arrayOpen: new Token("punctuation", "["),
   arrayClose: new Token("punctuation", "]"),
   objectOpen: new Token("punctuation", "{"),
@@ -71,5 +71,5 @@ function isPredefinedPunctuation(
   key: keyof typeof PUNCTUATION_TOKENS,
   token: Token,
 ): boolean {
-  return token.isPunctuation && PUNCTUATION_TOKENS[key].value === token.value;
+  return PUNCTUATION_TOKENS[key] === token;
 }

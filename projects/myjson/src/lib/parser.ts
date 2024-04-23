@@ -47,6 +47,7 @@ export function parseSingle(tokens: TokenList): Node {
   );
 }
 
+// TODO: Maybe replace this function by turning Tokens into Nodes while lexing
 function parseScalar(tokens: TokenList): AnyScalarNode {
   const token = tokens.next();
 
