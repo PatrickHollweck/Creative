@@ -1,8 +1,8 @@
-import { Token } from "../src/lib/Token";
+import { Token, TokenType } from "../src/lib/Token";
 import { TokenList } from "../src/lib/util/TokenList";
 
-const tokenA = new Token("string", "a");
-const tokenB = new Token("punctuation", "}");
+const tokenA = new Token(TokenType.Punctuation, "[");
+const tokenB = new Token(TokenType.Punctuation, "}");
 
 describe("The TokenList", () => {
   it("should calculate its length", () => {

@@ -1,16 +1,8 @@
 import { TokenList } from "./util/TokenList";
-import { JsonParserError } from "./util/JsonParserError";
+import { Node, AnyScalarNode, ArrayNode, ObjectNode, StringScalarNode } from "./nodes";
 
-import {
-  Node,
-  ArrayNode,
-  ObjectNode,
-  AnyScalarNode,
-  NullScalarNode,
-  NumberScalarNode,
-  StringScalarNode,
-  BooleanScalarNode,
-} from "./nodes";
+import { JsonParserError } from "./util/JsonParserError";
+import { JsonStringError } from "./util/JsonStringError";
 
 export function parse(tokens: TokenList): Node {
   const rootNode = parseSingle(tokens);
@@ -29,8 +21,8 @@ export function parseSingle(tokens: TokenList): Node {
 
   const initialToken = tokens.get(0);
 
-  if (initialToken.isScalar) {
-    return parseScalar(tokens);
+  if (initialToken.isScalar || initialToken.isString) {
+    return tokens.next().value as AnyScalarNode;
   }
 
   if (initialToken.isObjectOpen) {
@@ -41,35 +33,7 @@ export function parseSingle(tokens: TokenList): Node {
     return parseArray(tokens);
   }
 
-  throw new JsonParserError(
-    `Could not parse token of type '${initialToken.type}' at this location`,
-    tokens,
-  );
-}
-
-// TODO: Maybe replace this function by turning Tokens into Nodes while lexing
-function parseScalar(tokens: TokenList): AnyScalarNode {
-  const token = tokens.next();
-
-  if (token == null) {
-    throw new JsonParserError("Unexpected end of file!", tokens);
-  }
-
-  switch (token.type) {
-    case "null":
-      return new NullScalarNode();
-    case "number":
-      return NumberScalarNode.fromString(token.value);
-    case "string":
-      return new StringScalarNode(parseString(token.value, tokens));
-    case "boolean":
-      return BooleanScalarNode.fromString(token.value);
-    default:
-      throw new JsonParserError(
-        `Could not parse scalar "${token.value}" (Unknown type "${token.type}")`,
-        tokens,
-      );
-  }
+  throw new JsonParserError(`Could not parse token at this location`, tokens);
 }
 
 function parseArray(tokens: TokenList): ArrayNode {
@@ -161,31 +125,32 @@ function parseObjectEntry(tokens: TokenList) {
 
   if (!keyToken || !keyToken.isString) {
     throw new JsonParserError(
-      `Unexpected token of type "${keyToken.type}" ("${keyToken.value}") used as object key`,
+      `Unexpected token ("${keyToken.value}") used as object key`,
       tokens,
     );
   }
 
   if (!separatorToken || !separatorToken.isColon) {
     throw new JsonParserError(
-      `Unexpected token of type "${separatorToken.type}" ("${separatorToken.value}") used as object key-value separator`,
+      `Unexpected token ("${separatorToken.value}") used as object key-value separator`,
       tokens,
     );
   }
 
   return {
-    key: parseString(keyToken.value, tokens),
+    key: (keyToken.value as StringScalarNode).toJsValue() as string,
     value: parseSingle(tokens),
   };
 }
 
-function parseString(value: string, tokens: TokenList) {
+export function prepareString(value: string): string {
   // Short-circuit optimization - If the string contains no backslash
   // then it cannot include escape sequences that would need to be parsed.
   if (value.indexOf("\\") === -1 && value.indexOf("	") === -1) {
     return value;
   }
 
+  // TODO: Optimize this!
   const chars = value.split("");
 
   for (let index = 0; index < chars.length; index++) {
@@ -198,9 +163,9 @@ function parseString(value: string, tokens: TokenList) {
       element === "\f" ||
       element === "\r"
     ) {
-      throw new JsonParserError(
+      throw new JsonStringError(
         "Invalid characters in string. Control characters must be escaped!",
-        tokens,
+        value,
       );
     }
 
@@ -211,7 +176,7 @@ function parseString(value: string, tokens: TokenList) {
 
     // Escape sequences have a minimum length of one. Example: \n
     if (chars.length <= index + 1) {
-      throw new JsonParserError("Unexpected end of escape-sequence", tokens);
+      throw new JsonStringError("Unexpected end of escape-sequence", value);
     }
 
     // This specifies which escape sequence is used.
@@ -257,14 +222,14 @@ function parseString(value: string, tokens: TokenList) {
     // Example: "\u1234" means unicode codepoint with id 1234 which translates to a specific character
     if (escapeCharacter === "u") {
       if (chars.length < index + 5) {
-        throw new JsonParserError("Unexpected end of escape-sequence", tokens);
+        throw new JsonStringError("Unexpected end of escape-sequence", value);
       }
 
       const unicodeEscapeSequence = chars.slice(index + 1, index + 5).join("");
 
       // Check validity of escape sequence only hex characters are allowed.
       if (!/^[0-9A-Fa-f]{4}$/.test(unicodeEscapeSequence)) {
-        throw new JsonParserError("Invalid unicode escape sequence", tokens);
+        throw new JsonStringError("Invalid unicode escape sequence", value);
       }
 
       // Construct the unicode character from its numbers
@@ -281,7 +246,7 @@ function parseString(value: string, tokens: TokenList) {
       continue;
     }
 
-    throw new JsonParserError("Unrecognized escape sequence", tokens);
+    throw new JsonStringError("Unrecognized escape sequence", value);
   }
 
   return chars.join("");

@@ -1,5 +1,6 @@
 import { Node } from "./Node";
 import { JsonValue } from "../types";
+import { prepareString } from "../parser";
 
 export abstract class ScalarNode<T extends JsonValue> extends Node {
   public readonly value: T;
@@ -27,7 +28,13 @@ export class NullScalarNode extends ScalarNode<null> {
   }
 }
 
-export class StringScalarNode extends ScalarNode<string> {}
+export class BooleanScalarNode extends ScalarNode<boolean> {}
+
+export class StringScalarNode extends ScalarNode<string> {
+  public toJsValue(): JsonValue {
+    return prepareString(this.value);
+  }
+}
 
 export class NumberScalarNode extends ScalarNode<number> {
   public static fromString(value: string): NumberScalarNode {
@@ -35,19 +42,6 @@ export class NumberScalarNode extends ScalarNode<number> {
   }
 }
 
-export class BooleanScalarNode extends ScalarNode<boolean> {
-  public static fromString(value: string): BooleanScalarNode {
-    if (value === "true") {
-      return BOOL_NODE_TRUE;
-    }
-
-    if (value === "false") {
-      return BOOL_NODE_FALSE;
-    }
-
-    throw new Error(`Invalid boolean value "${value}" could not be parsed`);
-  }
-}
-
-const BOOL_NODE_TRUE = new BooleanScalarNode(true);
-const BOOL_NODE_FALSE = new BooleanScalarNode(false);
+export const NODE_BOOL_TRUE = new BooleanScalarNode(true);
+export const NODE_BOOL_FALSE = new BooleanScalarNode(false);
+export const NODE_NULL = new NullScalarNode();

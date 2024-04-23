@@ -1,6 +1,14 @@
 import { TokenList } from "./util/TokenList";
-import { PUNCTUATION_TOKENS, Token } from "./Token";
+import { PUNCTUATION_TOKENS, Token, TokenType } from "./Token";
 import { JsonLexerError } from "./util/JsonLexerError";
+
+import {
+  NODE_NULL,
+  NODE_BOOL_TRUE,
+  NODE_BOOL_FALSE,
+  NumberScalarNode,
+  StringScalarNode,
+} from "./nodes";
 
 type Tokenizer = (source: string, cursor: number) => TokenizerResult;
 
@@ -62,21 +70,40 @@ export function tokenize(source: string): TokenList {
   return new TokenList(tokens);
 }
 
-const NULL_TOKEN = new Token("null", "null");
+const TOKEN_NULL = new Token(TokenType.Scalar, NODE_NULL);
 function tokenizeNull(source: string, cursor: number): TokenizerResult {
-  return matchStaticToken(source, cursor, NULL_TOKEN);
+  if (matchLiteral(source, cursor, "null")) {
+    return {
+      matched: true,
+      cursor: cursor + 4,
+      token: TOKEN_NULL,
+    };
+  }
+
+  return NO_MATCH;
 }
 
-const TRUE_TOKEN = new Token("boolean", "true");
-const FALSE_TOKEN = new Token("boolean", "false");
-const BOOLEAN_TOKENS = [TRUE_TOKEN, FALSE_TOKEN];
+const TOKEN_BOOL_TRUE = new Token(TokenType.Scalar, NODE_BOOL_TRUE);
+const TOKEN_BOOL_FALSE = new Token(TokenType.Scalar, NODE_BOOL_FALSE);
 function tokenizeBoolean(source: string, cursor: number): TokenizerResult {
-  for (const token of BOOLEAN_TOKENS) {
-    const result = matchStaticToken(source, cursor, token);
+  const lookaheadTrue = matchLiteral(source, cursor, "true");
 
-    if (result.matched) {
-      return result;
-    }
+  if (lookaheadTrue) {
+    return {
+      matched: true,
+      cursor: cursor + 4,
+      token: TOKEN_BOOL_TRUE,
+    };
+  }
+
+  const lookaheadFalse = matchLiteral(source, cursor, "false");
+
+  if (lookaheadFalse) {
+    return {
+      matched: true,
+      cursor: cursor + 5,
+      token: TOKEN_BOOL_FALSE,
+    };
   }
 
   return NO_MATCH;
@@ -167,7 +194,10 @@ function tokenizeNumber(source: string, cursor: number): TokenizerResult {
   return {
     matched: true,
     cursor: internalCursor,
-    token: new Token("number", source.substring(cursor, internalCursor)),
+    token: new Token(
+      TokenType.Scalar,
+      NumberScalarNode.fromString(source.substring(cursor, internalCursor)),
+    ),
   };
 }
 
@@ -193,7 +223,7 @@ function tokenizeString(source: string, cursor: number): TokenizerResult {
       return {
         matched: true,
         cursor: nextQuoteIndex + 1,
-        token: new Token("string", content),
+        token: new Token(TokenType.String, new StringScalarNode(content)),
       };
     }
 
@@ -224,31 +254,6 @@ function tokenizePunctuation(source: string, cursor: number): TokenizerResult {
  * Helper Functions
  */
 
-function matchLiteral(
-  source: string,
-  cursor: number,
-  token: string,
-): { matched: false } | { matched: true; cursor: number } {
-  if (source.substring(cursor, cursor + token.length) === token) {
-    return {
-      matched: true,
-      cursor: cursor + token.length,
-    };
-  }
-
-  return NO_MATCH;
-}
-
-function matchStaticToken(source: string, cursor: number, token: Token): TokenizerResult {
-  const lookahead = matchLiteral(source, cursor, token.value);
-
-  if (lookahead.matched) {
-    return {
-      matched: true,
-      cursor: lookahead.cursor,
-      token,
-    };
-  }
-
-  return NO_MATCH;
+function matchLiteral(source: string, cursor: number, search: string): boolean {
+  return source.substring(cursor, cursor + search.length) === search;
 }
