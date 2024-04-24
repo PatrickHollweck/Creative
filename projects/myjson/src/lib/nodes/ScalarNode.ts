@@ -42,6 +42,6 @@ export class NumberScalarNode extends ScalarNode<number> {
   }
 }
 
+export const NODE_NULL = new NullScalarNode();
 export const NODE_BOOL_TRUE = new BooleanScalarNode(true);
 export const NODE_BOOL_FALSE = new BooleanScalarNode(false);
-export const NODE_NULL = new NullScalarNode();

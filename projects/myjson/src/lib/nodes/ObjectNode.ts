@@ -17,9 +17,9 @@ export class ObjectNode extends Node {
   public toJsValue(): JsonValue {
     const result: JsonObject = {};
 
-    for (const [key, value] of this.entries) {
+    this.entries.forEach((value, key) => {
       result[key] = value.toJsValue();
-    }
+    });
 
     return result;
   }

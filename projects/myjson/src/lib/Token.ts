@@ -6,6 +6,15 @@ export const enum TokenType {
   Scalar = 2,
 }
 
+const enum PunctuationType {
+  Colon = 0,
+  Comma = 1,
+  ArrayOpen = 2,
+  ArrayClose = 3,
+  ObjectOpen = 4,
+  ObjectClose = 5,
+}
+
 export class Token {
   public readonly value: string | AnyScalarNode;
   private readonly type: TokenType;
@@ -28,37 +37,37 @@ export class Token {
   }
 
   public get isArrayOpen(): boolean {
-    return isPredefinedPunctuation("arrayOpen", this);
+    return isPredefinedPunctuation(PunctuationType.ArrayOpen, this);
   }
 
   public get isArrayClose(): boolean {
-    return isPredefinedPunctuation("arrayClose", this);
+    return isPredefinedPunctuation(PunctuationType.ArrayClose, this);
   }
 
   public get isObjectOpen(): boolean {
-    return isPredefinedPunctuation("objectOpen", this);
+    return isPredefinedPunctuation(PunctuationType.ObjectOpen, this);
   }
 
   public get isObjectClose(): boolean {
-    return isPredefinedPunctuation("objectClose", this);
+    return isPredefinedPunctuation(PunctuationType.ObjectClose, this);
   }
 
   public get isComma(): boolean {
-    return isPredefinedPunctuation("comma", this);
+    return isPredefinedPunctuation(PunctuationType.Comma, this);
   }
 
   public get isColon(): boolean {
-    return isPredefinedPunctuation("colon", this);
+    return isPredefinedPunctuation(PunctuationType.Colon, this);
   }
 }
 
 export const PUNCTUATION_TOKENS = {
-  colon: new Token(TokenType.Punctuation, ":"),
-  comma: new Token(TokenType.Punctuation, ","),
-  arrayOpen: new Token(TokenType.Punctuation, "["),
-  arrayClose: new Token(TokenType.Punctuation, "]"),
-  objectOpen: new Token(TokenType.Punctuation, "{"),
-  objectClose: new Token(TokenType.Punctuation, "}"),
+  [PunctuationType.Colon]: new Token(TokenType.Punctuation, ":"),
+  [PunctuationType.Comma]: new Token(TokenType.Punctuation, ","),
+  [PunctuationType.ArrayOpen]: new Token(TokenType.Punctuation, "["),
+  [PunctuationType.ArrayClose]: new Token(TokenType.Punctuation, "]"),
+  [PunctuationType.ObjectOpen]: new Token(TokenType.Punctuation, "{"),
+  [PunctuationType.ObjectClose]: new Token(TokenType.Punctuation, "}"),
 };
 
 function isPredefinedPunctuation(

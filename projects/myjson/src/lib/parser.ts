@@ -146,7 +146,7 @@ function parseObjectEntry(tokens: TokenList) {
 export function prepareString(value: string): string {
   // Short-circuit optimization - If the string contains no backslash
   // then it cannot include escape sequences that would need to be parsed.
-  if (value.indexOf("\\") === -1 && value.indexOf("	") === -1) {
+  if (value.indexOf("\\") === -1 && value.indexOf("\t") === -1) {
     return value;
   }
 
