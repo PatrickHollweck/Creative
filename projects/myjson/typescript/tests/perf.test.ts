@@ -49,7 +49,7 @@ describe("The performance", () => {
 
   test("Complex parsing", async () => {
     const largeJsonContent = (
-      await readFile(join(__dirname, "suite/test_data/large-file.json"))
+      await readFile(join(__dirname, "../../common/test_suite/test_data/large-file.json"))
     ).toString("utf8");
 
     const measurement = await benchmark.record(

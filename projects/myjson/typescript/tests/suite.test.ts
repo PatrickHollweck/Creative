@@ -12,7 +12,7 @@ describe("JSON Test Suite", () => {
   // This test runs all files in the "suite/spec" sub-directory.
   // These files and their names are in a special format, which we process.
   describe("Spec", () => {
-    const suiteFolderPath = path.join(__dirname, "suite/spec");
+    const suiteFolderPath = path.join(__dirname, "../../common/test_suite/spec");
     const files = fs.readdirSync(suiteFolderPath);
 
     files.forEach(testFilePath => {
