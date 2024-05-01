@@ -67,16 +67,20 @@ fn match_number(
     }
 
     // Parse optional fraction part
-    if source[internal_cursor] == '.' {
+    if internal_cursor < source.len() && source[internal_cursor] == '.' {
         internal_cursor += 1;
         internal_cursor += skip_digits(source, internal_cursor)?.1;
     }
 
     // Parse optional exponent part
-    if source[internal_cursor] == 'e' || source[internal_cursor] == 'E' {
+    if internal_cursor < source.len()
+        && (source[internal_cursor] == 'e' || source[internal_cursor] == 'E')
+    {
         internal_cursor += 1;
 
-        if source[internal_cursor] == '+' || source[internal_cursor] == '-' {
+        if internal_cursor < source.len() && source[internal_cursor] == '+'
+            || source[internal_cursor] == '-'
+        {
             internal_cursor += 1;
         }
 
