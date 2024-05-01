@@ -4,7 +4,7 @@ pub use crate::libjson::*;
 
 #[test]
 fn test_lexer() {
-    let source = "{ \"name\": 1 }".to_string();
+    let source = "{ \"name\": 1234 }".to_string();
 
     assert_eq!(
         lex(source),
@@ -15,7 +15,7 @@ fn test_lexer() {
             },
             Token::Colon,
             Token::Number {
-                value: "1".to_string()
+                value: "1234".to_string()
             },
             Token::ObjectClose
         ])
