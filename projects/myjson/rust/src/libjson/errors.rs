@@ -3,7 +3,7 @@ use std::{
     fmt::{self, Debug},
 };
 
-use super::Token;
+use super::lexer::Token;
 
 #[derive(Debug, PartialEq)]
 pub struct JsonError {

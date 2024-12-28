@@ -1,5 +1,6 @@
-use super::super::*;
 use std::{fs, panic};
+
+use crate::Json;
 
 // README!
 // If you want to run a single specific test case, paste the file_name into this array.
@@ -31,7 +32,7 @@ fn test_suite() -> Result<(), Box<dyn std::error::Error>> {
     for (test_name, source) in suite_files_to_test {
         println!("RUNNING: {}", test_name);
 
-        let parse_result = parse_json(source);
+        let parse_result = Json::deserialize(source);
 
         match test_name.chars().nth(0).unwrap() {
             // Spec-files that start with "y" are expected to parse successfully

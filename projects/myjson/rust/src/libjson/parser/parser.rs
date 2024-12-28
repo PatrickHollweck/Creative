@@ -2,7 +2,7 @@ use std::borrow::Borrow;
 use std::collections::LinkedList;
 use std::{borrow::BorrowMut, collections::HashMap};
 
-use crate::{JsonError, Node, Token};
+use super::{super::lexer::Token, super::JsonError, node::Node};
 
 pub fn parse(tokens: Vec<Token>) -> Result<Node, JsonError> {
     let mut token_list = LinkedList::from_iter(tokens);

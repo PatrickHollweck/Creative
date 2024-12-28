@@ -1,6 +1,6 @@
 use std::{char, string::String};
 
-use super::{errors::JsonError, token::Token, unicode::Unicode};
+use super::{super::JsonError, token::Token, unicode::Unicode};
 
 type LexerReturnType = Result<bool, JsonError>;
 type LexerFunction =

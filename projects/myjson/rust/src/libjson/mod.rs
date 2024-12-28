@@ -1,21 +1,29 @@
 mod errors;
 mod lexer;
-mod node;
 mod parser;
-mod token;
-mod unicode;
+mod value_converter;
 
 #[cfg(test)]
 mod tests;
 
+use lexer::*;
+use parser::*;
+use value_converter::*;
+
 pub use errors::*;
-pub use lexer::*;
-pub use node::*;
-pub use parser::*;
-pub use token::*;
 
-pub fn parse_json(source: String) -> Result<Node, JsonError> {
-    let tokens = lex(source)?;
+pub struct Json {}
 
-    return parse(tokens);
+impl Json {
+    pub fn deserialize(source: String) -> Result<(), JsonError> {
+        return create_json_access(Json::parse(source)?);
+    }
+
+    pub fn parse(source: String) -> Result<Node, JsonError> {
+        return parse(Json::lex(source)?);
+    }
+
+    pub fn lex(source: String) -> Result<Vec<Token>, JsonError> {
+        return lex(source);
+    }
 }
