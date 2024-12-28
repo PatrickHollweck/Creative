@@ -46,7 +46,7 @@ impl fmt::Display for JsonError {
             self.message,
             self.column,
             self.source,
-            "-".repeat(self.column - 1)
+            "-".repeat(if self.column <= 0 { 0 } else { self.column - 1 })
         );
     }
 }

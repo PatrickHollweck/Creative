@@ -1,10 +1,6 @@
-use std::char;
+use std::{char, string::String};
 
-use super::{
-    errors::JsonError,
-    token::Token,
-    unicode::{is_high_surrogate, is_low_surrogate},
-};
+use super::{errors::JsonError, token::Token, unicode::Unicode};
 
 type LexerReturnType = Result<bool, JsonError>;
 type LexerFunction =
@@ -64,7 +60,9 @@ fn match_number(
     if source[internal_cursor] == '-' {
         internal_cursor += 1;
 
-        if !source[internal_cursor].is_ascii_digit() {
+        let next_char = source.get(internal_cursor);
+
+        if !next_char.is_some() || !next_char.unwrap().is_ascii_digit() {
             return Err(JsonError::new_from_char_vec(
                 "Invalid lonely minus sign",
                 source,
@@ -77,11 +75,9 @@ fn match_number(
         return Ok(false);
     }
 
-    let match_result = skip_digits(source, internal_cursor)?;
+    let (has_leading_zero, total_digits_matched) = skip_digits(source, &mut internal_cursor)?;
 
-    internal_cursor += match_result.total_digits_matched;
-
-    if match_result.has_leading_zero && match_result.total_digits_matched > 1 {
+    if has_leading_zero && total_digits_matched > 1 {
         return Err(JsonError::new_from_char_vec(
             "Invalid number! (No leading zero on fractions allowed!)",
             source,
@@ -92,7 +88,7 @@ fn match_number(
     // Parse optional fraction part
     if internal_cursor < source.len() && source[internal_cursor] == '.' {
         internal_cursor += 1;
-        internal_cursor += skip_digits(source, internal_cursor)?.total_digits_matched;
+        skip_digits(source, &mut internal_cursor)?;
     }
 
     // Parse optional exponent part
@@ -108,7 +104,7 @@ fn match_number(
             internal_cursor += 1;
         }
 
-        internal_cursor += skip_digits(source, internal_cursor)?.total_digits_matched;
+        skip_digits(source, &mut internal_cursor)?;
     }
 
     tokens.push(Token::Number {
@@ -134,17 +130,9 @@ fn match_string(
     let mut end = *cursor + 1;
 
     loop {
-        if end >= source.len() {
-            return Err(JsonError::new_from_char_vec(
-                "Missing closing quote mark in string",
-                source,
-                *cursor,
-            ));
-        }
-
-        match source[end] {
-            '"' => break,
-            '\\' => {
+        match source.get(end) {
+            Some('"') => break,
+            Some('\\') => {
                 let (escaped, parsed_chars) = process_escape_sequence(source, end)?;
 
                 // This is needed to prevent parsing the "just escaped" character again
@@ -154,14 +142,21 @@ fn match_string(
 
                 source.splice(end - 1..end + parsed_chars, escaped);
             }
-            '\x00'..='\x1F' => {
+            None => {
+                return Err(JsonError::new_from_char_vec(
+                    "Unexpected end of source - Missing closing quote mark in string",
+                    source,
+                    *cursor,
+                ))
+            }
+            Some('\x00'..='\x1F') => {
                 return Err(JsonError::new_from_char_vec(
                     "Invalid characters in string. Control-characters must be escaped!",
                     source,
                     end,
                 ))
             }
-            _ => {
+            Some(_) => {
                 end += 1;
             }
         }
@@ -180,30 +175,23 @@ fn process_escape_sequence(
     source: &Vec<char>,
     cursor: usize,
 ) -> Result<(Vec<char>, usize), JsonError> {
-    let source_len = source.len();
-
-    if source_len <= cursor + 1 {
-        return Err(JsonError::new_from_char_vec(
-            "Unexpected end of escape-sequence",
+    return match source.get(cursor + 1) {
+        Some('\\') => Ok((vec!['\\'], 1)),
+        Some('"') => Ok((vec!['"'], 1)),
+        Some('/') => Ok((vec!['/'], 1)),
+        Some('n') => Ok((vec!['\n'], 1)),
+        Some('r') => Ok((vec!['\r'], 1)),
+        Some('t') => Ok((vec!['\t'], 1)),
+        Some('f') => Ok((vec![UNICODE_CHAR_FORMFEED], 1)),
+        Some('b') => Ok((vec![UNICODE_CHAR_BACKSPACE], 1)),
+        Some('u') => parse_unicode_sequence(source, cursor),
+        Some(_) => Err(JsonError::new_from_char_vec(
+            "Invalid escape character",
             source,
             cursor,
-        ));
-    }
-
-    let escape_type = source[cursor + 1];
-
-    return match escape_type {
-        '\\' => Ok((vec!['\\'], 1)),
-        '"' => Ok((vec!['"'], 1)),
-        '/' => Ok((vec!['/'], 1)),
-        'n' => Ok((vec!['\n'], 1)),
-        'r' => Ok((vec!['\r'], 1)),
-        't' => Ok((vec!['\t'], 1)),
-        'f' => Ok((vec![UNICODE_CHAR_FORMFEED], 1)),
-        'b' => Ok((vec![UNICODE_CHAR_BACKSPACE], 1)),
-        'u' => parse_unicode_sequence(source, cursor),
-        _ => Err(JsonError::new_from_char_vec(
-            "Invalid escape character",
+        )),
+        None => Err(JsonError::new_from_char_vec(
+            "Unexpected end of escape-sequence",
             source,
             cursor,
         )),
@@ -214,34 +202,14 @@ fn parse_unicode_sequence(
     source: &Vec<char>,
     cursor: usize,
 ) -> Result<(Vec<char>, usize), JsonError> {
-    if source.len() <= cursor + 5 {
-        return Err(JsonError::new_from_char_vec(
-            "Invalid length of escape sequence",
-            source,
-            cursor,
-        ));
-    }
-
     let unicode_offset = parse_unicode_offset(source, cursor)?;
 
-    if is_high_surrogate(unicode_offset) {
-        if source.len() <= cursor + 11 || source[cursor + 6] != '\\' || source[cursor + 7] != 'u' {
-            return Err(JsonError::new_from_char_vec(
-                "Incomplete unicode surrogate",
-                source,
-                cursor,
-            ));
-        }
-
-        let high = parse_unicode_offset(source, cursor + 6)?;
-        let decoded = char::decode_utf16([unicode_offset as u16, high as u16])
-            .map(|decode_result| decode_result.unwrap_or(char::REPLACEMENT_CHARACTER))
-            .collect::<Vec<char>>();
-
-        return Ok((decoded, 11));
+    // Interpret as utf16 surrogate
+    if Unicode::is_high_surrogate(unicode_offset) {
+        return parse_unicode_surrogate(source, cursor, unicode_offset);
     }
 
-    // Try to parse as utf-8 char
+    // Interpret as simple utf8 char
     if let Some(unicode_character) = char::from_u32(unicode_offset) {
         return Ok((vec![unicode_character], 5));
     } else {
@@ -249,31 +217,49 @@ fn parse_unicode_sequence(
     }
 }
 
-fn parse_unicode_offset(source: &Vec<char>, cursor: usize) -> Result<u32, JsonError> {
-    let unicode_offset_digits = &source[cursor + 2..cursor + 6];
+fn parse_unicode_surrogate(
+    source: &Vec<char>,
+    cursor: usize,
+    high_part: u32,
+) -> Result<(Vec<char>, usize), JsonError> {
+    let low_part = parse_unicode_offset(source, cursor + 6)?;
 
-    for offset_digit in unicode_offset_digits {
-        if !offset_digit.is_ascii_hexdigit() {
-            return Err(JsonError::new_from_char_vec(
-                format!(
-                    "Invalid hex-digit in unicode escape sequence (Found: {:?})",
-                    offset_digit
-                )
-                .as_str(),
-                source,
-                cursor,
-            ));
-        }
+    if !Unicode::is_low_surrogate(low_part) {
+        return Err(JsonError::new_from_char_vec(
+            "Invalid surrogate pair - invalid low part!",
+            source,
+            cursor,
+        ));
     }
 
-    // TODO: Optimize this! Parse and add each char individually?
-    let offset = u32::from_str_radix(
-        std::string::String::from(unicode_offset_digits.iter().collect::<String>()).as_str(),
-        16,
-    );
+    return Ok((
+        Unicode::surrogate_parts_to_chars(high_part as u16, low_part as u16),
+        11,
+    ));
+}
 
-    // TODO: Handle error here
-    return Ok(offset.unwrap());
+fn parse_unicode_offset(source: &Vec<char>, cursor: usize) -> Result<u32, JsonError> {
+    if source.len() <= cursor + 6 || source[cursor] != '\\' || source[cursor + 1] != 'u' {
+        return Err(JsonError::new_from_char_vec(
+            "Invalid unicode escape sequence!",
+            source,
+            cursor,
+        ));
+    }
+
+    let offset_digits = &source[cursor + 2..cursor + 6];
+
+    return Unicode::chars_to_unicode_offset(offset_digits).map_err(|reason| {
+        JsonError::new_from_char_vec(
+            format!(
+                "Invalid hex-digit in unicode escape sequence (Reason: {:?})",
+                reason.kind()
+            )
+            .as_str(),
+            source,
+            cursor,
+        )
+    });
 }
 
 fn match_bool(
@@ -348,13 +334,8 @@ fn lookahead(source: &Vec<char>, cursor: usize, search: &str) -> bool {
     return source[cursor..end].iter().collect::<String>() == search;
 }
 
-struct SkipDigitsResult {
-    has_leading_zero: bool,
-    total_digits_matched: usize,
-}
-
-fn skip_digits(source: &Vec<char>, cursor: usize) -> Result<SkipDigitsResult, JsonError> {
-    let mut internal_cursor = cursor;
+fn skip_digits(source: &Vec<char>, cursor: &mut usize) -> Result<(bool, usize), JsonError> {
+    let mut internal_cursor = cursor.clone();
     let mut has_leading_zero = false;
 
     if source[internal_cursor] == '0' {
@@ -369,18 +350,17 @@ fn skip_digits(source: &Vec<char>, cursor: usize) -> Result<SkipDigitsResult, Js
         }
     }
 
-    let total_digits_matched = internal_cursor - cursor;
+    let total_digits_matched = internal_cursor - *cursor;
+
+    *cursor += total_digits_matched;
 
     if total_digits_matched == 0 {
         return Err(JsonError::new_from_char_vec(
             "Invalid number! (Expected at least one digit as this location!)",
             source,
-            cursor,
+            cursor.clone(),
         ));
     }
 
-    return Ok(SkipDigitsResult {
-        has_leading_zero,
-        total_digits_matched,
-    });
+    return Ok((has_leading_zero, total_digits_matched));
 }
