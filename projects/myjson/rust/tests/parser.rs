@@ -1,4 +1,4 @@
-use crate::{libjson::node::Node, Json};
+use crate::{Json, libjson::parser::Node};
 
 #[test]
 fn lone_number() {

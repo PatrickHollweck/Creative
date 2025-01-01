@@ -8,7 +8,7 @@ use crate::Json;
 const TESTS_TO_INCLUDE: &'static [&str] = &[];
 
 // NOTE!
-// Use the following command to run these tests (on Linux...)
+// Use the following command to run these tests (on Linux...) as some large files require a large stack!
 // $ clear && RUST_BACKTRACE=1 RUST_MIN_STACK=1000000000 cargo test -- --nocapture
 
 #[test]
@@ -32,7 +32,7 @@ fn test_suite() -> Result<(), Box<dyn std::error::Error>> {
     for (test_name, source) in suite_files_to_test {
         println!("RUNNING: {}", test_name);
 
-        let parse_result = Json::deserialize(source);
+        let parse_result = Json::parse(source);
 
         match test_name.chars().nth(0).unwrap() {
             // Spec-files that start with "y" are expected to parse successfully

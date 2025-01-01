@@ -1,4 +1,4 @@
-use crate::{libjson::token::Token, Json};
+use libjson::Json;
 
 #[test]
 fn test_lexer() {

@@ -3,9 +3,6 @@ mod lexer;
 mod parser;
 mod value_converter;
 
-#[cfg(test)]
-mod tests;
-
 use lexer::*;
 use parser::*;
 use value_converter::*;
